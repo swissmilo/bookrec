@@ -1,0 +1,70 @@
+{
+  "definitions": {},
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Book recommendations",
+    "version": "1.0.0",
+    "license": {
+      "name": "ISC"
+    },
+    "description": "An API to receive book recommendations for a specific genre"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Local development server"
+    }
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "summary": "/",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {
+          "304": {}
+        },
+        "tags": []
+      }
+    },
+    "/books": {
+      "get": {
+        "summary": "/books",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "genre",
+            "in": "query",
+            "required": true,
+            "description": "The genre for which to get book recommendations (e.g., 'history', 'science fiction').",
+            "schema": {
+              "type": "string",
+              "example": "scifi"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "string",
+              "example": "```html\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>History Book Recommendations</title>\n</head>\n<body>\n    <h1>History Book Recommendations</h1>\n    <ol>\n        <li>\n            <h2><i>Sapiens: A Brief History of Humankind</i> by Yuval Noah Harari</h2>\n            <p>This book examines the history of our species from the emergence of Homo sapiens in the Stone Age, through the agricultural and scientific revolutions, to the modern world.</p>\n        </li>\n        <li>\n            <h2><i>The Silk Roads: A New History of the World</i> by Peter Frankopan</h2>\n            <p>An enlightening exploration of how the Silk Roads shaped global history, showing the central role Asia played in connecting the East and West through trade and culture.</p>\n        </li>\n        <li>\n            <h2><i>Guns, Germs, and Steel: The Fates of Human Societies</i> by Jared Diamond</h2>\n            <p>A groundbreaking narrative that explores how geography, environment, and biology influenced the development of civilizations and their success over time.</p>\n        </li>\n    </ol>\n</body>\n</html>\n```"
+            }
+          }
+        },
+        "tags": [],
+        "produces": [
+          "text/html"
+        ]
+      }
+    }
+  },
+  "specOutputPath": "./oas.json",
+  "tags": [],
+  "writeIntervalMs": 0,
+  "writeSpec": true
+}

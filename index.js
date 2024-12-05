@@ -1,11 +1,20 @@
 const express = require('express')
-const app = express()
-const OpenAI = require("openai");
-const dotenv = require('dotenv')
 
-const port = process.env.PORT || 3000
+const OpenAI = require("openai")
+const dotenv = require('dotenv')
+const axios = require('axios')
+const cheerio = require('cheerio')
+const expressOasGenerator = require('express-oas-generator')
 
 dotenv.config()
+const app = express()
+expressOasGenerator.init(app, {
+    writeIntervalMs: 0, // Write immediately after an endpoint is accessed
+    writeSpec: true,    // Persist the spec to `oas.json`
+    specOutputPath: './oas.json' // Path to save the file
+  });
+
+const port = process.env.PORT || 3000
 
 app.use(express.json())
 
@@ -15,7 +24,7 @@ app.get('/', (req, res) => {
 
 app.get('/books', async (req, res) => {
     try {
-        var query = req.query.genre;
+        const query = req.query.genre;
         //console.log(`Query is ${query}`)
         if (!query) {
             return res.status(400).json({ error: 'Genre is required' });
@@ -29,14 +38,33 @@ app.get('/books', async (req, res) => {
             apiKey: process.env.OPENAI_API_KEY,
         });
 
+        const url = 'https://www.milo.run';
+
+        // Fetch content
+        const webdata = await axios.get(url);
+
+        // Store content in a variable
+        const websiteContent = webdata.data;
+
+            // Load the HTML into Cheerio
+        const $ = cheerio.load(websiteContent);
+
+        // Extract the content within <div class="post-outer">
+        const bookContent = $('.post-outer').html();
+        //console.log(bookContent);
+
+        // Check if content exists
+        if (!bookContent) {
+        return res.status(404).send('No content found within div class="post-outer".');
+        }
 
         const response = await openai.chat.completions.create({
             model: "chatgpt-4o-latest",
-            messages: [{ role: "user", content: `Provide me with 3 book recommendations for the following genre ${query}. The response has to be formatted in HTML` }],
+            messages: [{ role: "user", content: `Provide me with 3 book recommendations for the following genre ${query}. The response has to be formatted in HTML. Only use titles listed here: ${bookContent}` }],
         });
 
         res.set('Content-Type', 'text/html');
-        res.send(Buffer.from(response.choices[0].message.content));
+        res.send(response.choices[0].message.content);
         //res.json({ text: response.choices[0].message.content });
 
     } catch (error) {
@@ -47,3 +75,19 @@ app.get('/books', async (req, res) => {
 app.listen(port, () => {
     console.log(`Recommendation app listening on port ${port}`)
 })
+
+const fs = require('fs');
+
+const saveSpecToFile = () => {
+  const spec = expressOasGenerator.getSpec();
+  fs.writeFileSync('./oas.json', JSON.stringify(spec, null, 2));
+};
+
+process.on('SIGINT', function() {
+    saveSpecToFile
+    process.exit();
+  });
+  process.on('exit', function() {
+    saveSpecToFile
+    process.exit();
+  });
