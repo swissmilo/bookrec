@@ -18,8 +18,9 @@ const port = process.env.PORT || 3000
 
 app.use(express.json())
 
-app.get('/', (req, res) => {
-    res.send('Hello Worlds!')
+app.get('/', async (req, res) => {
+
+    res.send('Usage: /books?genre=genre_name')
 })
 
 app.get('/books', async (req, res) => {
@@ -47,24 +48,26 @@ app.get('/books', async (req, res) => {
         const websiteContent = webdata.data;
 
             // Load the HTML into Cheerio
-        const $ = cheerio.load(websiteContent);
+        //const $ = cheerio.load(websiteContent);
 
         // Extract the content within <div class="post-outer">
-        const bookContent = $('.post-outer').html();
+        //const bookContent = $('.post-outer').html();
         //console.log(bookContent);
 
         // Check if content exists
-        if (!bookContent) {
+        /*if (!bookContent) {
         return res.status(404).send('No content found within div class="post-outer".');
-        }
+        }*/
 
         const response = await openai.chat.completions.create({
             model: "chatgpt-4o-latest",
-            messages: [{ role: "user", content: `Provide me with 3 book recommendations for the following genre ${query}. The response has to be formatted in HTML. Only use titles listed here: ${bookContent}` }],
+            messages: [{ role: "user", content: `Provide me with 3 book recommendations for the following genre ${query}. Include the title, author name, Amazon link, and a description of the book. The response has to be formatted in HTML. Only use titles listed here: ${websiteContent}` }],
         });
 
+        const cleanedContent = response.choices[0].message.content.replace(/^```html\s*/, '').replace(/```$/, '');
         res.set('Content-Type', 'text/html');
-        res.send(response.choices[0].message.content);
+        res.type('html').send(cleanedContent);
+        //res.send(response.choices[0].message.content);
         //res.json({ text: response.choices[0].message.content });
 
     } catch (error) {
@@ -91,3 +94,5 @@ process.on('SIGINT', function() {
     saveSpecToFile
     process.exit();
   });
+
+  module.exports = app;
