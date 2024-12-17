@@ -27,7 +27,10 @@ app.use(express.json())
 
 // Load highlights from CSV file
 const highlights = {};
-fs.createReadStream('data/highlights.csv')
+const highlightsFilePath = path.join(__dirname, 'data', 'highlights.csv');
+//const highlights = fs.readFileSync(highlightsFilePath, 'utf8');
+//fs.createReadStream('data/highlights.csv')
+fs.createReadStream(highlightsFilePath)
     .pipe(csv())
     .on('data', (row) => {
         const bookId = row["Amazon Book ID"];
