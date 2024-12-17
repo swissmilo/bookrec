@@ -28,8 +28,6 @@ app.use(express.json())
 // Load highlights from CSV file
 const highlights = {};
 const highlightsFilePath = path.join(__dirname, 'data', 'highlights.csv');
-//const highlights = fs.readFileSync(highlightsFilePath, 'utf8');
-//fs.createReadStream('data/highlights.csv')
 fs.createReadStream(highlightsFilePath)
     .pipe(csv())
     .on('data', (row) => {
@@ -113,7 +111,7 @@ app.get('/all-books', (req, res) => {
                 sectionHeader = `<tr><th colspan="2" class="category-header">${currentCategory}</th></tr>`;
             }
             
-            const bookIdMatch = book.link.match(/product\/([A-Z0-9]+)/i);
+            const bookIdMatch = book.link.match(/(?:product|dp)\/([A-Z0-9]+)(?:\/|$)/i);
             const bookId = bookIdMatch ? bookIdMatch[1] : null;
             const bookQuotes = bookId && highlights[bookId] 
                 ? highlights[bookId]
