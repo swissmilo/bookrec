@@ -7,6 +7,7 @@ const axios = require('axios')
 const cheerio = require('cheerio')
 const fs = require('fs')
 const expressOasGenerator = require('express-oas-generator')
+const csv = require('csv-parser')
 
 dotenv.config()
 const app = express()
@@ -23,6 +24,22 @@ app.use(express.static(path.join(__dirname, 'public')))
 
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
+
+// Load highlights from CSV file
+const highlights = {};
+fs.createReadStream('data/highlights.csv')
+    .pipe(csv())
+    .on('data', (row) => {
+        const bookId = row["Amazon Book ID"];
+        const quote = row["Highlight"];
+        if (bookId && quote) {
+            if (!highlights[bookId]) highlights[bookId] = [];
+            highlights[bookId].push(quote);
+        }
+    })
+    .on('end', () => {
+        console.log('Highlights loaded successfully');
+    });
 
 // Main landing page
 app.get('/', (req, res) => {
@@ -92,7 +109,32 @@ app.get('/all-books', (req, res) => {
                 currentCategory = book.category;
                 sectionHeader = `<tr><th colspan="2" class="category-header">${currentCategory}</th></tr>`;
             }
-            return `${sectionHeader}<tr><td><a href="${book.link}" target="_blank">${book.name}${book.author ? ` - ${book.author}` : ''}</a></td></tr>`;
+            
+            const bookIdMatch = book.link.match(/product\/([A-Z0-9]+)/i);
+            const bookId = bookIdMatch ? bookIdMatch[1] : null;
+            const bookQuotes = bookId && highlights[bookId] 
+                ? highlights[bookId]
+                    .slice(0, 3)
+                    .map(quote => quote.split(' ').length > 30 
+                        ? `${quote.split(' ').slice(0, 25).join(' ')}...` 
+                        : quote)
+                    .join('</li><li>')
+                : 'No quotes available';
+            
+            return `
+                ${sectionHeader}
+                <tr class="book-row">
+                    <td>
+                        <div class="tooltip-container" onmousemove="showTooltip(event, this)" onmouseout="hideTooltip()">
+                            <a href="${book.link}" target="_blank">${book.name}${book.author ? ` - ${book.author}` : ''}</a>
+                            ${bookQuotes !== 'No quotes available' ? `
+                            <div class="tooltip">
+                                <strong>Example Highlights:</strong>
+                                <ul><li>${bookQuotes}</li></ul>
+                            </div>` : ''}
+                        </div>
+                    </td>
+                </tr>`;
         }).join('');
 
         const categoryLinks = categories.map(cat => {
@@ -113,6 +155,12 @@ app.get('/all-books', (req, res) => {
                     color: #32325d;
                     text-align: left;
                 }
+                .book-row td {
+                    width: 100%;
+                    padding: 12px;
+                    border-bottom: 1px solid #ddd;
+                    position: relative;
+                }
                 .category-link {
                     margin: 0 10px;
                     color: #5469d4;
@@ -122,7 +170,40 @@ app.get('/all-books', (req, res) => {
                 .category-link:hover {
                     text-decoration: underline;
                 }
+                .tooltip-container {
+                    position: relative;
+                    display: inline-block;
+                }
+                .tooltip {
+                    display: none;
+                    position: fixed;
+                    background-color: #fff;
+                    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                    padding: 10px;
+                    border: 1px solid #ddd;
+                    border-radius: 8px;
+                    z-index: 1000;
+                    white-space: normal;
+                    width: 400px;
+                }
               </style>
+              <script>
+                let tooltip;
+                function showTooltip(event, element) {
+                    if (!tooltip) {
+                        tooltip = document.createElement('div');
+                        tooltip.className = 'tooltip';
+                        document.body.appendChild(tooltip);
+                    }
+                    tooltip.innerHTML = element.querySelector('.tooltip').innerHTML;
+                    tooltip.style.display = 'block';
+                    tooltip.style.left = (event.clientX + 10) + 'px';
+                    tooltip.style.top = (event.clientY + 10) + 'px';
+                }
+                function hideTooltip() {
+                    if (tooltip) tooltip.style.display = 'none';
+                }
+              </script>
             </head>
             <body>
                 <div class="container">
