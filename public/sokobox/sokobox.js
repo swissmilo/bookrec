@@ -81,9 +81,13 @@ function loadLevel(levelData) {
 }  
 
 // Move player (equivalent to Move)
-function movePlayer(direction) {
-  const dx = direction === PLY_LEFT ? -1 : direction === PLY_RIGHT ? 1 : 0;
-  const dy = direction === PLY_UP ? -1 : direction === PLY_DOWN ? 1 : 0;
+function movePlayer(dx, dy) {
+  const direction = dx === -1 ? PLY_LEFT :
+                      dx === 1 ? PLY_RIGHT :
+                      dy === -1 ? PLY_UP : PLY_DOWN;
+  
+  //const dx = direction === PLY_LEFT ? -1 : direction === PLY_RIGHT ? 1 : 0;
+  //const dy = direction === PLY_UP ? -1 : direction === PLY_DOWN ? 1 : 0;
 
   let newX = player.x + dx;
   let newY = player.y + dy;
@@ -100,18 +104,20 @@ function movePlayer(direction) {
     player.y = newY;
     moves++;
   } else if (isBox(newX, newY) && isWalkable(nextX, nextY)) {
-    moveHistory.push({ ...player });
-
-    // Reset the current box position
+    moveHistory.push({
+      x: player.x,
+      y: player.y,
+      state: player.state,
+      box: { from: { x: newX, y: newY }, to: { x: nextX, y: nextY } },
+      push: true,
+    });
+  
+    // Update the box's position
     level[newY][newX] = isGoal(newX, newY) ? LVL_GOAL : LVL_FLOOR;
-
-    // Move the box to the new position
     level[nextY][nextX] = isGoal(nextX, nextY) ? LVL_GOAL_BOX : LVL_FLOOR_BOX;
-
+  
     player.x = newX;
     player.y = newY;
-    player.push = true;
-    moves++;
     pushes++;
   }
   
@@ -123,16 +129,24 @@ function movePlayer(direction) {
 // Undo last move
 function undoMove() {
   if (moveHistory.length === 0) return;
+
   const lastMove = moveHistory.pop();
   player.x = lastMove.x;
   player.y = lastMove.y;
+  player.state = lastMove.state;
 
+  // Reverse box movements if any
   if (lastMove.box) {
-    let { x, y } = lastMove.box;
-    level[y][x] = isGoal(x, y) ? LVL_GOAL_BOX : LVL_FLOOR_BOX;
-    level[player.y][player.x] = isGoal(player.x, player.y) ? LVL_GOAL : LVL_FLOOR;
+    const { from, to } = lastMove.box;
+
+    // Move the box back to its original position
+    level[to.y][to.x] = isGoal(to.x, to.y) ? LVL_GOAL : LVL_FLOOR;
+    level[from.y][from.x] = isGoal(from.x, from.y) ? LVL_GOAL_BOX : LVL_FLOOR_BOX;
   }
+
   moves--;
+  if (lastMove.push) pushes--;
+
   drawLevel();
 }
 
@@ -245,10 +259,10 @@ function drawTile(x, y, color, xOffset = 0, yOffset = 0) {
 document.addEventListener("keydown", (e) => {
     if (e.key === "ArrowUp" || e.key === "ArrowDown" || e.key === "ArrowLeft" || e.key === "ArrowRight") {
       e.preventDefault(); // Prevent scrolling
-      if (e.key === "ArrowUp") movePlayer(PLY_UP);
-      if (e.key === "ArrowDown") movePlayer(PLY_DOWN);
-      if (e.key === "ArrowLeft") movePlayer(PLY_LEFT);
-      if (e.key === "ArrowRight") movePlayer(PLY_RIGHT);
+      if (e.key === "ArrowUp") movePlayer(0, -1);
+      if (e.key === "ArrowDown") movePlayer(0, 1);
+      if (e.key === "ArrowLeft") movePlayer(-1, 0);
+      if (e.key === "ArrowRight") movePlayer(1, 0);
     }
     if (e.key === "z") undoMove(); // Undo
   });

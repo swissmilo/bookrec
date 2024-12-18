@@ -329,18 +329,34 @@ app.get('/sokobox', (req, res) => {
             <head>
                 <meta charset="UTF-8">
                 <title>Sokobox</title>
+                <link rel="stylesheet" href="/style.css" rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'">
                 <style>
                     canvas { background: #ddd; display: block; margin: 20px auto; }
                 </style>
             </head>
             <body>
                 <canvas id="gameCanvas" width="900" height="720"></canvas>
+                <div class="controls-container">
+                    <div class="vertical-controls">
+                        <button onclick="handleMove(0, -1)" class="control-button">▲</button>
+                    </div>
+                    <div class="horizontal-controls">
+                        <button onclick="handleMove(-1, 0)" class="control-button">◀</button>
+                        <button onclick="handleMove(0, 1)" class="control-button">▼</button>
+                        <button onclick="handleMove(1, 0)" class="control-button">▶</button>
+                    </div>
+                </div>
                 <script>
                     const levelData = \`${data}\`;
                 </script>
                 <script src="/sokobox/sokobox.js"></script>
                 <script>
                     loadLevel(levelData);
+
+                    function handleMove(dx, dy) {
+                        movePlayer(dx, dy);
+                    }
+
                 </script>
             </body>
             </html>
