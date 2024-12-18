@@ -312,8 +312,41 @@ app.get('/books', async (req, res) => {
 
 // Route for /sokobox
 app.get('/sokobox', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public/sokobox/', 'sokobox.html'));
-  });
+    const level = req.query.level || '1'; // Default to "1.lvl" if no query parameter is provided
+    const levelPath = path.join(__dirname, 'data/levels/', level + '.lvl');
+
+    fs.readFile(levelPath, 'utf8', (err, data) => {
+        if (err) {
+            console.error(`Error loading level file: ${err.message}`);
+            res.status(500).send(`Error loading level: ${err.message}`);
+            return;
+        }
+
+        res.send(`
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <title>Sokobox</title>
+                <style>
+                    canvas { background: #ddd; display: block; margin: 20px auto; }
+                </style>
+            </head>
+            <body>
+                <h1>Sokoban Game</h1>
+                <canvas id="gameCanvas" width="900" height="900"></canvas>
+                <script>
+                    const levelData = \`${data}\`;
+                </script>
+                <script src="/sokobox/sokobox.js"></script>
+                <script>
+                    loadLevel(levelData);
+                </script>
+            </body>
+            </html>
+        `);
+    });
+});
 
 app.listen(port, () => {
     console.log(`Recommendation app listening on port ${port}`)

@@ -70,7 +70,7 @@ function loadLevel(levelData) {
     });
   });
 
-  //console.table(level);
+  console.table(level);
 
   moves = pushes = 0;
   moveHistory = [];
@@ -213,7 +213,7 @@ document.addEventListener("keydown", (e) => {
 
 // Load a test level
 preloadImages();
-loadLevel(
+/*loadLevel(
 `    #####
     #---#
     #$--#
@@ -225,3 +225,4 @@ loadLevel(
 #####-###-#@##--..#
     #-----#########
     #######`);
+*/
