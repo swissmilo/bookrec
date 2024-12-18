@@ -338,12 +338,12 @@ app.get('/sokobox', (req, res) => {
                 <canvas id="gameCanvas" width="900" height="720"></canvas>
                 <div class="controls-container">
                     <div class="vertical-controls">
-                        <button onclick="handleMove(0, -1)" class="control-button">▲</button>
+                        <button class="control-button up">▲</button>
                     </div>
                     <div class="horizontal-controls">
-                        <button onclick="handleMove(-1, 0)" class="control-button">◀</button>
-                        <button onclick="handleMove(0, 1)" class="control-button">▼</button>
-                        <button onclick="handleMove(1, 0)" class="control-button">▶</button>
+                        <button class="control-button left">◀</button>
+                        <button class="control-button down">▼</button>
+                        <button class="control-button right">▶</button>
                     </div>
                 </div>
                 <script>
@@ -352,6 +352,11 @@ app.get('/sokobox', (req, res) => {
                 <script src="/sokobox/sokobox.js"></script>
                 <script>
                     loadLevel(levelData);
+
+                    document.querySelector('.control-button.up').addEventListener('click', () => movePlayer(0, -1));
+                    document.querySelector('.control-button.down').addEventListener('click', () => movePlayer(0, 1));
+                    document.querySelector('.control-button.left').addEventListener('click', () => movePlayer(-1, 0));
+                    document.querySelector('.control-button.right').addEventListener('click', () => movePlayer(1, 0));
 
                     function handleMove(dx, dy) {
                         movePlayer(dx, dy);
