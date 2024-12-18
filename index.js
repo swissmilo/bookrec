@@ -310,6 +310,11 @@ app.get('/books', async (req, res) => {
     `);
 });
 
+// Route for /sokobox
+app.get('/sokobox', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public/sokobox/', 'sokobox.html'));
+  });
+
 app.listen(port, () => {
     console.log(`Recommendation app listening on port ${port}`)
 })
