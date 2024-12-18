@@ -18,63 +18,66 @@ const ctx = canvas.getContext('2d');
 
 const images = {};
 
-function preloadImages() {
+const imagePaths = {
+  LVL_CLEAR: './clear.png',
+  LVL_WALL: './wall.png',
+  LVL_GOAL: './goal.png',
+  LVL_FLOOR: './floor.png',
+  LVL_FLOOR_BOX: './box.png',
+  LVL_GOAL_BOX: './goalbox.png',
+  PLY_UP: './player_u.png',
+  PLY_DOWN: './player_d.png',
+  PLY_LEFT: './player_l.png',
+  PLY_RIGHT: './player_r.png',
+  PUSH_PLY_UP: './pushplay_u.png',
+  PUSH_PLY_DOWN: './pushplay_d.png',
+  PUSH_PLY_LEFT: './pushplay_l.png',
+  PUSH_PLY_RIGHT: './pushplay_r.png',
+};
 
-  const imagePaths = {
-    LVL_CLEAR: './clear.png',
-    LVL_WALL: './wall.png',
-    LVL_GOAL: './goal.png',
-    LVL_FLOOR: './floor.png',
-    LVL_FLOOR_BOX: './box.png',
-    LVL_GOAL_BOX: './goalbox.png',
-    PLAYER: './player.png',
-    PLAYER_PUSH: './pushplay.png',
-    PLY_UP: './player_u.png',
-    PLY_DOWN: './player_d.png',
-    PLY_LEFT: './player_l.png',
-    PLY_RIGHT: './player_r.png',
-    PUSH_PLY_UP: './pushplay_u.png',
-    PUSH_PLY_DOWN: './pushplay_d.png',
-    PUSH_PLY_LEFT: './pushplay_l.png',
-    PUSH_PLY_RIGHT: './pushplay_r.png',
-  };
-
-  for (const [key, path] of Object.entries(imagePaths)) {
+const preloadPromises = Object.entries(imagePaths).map(([key, path]) => {
+  return new Promise((resolve) => {
       const img = new Image();
+      img.onload = () => resolve();
       img.src = path;
       images[key] = img;
-  }
-}
+  });
+});
+
 
 // Load a level file (equivalent to LoadLevel)
 function loadLevel(levelData) {
-  let lines = levelData.split("\n");
-  level = Array.from({ length: HEIGHT }, () => Array(WIDTH).fill(LVL_CLEAR));
-  let yOffset = 0; //Math.floor((HEIGHT - lines.length) / 2);
-  let xOffset = 0; //Math.floor((WIDTH - lines[0].length) / 2);
+  Promise.all(preloadPromises).then(() => {
+    let lines = levelData.split("\n");
+    level = Array.from({ length: HEIGHT }, () => Array(WIDTH).fill(LVL_CLEAR));
+    let yOffset = 0; //Math.floor((HEIGHT - lines.length) / 2);
+    let xOffset = 0; //Math.floor((WIDTH - lines[0].length) / 2);
 
-  lines.forEach((line, y) => {
-    [...line].forEach((char, x) => {
-      let tile = LVL_CLEAR;
-      if (char === '#') tile = LVL_WALL;
-      if (char === '.') tile = LVL_GOAL;
-      if (char === '$') tile = LVL_FLOOR_BOX;
-      if (char === '%') tile = LVL_GOAL_BOX;
-      if (char === '-') tile = LVL_FLOOR; 
-      if (char === '@') {
-        tile = LVL_FLOOR;
-        player.x = x + xOffset;
-        player.y = y + yOffset;
-      }
-      level[y + yOffset][x + xOffset] = tile;
+    lines.forEach((line, y) => {
+      [...line].forEach((char, x) => {
+        let tile = LVL_CLEAR;
+        if (char === '#') tile = LVL_WALL;
+        if (char === '.') tile = LVL_GOAL;
+        if (char === '$') tile = LVL_FLOOR_BOX;
+        if (char === '%') tile = LVL_GOAL_BOX;
+        if (char === '-') tile = LVL_FLOOR; 
+        if (char === '@') {
+          tile = LVL_FLOOR;
+          player.x = x + xOffset;
+          player.y = y + yOffset;
+        }
+        level[y + yOffset][x + xOffset] = tile;
+      });
     });
+
+    console.table(level);
+
+    moves = pushes = 0;
+    moveHistory = [];
+    drawLevel();
+  }).catch((err) => {
+      console.error('Error preloading images:', err);
   });
-
-  console.table(level);
-
-  moves = pushes = 0;
-  moveHistory = [];
-  drawLevel();
 }  
 
 // Move player (equivalent to Move)
@@ -148,6 +151,45 @@ function isGoal(x, y) {
 // Check if level is complete
 function checkCompletion() {
   levelComplete = !level.flat().includes(LVL_GOAL);
+  if (levelComplete) {
+      console.log('Level completed!');
+      fadeOutAndLoadNextLevel();
+  }
+}
+
+function fadeOutAndLoadNextLevel() {
+  const canvas = document.getElementById('gameCanvas');
+  let opacity = 1;
+
+  // Gradually decrease the opacity to create a fade-out effect
+  const fadeOut = setInterval(() => {
+      opacity -= 0.05;
+      canvas.style.opacity = opacity;
+      if (opacity <= 0) {
+          clearInterval(fadeOut);
+          loadNextLevel();
+      }
+  }, 50);
+}
+
+function loadNextLevel() {
+  const currentLevel = parseInt(new URLSearchParams(window.location.search).get('level') || '1');
+  const nextLevel = currentLevel + 1;
+
+  // Attempt to load the next level
+  fetch(`/sokobox?level=${nextLevel}`)
+      .then((response) => {
+          if (response.ok) {
+              window.location.href = `/sokobox?level=${nextLevel}`;
+          } else {
+              alert('Congratulations! No more levels available.');
+              window.location.href = `/sokobox?level=1`; // Restart the game from level 1 or go to a different page
+          }
+      })
+      .catch((err) => {
+          console.error(`Error loading next level: ${err.message}`);
+          alert('Error loading next level.');
+      });
 }
 
 // Draw the level
@@ -212,7 +254,11 @@ document.addEventListener("keydown", (e) => {
   });
 
 // Load a test level
-preloadImages();
+window.addEventListener('load', () => {
+  Promise.all(preloadPromises).then(() => {
+      console.log('All images preloaded.');
+  });
+});
 /*loadLevel(
 `    #####
     #---#

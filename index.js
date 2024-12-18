@@ -59,6 +59,7 @@ app.get('/', (req, res) => {
                         <li><a href="/about">About</a></li>
                         <li><a href="/all-books">Library</a></li>
                         <li><a href="/books">Recommendations</a></li>
+                        <li><a href="/sokobox">Games</a></li>
                     </ul>
                 </nav>
             </div>
@@ -333,8 +334,7 @@ app.get('/sokobox', (req, res) => {
                 </style>
             </head>
             <body>
-                <h1>Sokoban Game</h1>
-                <canvas id="gameCanvas" width="900" height="900"></canvas>
+                <canvas id="gameCanvas" width="900" height="720"></canvas>
                 <script>
                     const levelData = \`${data}\`;
                 </script>
