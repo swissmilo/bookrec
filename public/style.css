@@ -163,6 +163,9 @@ body {
       border: 2px solid #ccc; /* Slight border for visibility */
       color: #333; /* Arrow color to neutral */
       border-radius: 12px; /* Slightly rounded corners */
+      text-align: center;
+      justify-content: center;
+      align-items: center;
       transition: background-color 0.3s, transform 0.1s;
       touch-action: manipulation; /* Prevents delays on touch devices */
   }
