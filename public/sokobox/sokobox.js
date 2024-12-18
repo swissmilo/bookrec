@@ -6,7 +6,7 @@ const LVL_CLEAR = 0, LVL_FLOOR = 1, LVL_WALL = 2, LVL_GOAL = 3, LVL_FLOOR_BOX = 
 const PLY_UP = 0, PLY_DOWN = 1, PLY_LEFT = 2, PLY_RIGHT = 3;
 
 // Game variables
-let player = { x: 0, y: 0, state: PLY_UP };
+let player = { x: 0, y: 0, state: PLY_UP, push: false };
 let level = Array.from({ length: HEIGHT }, () => Array(WIDTH).fill(LVL_CLEAR));
 let moveHistory = [];
 let moves = 0, pushes = 0;
@@ -29,6 +29,14 @@ function preloadImages() {
     LVL_GOAL_BOX: './goalbox.png',
     PLAYER: './player.png',
     PLAYER_PUSH: './pushplay.png',
+    PLY_UP: './player_u.png',
+    PLY_DOWN: './player_d.png',
+    PLY_LEFT: './player_l.png',
+    PLY_RIGHT: './player_r.png',
+    PUSH_PLY_UP: './pushplay_u.png',
+    PUSH_PLY_DOWN: './pushplay_d.png',
+    PUSH_PLY_LEFT: './pushplay_l.png',
+    PUSH_PLY_RIGHT: './pushplay_r.png',
   };
 
   for (const [key, path] of Object.entries(imagePaths)) {
@@ -79,6 +87,10 @@ function movePlayer(direction) {
   let nextX = player.x + 2 * dx;
   let nextY = player.y + 2 * dy;
 
+  player.state = direction;
+
+  player.push = false;
+
   if (isWalkable(newX, newY)) {
     moveHistory.push({ ...player });
     player.x = newX;
@@ -95,9 +107,11 @@ function movePlayer(direction) {
 
     player.x = newX;
     player.y = newY;
+    player.push = true;
     moves++;
     pushes++;
   }
+  
   checkCompletion();
   drawLevel();
 }
@@ -170,7 +184,8 @@ function drawLevel() {
       }
     }
     ctx.drawImage(
-      images['PLAYER'],
+      //images['PLAYER'],
+      (player.push ? images[`PUSH_PLY_${['UP', 'DOWN', 'LEFT', 'RIGHT'][player.state]}`] : images[`PLY_${['UP', 'DOWN', 'LEFT', 'RIGHT'][player.state]}`]),
       player.x * TILE_SIZE + xOffset,
       player.y * TILE_SIZE + yOffset,
       TILE_SIZE,
