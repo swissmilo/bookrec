@@ -11,11 +11,11 @@ const csv = require('csv-parser')
 
 dotenv.config()
 const app = express()
-expressOasGenerator.init(app, {
+/*expressOasGenerator.init(app, {
     writeIntervalMs: 0, // Write immediately after an endpoint is accessed
     writeSpec: true,    // Persist the spec to `oas.json`
     specOutputPath: './oas.json' // Path to save the file
-});
+});*/
 
 const port = process.env.PORT || 3000
 
@@ -350,17 +350,35 @@ app.get('/sokobox', (req, res) => {
                     const levelData = \`${data}\`;
                 </script>
                 <script src="/sokobox/sokobox.js"></script>
-                <script>
+            <script>
                     loadLevel(levelData);
 
-                    document.querySelector('.control-button.up').addEventListener('click', () => movePlayer(0, -1));
-                    document.querySelector('.control-button.down').addEventListener('click', () => movePlayer(0, 1));
-                    document.querySelector('.control-button.left').addEventListener('click', () => movePlayer(-1, 0));
-                    document.querySelector('.control-button.right').addEventListener('click', () => movePlayer(1, 0));
+                    const upButton = document.querySelector('.control-button.up');
+                    const downButton = document.querySelector('.control-button.down'); 
+                    const leftButton = document.querySelector('.control-button.left');
+                    const rightButton = document.querySelector('.control-button.right');
 
-                    function handleMove(dx, dy) {
-                        movePlayer(dx, dy);
-                    }
+                    upButton.addEventListener('click', () => movePlayer(0, -1));
+                    downButton.addEventListener('click', () => movePlayer(0, 1));
+                    leftButton.addEventListener('click', () => movePlayer(-1, 0));
+                    rightButton.addEventListener('click', () => movePlayer(1, 0));
+
+                    upButton.addEventListener('touchstart', (e) => {
+                        e.preventDefault();
+                        movePlayer(0, -1);
+                    });
+                    downButton.addEventListener('touchstart', (e) => {
+                        e.preventDefault();
+                        movePlayer(0, 1);
+                    });
+                    leftButton.addEventListener('touchstart', (e) => {
+                        e.preventDefault();
+                        movePlayer(-1, 0);
+                    });
+                    rightButton.addEventListener('touchstart', (e) => {
+                        e.preventDefault();
+                        movePlayer(1, 0);
+                    });
 
                 </script>
             </body>
@@ -374,7 +392,7 @@ app.listen(port, () => {
 })
 
 // Save updated OAS spec to file when the server is stopped
-const saveSpecToFile = () => {
+/*const saveSpecToFile = () => {
   const spec = expressOasGenerator.getSpec();
   fs.writeFileSync('./oas.json', JSON.stringify(spec, null, 2));
 };
@@ -386,6 +404,6 @@ process.on('SIGINT', function() {
 process.on('exit', function() {
 saveSpecToFile
 process.exit();
-});
+});*/
 
 module.exports = app;

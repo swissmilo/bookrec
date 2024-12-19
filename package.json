@@ -16,5 +16,8 @@
     "express": "^4.21.1",
     "express-oas-generator": "^1.0.46",
     "openai": "^4.76.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
   }
 }
