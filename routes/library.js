@@ -18,7 +18,7 @@ fs.createReadStream(highlightsFilePath)
     }
   })
   .on('end', () => {
-    console.log('Highlights loaded successfully');
+    //console.log('Highlights loaded successfully');
   });
 
 router.get('/', (req, res) => {
