@@ -1,15 +1,25 @@
 const TILE_SIZE = 40; // Size of each tile
-const WIDTH = 30, HEIGHT = 30; // Game grid dimensions
+const WIDTH = 30,
+  HEIGHT = 30; // Game grid dimensions
 
 // Tile codes
-const LVL_CLEAR = 0, LVL_FLOOR = 1, LVL_WALL = 2, LVL_GOAL = 3, LVL_FLOOR_BOX = 4, LVL_GOAL_BOX = 5;
-const PLY_UP = 0, PLY_DOWN = 1, PLY_LEFT = 2, PLY_RIGHT = 3;
+const LVL_CLEAR = 0,
+  LVL_FLOOR = 1,
+  LVL_WALL = 2,
+  LVL_GOAL = 3,
+  LVL_FLOOR_BOX = 4,
+  LVL_GOAL_BOX = 5;
+const PLY_UP = 0,
+  PLY_DOWN = 1,
+  PLY_LEFT = 2,
+  PLY_RIGHT = 3;
 
 // Game variables
 let player = { x: 0, y: 0, state: PLY_UP, push: false };
 let level = Array.from({ length: HEIGHT }, () => Array(WIDTH).fill(LVL_CLEAR));
 let moveHistory = [];
-let moves = 0, pushes = 0;
+let moves = 0,
+  pushes = 0;
 let levelComplete = false;
 
 // Canvas setup
@@ -37,55 +47,57 @@ const imagePaths = {
 
 const preloadPromises = Object.entries(imagePaths).map(([key, path]) => {
   return new Promise((resolve) => {
-      const img = new Image();
-      img.onload = () => resolve();
-      img.src = path;
-      images[key] = img;
+    const img = new Image();
+    img.onload = () => resolve();
+    img.src = path;
+    images[key] = img;
   });
 });
 
-
 // Load a level file (equivalent to LoadLevel)
 function loadLevel(levelData) {
-  Promise.all(preloadPromises).then(() => {
-    let lines = levelData.split("\n");
-    level = Array.from({ length: HEIGHT }, () => Array(WIDTH).fill(LVL_CLEAR));
-    let yOffset = 0; //Math.floor((HEIGHT - lines.length) / 2);
-    let xOffset = 0; //Math.floor((WIDTH - lines[0].length) / 2);
+  Promise.all(preloadPromises)
+    .then(() => {
+      let lines = levelData.split('\n');
+      level = Array.from({ length: HEIGHT }, () =>
+        Array(WIDTH).fill(LVL_CLEAR)
+      );
+      let yOffset = 0; //Math.floor((HEIGHT - lines.length) / 2);
+      let xOffset = 0; //Math.floor((WIDTH - lines[0].length) / 2);
 
-    lines.forEach((line, y) => {
-      [...line].forEach((char, x) => {
-        let tile = LVL_CLEAR;
-        if (char === '#') tile = LVL_WALL;
-        if (char === '.') tile = LVL_GOAL;
-        if (char === '$') tile = LVL_FLOOR_BOX;
-        if (char === '%') tile = LVL_GOAL_BOX;
-        if (char === '-') tile = LVL_FLOOR; 
-        if (char === '@') {
-          tile = LVL_FLOOR;
-          player.x = x + xOffset;
-          player.y = y + yOffset;
-        }
-        level[y + yOffset][x + xOffset] = tile;
+      lines.forEach((line, y) => {
+        [...line].forEach((char, x) => {
+          let tile = LVL_CLEAR;
+          if (char === '#') tile = LVL_WALL;
+          if (char === '.') tile = LVL_GOAL;
+          if (char === '$') tile = LVL_FLOOR_BOX;
+          if (char === '%') tile = LVL_GOAL_BOX;
+          if (char === '-') tile = LVL_FLOOR;
+          if (char === '@') {
+            tile = LVL_FLOOR;
+            player.x = x + xOffset;
+            player.y = y + yOffset;
+          }
+          level[y + yOffset][x + xOffset] = tile;
+        });
       });
-    });
 
-    console.table(level);
+      console.table(level);
 
-    moves = pushes = 0;
-    moveHistory = [];
-    drawLevel();
-  }).catch((err) => {
+      moves = pushes = 0;
+      moveHistory = [];
+      drawLevel();
+    })
+    .catch((err) => {
       console.error('Error preloading images:', err);
-  });
-}  
+    });
+}
 
 // Move player (equivalent to Move)
 function movePlayer(dx, dy) {
-  const direction = dx === -1 ? PLY_LEFT :
-                      dx === 1 ? PLY_RIGHT :
-                      dy === -1 ? PLY_UP : PLY_DOWN;
-  
+  const direction =
+    dx === -1 ? PLY_LEFT : dx === 1 ? PLY_RIGHT : dy === -1 ? PLY_UP : PLY_DOWN;
+
   //const dx = direction === PLY_LEFT ? -1 : direction === PLY_RIGHT ? 1 : 0;
   //const dy = direction === PLY_UP ? -1 : direction === PLY_DOWN ? 1 : 0;
 
@@ -111,20 +123,19 @@ function movePlayer(dx, dy) {
       box: { from: { x: newX, y: newY }, to: { x: nextX, y: nextY } },
       push: true,
     });
-  
+
     // Update the box's position
     level[newY][newX] = isGoal(newX, newY) ? LVL_GOAL : LVL_FLOOR;
     level[nextY][nextX] = isGoal(nextX, nextY) ? LVL_GOAL_BOX : LVL_FLOOR_BOX;
-  
+
     player.x = newX;
     player.y = newY;
     pushes++;
   }
-  
+
   checkCompletion();
   drawLevel();
 }
-
 
 // Undo last move
 function undoMove() {
@@ -141,7 +152,9 @@ function undoMove() {
 
     // Move the box back to its original position
     level[to.y][to.x] = isGoal(to.x, to.y) ? LVL_GOAL : LVL_FLOOR;
-    level[from.y][from.x] = isGoal(from.x, from.y) ? LVL_GOAL_BOX : LVL_FLOOR_BOX;
+    level[from.y][from.x] = isGoal(from.x, from.y)
+      ? LVL_GOAL_BOX
+      : LVL_FLOOR_BOX;
   }
 
   moves--;
@@ -166,8 +179,8 @@ function isGoal(x, y) {
 function checkCompletion() {
   levelComplete = !level.flat().includes(LVL_GOAL);
   if (levelComplete) {
-      console.log('Level completed!');
-      fadeOutAndLoadNextLevel();
+    console.log('Level completed!');
+    fadeOutAndLoadNextLevel();
   }
 }
 
@@ -177,100 +190,114 @@ function fadeOutAndLoadNextLevel() {
 
   // Gradually decrease the opacity to create a fade-out effect
   const fadeOut = setInterval(() => {
-      opacity -= 0.05;
-      canvas.style.opacity = opacity;
-      if (opacity <= 0) {
-          clearInterval(fadeOut);
-          loadNextLevel();
-      }
+    opacity -= 0.05;
+    canvas.style.opacity = opacity;
+    if (opacity <= 0) {
+      clearInterval(fadeOut);
+      loadNextLevel();
+    }
   }, 50);
 }
 
 function loadNextLevel() {
-  const currentLevel = parseInt(new URLSearchParams(window.location.search).get('level') || '1');
+  const currentLevel = parseInt(
+    new URLSearchParams(window.location.search).get('level') || '1'
+  );
   const nextLevel = currentLevel + 1;
 
   // Attempt to load the next level
   fetch(`/sokobox?level=${nextLevel}`)
-      .then((response) => {
-          if (response.ok) {
-              window.location.href = `/sokobox?level=${nextLevel}`;
-          } else {
-              alert('Congratulations! No more levels available.');
-              window.location.href = `/sokobox?level=1`; // Restart the game from level 1 or go to a different page
-          }
-      })
-      .catch((err) => {
-          console.error(`Error loading next level: ${err.message}`);
-          alert('Error loading next level.');
-      });
+    .then((response) => {
+      if (response.ok) {
+        window.location.href = `/sokobox?level=${nextLevel}`;
+      } else {
+        alert('Congratulations! No more levels available.');
+        window.location.href = `/sokobox?level=1`; // Restart the game from level 1 or go to a different page
+      }
+    })
+    .catch((err) => {
+      console.error(`Error loading next level: ${err.message}`);
+      alert('Error loading next level.');
+    });
 }
 
 // Draw the level
 function drawLevel() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    // Centering offsets
-    const xOffset = 0; //(canvas.width - WIDTH * TILE_SIZE) / 2;
-    const yOffset = 0; //(canvas.height - HEIGHT * TILE_SIZE) / 2;
-  
-    for (let y = 0; y < HEIGHT; y++) {
-      for (let x = 0; x < WIDTH; x++) {
-        let tile = level[y][x];
-        let imageKey;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        //console.log(`tile for ${x} ${y} is ${tile}`);
-        if (tile === LVL_CLEAR) imageKey = 'LVL_CLEAR';
-        if (tile === LVL_WALL) imageKey = 'LVL_WALL';
-        if (tile === LVL_GOAL) imageKey = 'LVL_GOAL';
-        if (tile === LVL_FLOOR_BOX) imageKey = 'LVL_FLOOR_BOX';
-        if (tile === LVL_GOAL_BOX) imageKey = 'LVL_GOAL_BOX';
-        if (tile === LVL_FLOOR) imageKey = 'LVL_FLOOR';
+  // Centering offsets
+  const xOffset = 0; //(canvas.width - WIDTH * TILE_SIZE) / 2;
+  const yOffset = 0; //(canvas.height - HEIGHT * TILE_SIZE) / 2;
 
-        if (imageKey) {
-          //console.log(`imagekey for ${x} ${y} is ${imageKey}`);
-          ctx.drawImage(
-            images[imageKey],
-            x * TILE_SIZE + xOffset,
-            y * TILE_SIZE + yOffset,
-            TILE_SIZE,
-            TILE_SIZE
-          );
-        }
+  for (let y = 0; y < HEIGHT; y++) {
+    for (let x = 0; x < WIDTH; x++) {
+      let tile = level[y][x];
+      let imageKey;
+
+      //console.log(`tile for ${x} ${y} is ${tile}`);
+      if (tile === LVL_CLEAR) imageKey = 'LVL_CLEAR';
+      if (tile === LVL_WALL) imageKey = 'LVL_WALL';
+      if (tile === LVL_GOAL) imageKey = 'LVL_GOAL';
+      if (tile === LVL_FLOOR_BOX) imageKey = 'LVL_FLOOR_BOX';
+      if (tile === LVL_GOAL_BOX) imageKey = 'LVL_GOAL_BOX';
+      if (tile === LVL_FLOOR) imageKey = 'LVL_FLOOR';
+
+      if (imageKey) {
+        //console.log(`imagekey for ${x} ${y} is ${imageKey}`);
+        ctx.drawImage(
+          images[imageKey],
+          x * TILE_SIZE + xOffset,
+          y * TILE_SIZE + yOffset,
+          TILE_SIZE,
+          TILE_SIZE
+        );
       }
     }
-    ctx.drawImage(
-      //images['PLAYER'],
-      (player.push ? images[`PUSH_PLY_${['UP', 'DOWN', 'LEFT', 'RIGHT'][player.state]}`] : images[`PLY_${['UP', 'DOWN', 'LEFT', 'RIGHT'][player.state]}`]),
-      player.x * TILE_SIZE + xOffset,
-      player.y * TILE_SIZE + yOffset,
-      TILE_SIZE,
-      TILE_SIZE
-    );
+  }
+  ctx.drawImage(
+    //images['PLAYER'],
+    player.push
+      ? images[`PUSH_PLY_${['UP', 'DOWN', 'LEFT', 'RIGHT'][player.state]}`]
+      : images[`PLY_${['UP', 'DOWN', 'LEFT', 'RIGHT'][player.state]}`],
+    player.x * TILE_SIZE + xOffset,
+    player.y * TILE_SIZE + yOffset,
+    TILE_SIZE,
+    TILE_SIZE
+  );
 }
 
 // Adjusted drawTile function with offsets
 function drawTile(x, y, color, xOffset = 0, yOffset = 0) {
-    ctx.fillStyle = color;
-    ctx.fillRect(x * TILE_SIZE + xOffset, y * TILE_SIZE + yOffset, TILE_SIZE, TILE_SIZE);
-  }
+  ctx.fillStyle = color;
+  ctx.fillRect(
+    x * TILE_SIZE + xOffset,
+    y * TILE_SIZE + yOffset,
+    TILE_SIZE,
+    TILE_SIZE
+  );
+}
 
 // Input handling
-document.addEventListener("keydown", (e) => {
-    if (e.key === "ArrowUp" || e.key === "ArrowDown" || e.key === "ArrowLeft" || e.key === "ArrowRight") {
-      e.preventDefault(); // Prevent scrolling
-      if (e.key === "ArrowUp") movePlayer(0, -1);
-      if (e.key === "ArrowDown") movePlayer(0, 1);
-      if (e.key === "ArrowLeft") movePlayer(-1, 0);
-      if (e.key === "ArrowRight") movePlayer(1, 0);
-    }
-    if (e.key === "z") undoMove(); // Undo
-  });
+document.addEventListener('keydown', (e) => {
+  if (
+    e.key === 'ArrowUp' ||
+    e.key === 'ArrowDown' ||
+    e.key === 'ArrowLeft' ||
+    e.key === 'ArrowRight'
+  ) {
+    e.preventDefault(); // Prevent scrolling
+    if (e.key === 'ArrowUp') movePlayer(0, -1);
+    if (e.key === 'ArrowDown') movePlayer(0, 1);
+    if (e.key === 'ArrowLeft') movePlayer(-1, 0);
+    if (e.key === 'ArrowRight') movePlayer(1, 0);
+  }
+  if (e.key === 'z') undoMove(); // Undo
+});
 
 // Load a test level
 window.addEventListener('load', () => {
   Promise.all(preloadPromises).then(() => {
-      console.log('All images preloaded.');
+    console.log('All images preloaded.');
   });
 });
 /*loadLevel(

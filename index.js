@@ -1,50 +1,50 @@
-const express = require('express')
+const express = require('express');
 
-const OpenAI = require("openai")
-const dotenv = require('dotenv')
-const path = require('path')
-const axios = require('axios')
-const cheerio = require('cheerio')
-const fs = require('fs')
-const expressOasGenerator = require('express-oas-generator')
-const csv = require('csv-parser')
+const OpenAI = require('openai');
+const dotenv = require('dotenv');
+const path = require('path');
+const axios = require('axios');
+const cheerio = require('cheerio');
+const fs = require('fs');
+const expressOasGenerator = require('express-oas-generator');
+const csv = require('csv-parser');
 
-dotenv.config()
-const app = express()
+dotenv.config();
+const app = express();
 /*expressOasGenerator.init(app, {
     writeIntervalMs: 0, // Write immediately after an endpoint is accessed
     writeSpec: true,    // Persist the spec to `oas.json`
     specOutputPath: './oas.json' // Path to save the file
 });*/
 
-const port = process.env.PORT || 3000
+const port = process.env.PORT || 3000;
 
 // public folder for stylesheets
-app.use(express.static(path.join(__dirname, 'public')))
+app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(express.urlencoded({ extended: true }))
-app.use(express.json())
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 // Load highlights from CSV file
 const highlights = {};
 const highlightsFilePath = path.join(__dirname, 'data', 'highlights.csv');
 fs.createReadStream(highlightsFilePath)
-    .pipe(csv())
-    .on('data', (row) => {
-        const bookId = row["Amazon Book ID"];
-        const quote = row["Highlight"];
-        if (bookId && quote) {
-            if (!highlights[bookId]) highlights[bookId] = [];
-            highlights[bookId].push(quote);
-        }
-    })
-    .on('end', () => {
-        console.log('Highlights loaded successfully');
-    });
+  .pipe(csv())
+  .on('data', (row) => {
+    const bookId = row['Amazon Book ID'];
+    const quote = row['Highlight'];
+    if (bookId && quote) {
+      if (!highlights[bookId]) highlights[bookId] = [];
+      highlights[bookId].push(quote);
+    }
+  })
+  .on('end', () => {
+    console.log('Highlights loaded successfully');
+  });
 
 // Main landing page
 app.get('/', (req, res) => {
-    res.type('html').send(`
+  res.type('html').send(`
         <!DOCTYPE html>
         <html>
         <head>
@@ -70,7 +70,7 @@ app.get('/', (req, res) => {
 
 // About page
 app.get('/about', (req, res) => {
-    res.type('html').send(`
+  res.type('html').send(`
         <!DOCTYPE html>
         <html>
         <head>
@@ -95,55 +95,70 @@ app.get('/about', (req, res) => {
 
 // Books page
 app.get('/all-books', (req, res) => {
-    try {
-        const booksData = JSON.parse(fs.readFileSync(path.join(__dirname, 'public', 'books.json'), 'utf8'));
-        const categories = [...new Set(booksData.map(book => book.category))];
-        const selectedCategory = req.query.category || null;
+  try {
+    const booksData = JSON.parse(
+      fs.readFileSync(path.join(__dirname, 'public', 'books.json'), 'utf8')
+    );
+    const categories = [...new Set(booksData.map((book) => book.category))];
+    const selectedCategory = req.query.category || null;
 
-        let filteredBooks = selectedCategory 
-            ? booksData.filter(book => book.category === selectedCategory) 
-            : booksData;
+    let filteredBooks = selectedCategory
+      ? booksData.filter((book) => book.category === selectedCategory)
+      : booksData;
 
-        let currentCategory = '';
-        let tableRows = filteredBooks.map(book => {
-            let sectionHeader = '';
-            if (book.category !== currentCategory) {
-                currentCategory = book.category;
-                sectionHeader = `<tr><th colspan="2" class="category-header">${currentCategory}</th></tr>`;
-            }
-            
-            const bookIdMatch = book.link.match(/(?:product|dp)\/([A-Z0-9]+)(?:\/|$)/i);
-            const bookId = bookIdMatch ? bookIdMatch[1] : null;
-            const bookQuotes = bookId && highlights[bookId] 
-                ? highlights[bookId]
-                    .slice(0, 3)
-                    .map(quote => quote.split(' ').length > 30 
-                        ? `${quote.split(' ').slice(0, 25).join(' ')}...` 
-                        : quote)
-                    .join('</li><li>')
-                : 'No quotes available';
-            
-            return `
+    let currentCategory = '';
+    let tableRows = filteredBooks
+      .map((book) => {
+        let sectionHeader = '';
+        if (book.category !== currentCategory) {
+          currentCategory = book.category;
+          sectionHeader = `<tr><th colspan="2" class="category-header">${currentCategory}</th></tr>`;
+        }
+
+        const bookIdMatch = book.link.match(
+          /(?:product|dp)\/([A-Z0-9]+)(?:\/|$)/i
+        );
+        const bookId = bookIdMatch ? bookIdMatch[1] : null;
+        const bookQuotes =
+          bookId && highlights[bookId]
+            ? highlights[bookId]
+                .slice(0, 3)
+                .map((quote) =>
+                  quote.split(' ').length > 30
+                    ? `${quote.split(' ').slice(0, 25).join(' ')}...`
+                    : quote
+                )
+                .join('</li><li>')
+            : 'No quotes available';
+
+        return `
                 ${sectionHeader}
                 <tr class="book-row">
                     <td>
                         <div class="tooltip-container" onmousemove="showTooltip(event, this)" onmouseout="hideTooltip()">
                             <a href="${book.link}" target="_blank">${book.name}${book.author ? ` - ${book.author}` : ''}</a>
-                            ${bookQuotes !== 'No quotes available' ? `
+                            ${
+                              bookQuotes !== 'No quotes available'
+                                ? `
                             <div class="tooltip">
                                 <strong>Example Highlights:</strong>
                                 <ul><li>${bookQuotes}</li></ul>
-                            </div>` : ''}
+                            </div>`
+                                : ''
+                            }
                         </div>
                     </td>
                 </tr>`;
-        }).join('');
+      })
+      .join('');
 
-        const categoryLinks = categories.map(cat => {
-            return `<a href="/all-books?category=${encodeURIComponent(cat)}" class="category-link">${cat}</a>`;
-        }).join(' | ');
+    const categoryLinks = categories
+      .map((cat) => {
+        return `<a href="/all-books?category=${encodeURIComponent(cat)}" class="category-link">${cat}</a>`;
+      })
+      .join(' | ');
 
-        res.type('html').send(`
+    res.type('html').send(`
             <!DOCTYPE html>
             <html>
             <head>
@@ -222,52 +237,63 @@ app.get('/all-books', (req, res) => {
             </body>
             </html>
         `);
-    } catch (error) {
-        res.status(500).send(`<p style="color:red;">Error loading books: ${error.message}</p>`);
-    }
+  } catch (error) {
+    res
+      .status(500)
+      .send(`<p style="color:red;">Error loading books: ${error.message}</p>`);
+  }
 });
 
 // Recommendations page
 app.get('/books', async (req, res) => {
-    const query = req.query.genre || '';
-    let recommendationsHtml = '';
+  const query = req.query.genre || '';
+  let recommendationsHtml = '';
 
-    if (query) {
-        try {
-            if (!process.env.OPENAI_API_KEY) {
-                throw new Error('OpenAI API key is not set.');
-            }
+  if (query) {
+    try {
+      if (!process.env.OPENAI_API_KEY) {
+        throw new Error('OpenAI API key is not set.');
+      }
 
-            const openai = new OpenAI({
-                apiKey: process.env.OPENAI_API_KEY,
-            });
+      const openai = new OpenAI({
+        apiKey: process.env.OPENAI_API_KEY,
+      });
 
-            // Fetch content
-            const booksData = JSON.parse(fs.readFileSync(path.join(__dirname, 'public', 'books.json'), 'utf8'));
-            const websiteContent = JSON.stringify(booksData);
+      // Fetch content
+      const booksData = JSON.parse(
+        fs.readFileSync(path.join(__dirname, 'public', 'books.json'), 'utf8')
+      );
+      const websiteContent = JSON.stringify(booksData);
 
-            // Get 3 book recommendations from OpenAI
-            const response = await openai.chat.completions.create({
-                model: "chatgpt-4o-latest",
-                messages: [{ role: "user", content: `Provide me with 3 book recommendations for the following genre ${query}. The response has to be formatted as a valid HTML table, with columns for the title linking to Amazon, author name linking to their Wikipedia, and a description of the book. Don't include any other information besides the table itself. Only use books listed in the following JSON blob: ${websiteContent}` }],
-            });
-            recommendationsHtml = response.choices[0].message.content.replace(/^```html\s*/, '').replace(/```$/, '');
-            recommendationsHtml.replace(/<a\s+(.*?)>/g, (match, content) => {
-                // Check if target="_blank" exists, and add it if missing
-                if (!/target="_blank"/.test(content)) {
-                    content += ' target="_blank"';
-                }
-                if (!/rel="noopener noreferrer"/.test(content)) {
-                    content += ' rel="noopener noreferrer"';
-                }
-                return `<a ${content}>`;
-            });
-        } catch (error) {
-            recommendationsHtml = `<p style="color:red;">Error fetching recommendations: ${error.message}</p>`;
+      // Get 3 book recommendations from OpenAI
+      const response = await openai.chat.completions.create({
+        model: 'chatgpt-4o-latest',
+        messages: [
+          {
+            role: 'user',
+            content: `Provide me with 3 book recommendations for the following genre ${query}. The response has to be formatted as a valid HTML table, with columns for the title linking to Amazon, author name linking to their Wikipedia, and a description of the book. Don't include any other information besides the table itself. Only use books listed in the following JSON blob: ${websiteContent}`,
+          },
+        ],
+      });
+      recommendationsHtml = response.choices[0].message.content
+        .replace(/^```html\s*/, '')
+        .replace(/```$/, '');
+      recommendationsHtml.replace(/<a\s+(.*?)>/g, (match, content) => {
+        // Check if target="_blank" exists, and add it if missing
+        if (!/target="_blank"/.test(content)) {
+          content += ' target="_blank"';
         }
+        if (!/rel="noopener noreferrer"/.test(content)) {
+          content += ' rel="noopener noreferrer"';
+        }
+        return `<a ${content}>`;
+      });
+    } catch (error) {
+      recommendationsHtml = `<p style="color:red;">Error fetching recommendations: ${error.message}</p>`;
     }
+  }
 
-    res.type('html').send(`
+  res.type('html').send(`
         <!DOCTYPE html>
         <html>
         <head>
@@ -313,17 +339,17 @@ app.get('/books', async (req, res) => {
 
 // Route for /sokobox
 app.get('/sokobox', (req, res) => {
-    const level = req.query.level || '1'; // Default to "1.lvl" if no query parameter is provided
-    const levelPath = path.join(__dirname, 'data/levels/', level + '.lvl');
+  const level = req.query.level || '1'; // Default to "1.lvl" if no query parameter is provided
+  const levelPath = path.join(__dirname, 'data/levels/', level + '.lvl');
 
-    fs.readFile(levelPath, 'utf8', (err, data) => {
-        if (err) {
-            console.error(`Error loading level file: ${err.message}`);
-            res.status(500).send(`Error loading level: ${err.message}`);
-            return;
-        }
+  fs.readFile(levelPath, 'utf8', (err, data) => {
+    if (err) {
+      console.error(`Error loading level file: ${err.message}`);
+      res.status(500).send(`Error loading level: ${err.message}`);
+      return;
+    }
 
-        res.send(`
+    res.send(`
             <!DOCTYPE html>
             <html lang="en">
             <head>
@@ -384,12 +410,12 @@ app.get('/sokobox', (req, res) => {
             </body>
             </html>
         `);
-    });
+  });
 });
 
 app.listen(port, () => {
-    console.log(`Recommendation app listening on port ${port}`)
-})
+  console.log(`Recommendation app listening on port ${port}`);
+});
 
 // Save updated OAS spec to file when the server is stopped
 /*const saveSpecToFile = () => {

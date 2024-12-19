@@ -4,7 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "author": "",
   "license": "ISC",
@@ -15,7 +19,8 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.1",
     "express-oas-generator": "^1.0.46",
-    "openai": "^4.76.0"
+    "openai": "^4.76.0",
+    "vercel": "^39.2.2"
   },
   "devDependencies": {
     "nodemon": "^3.1.9"
