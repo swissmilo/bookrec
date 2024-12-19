@@ -13,7 +13,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@workos-inc/node": "^3.0.0",
+    "@workos-inc/node": "^7.35.1",
     "axios": "^1.7.9",
     "cheerio": "^1.0.0",
     "cookie-parser": "^1.4.7",
