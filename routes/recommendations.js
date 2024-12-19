@@ -20,7 +20,10 @@ router.get('/', async (req, res) => {
 
       // Fetch content
       const booksData = JSON.parse(
-        fs.readFileSync(path.join(__dirname, '..', 'public', 'books.json'), 'utf8')
+        fs.readFileSync(
+          path.join(__dirname, '..', 'public', 'books.json'),
+          'utf8'
+        )
       );
       const websiteContent = JSON.stringify(booksData);
 
@@ -96,4 +99,4 @@ router.get('/', async (req, res) => {
 `);
 });
 
-module.exports = router; 
+module.exports = router;

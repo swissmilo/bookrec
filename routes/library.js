@@ -24,7 +24,10 @@ fs.createReadStream(highlightsFilePath)
 router.get('/', (req, res) => {
   try {
     const booksData = JSON.parse(
-      fs.readFileSync(path.join(__dirname, '..', 'public', 'books.json'), 'utf8')
+      fs.readFileSync(
+        path.join(__dirname, '..', 'public', 'books.json'),
+        'utf8'
+      )
     );
     const categories = [...new Set(booksData.map((book) => book.category))];
     const selectedCategory = req.query.category || null;
@@ -33,32 +36,32 @@ router.get('/', (req, res) => {
       ? booksData.filter((book) => book.category === selectedCategory)
       : booksData;
 
-      let currentCategory = '';
-      let tableRows = filteredBooks
-        .map((book) => {
-          let sectionHeader = '';
-          if (book.category !== currentCategory) {
-            currentCategory = book.category;
-            sectionHeader = `<tr><th colspan="2" class="category-header">${currentCategory}</th></tr>`;
-          }
-  
-          const bookIdMatch = book.link.match(
-            /(?:product|dp)\/([A-Z0-9]+)(?:\/|$)/i
-          );
-          const bookId = bookIdMatch ? bookIdMatch[1] : null;
-          const bookQuotes =
-            bookId && highlights[bookId]
-              ? highlights[bookId]
-                  .slice(0, 3)
-                  .map((quote) =>
-                    quote.split(' ').length > 30
-                      ? `${quote.split(' ').slice(0, 25).join(' ')}...`
-                      : quote
-                  )
-                  .join('</li><li>')
-              : 'No quotes available';
-  
-          return `
+    let currentCategory = '';
+    let tableRows = filteredBooks
+      .map((book) => {
+        let sectionHeader = '';
+        if (book.category !== currentCategory) {
+          currentCategory = book.category;
+          sectionHeader = `<tr><th colspan="2" class="category-header">${currentCategory}</th></tr>`;
+        }
+
+        const bookIdMatch = book.link.match(
+          /(?:product|dp)\/([A-Z0-9]+)(?:\/|$)/i
+        );
+        const bookId = bookIdMatch ? bookIdMatch[1] : null;
+        const bookQuotes =
+          bookId && highlights[bookId]
+            ? highlights[bookId]
+                .slice(0, 3)
+                .map((quote) =>
+                  quote.split(' ').length > 30
+                    ? `${quote.split(' ').slice(0, 25).join(' ')}...`
+                    : quote
+                )
+                .join('</li><li>')
+            : 'No quotes available';
+
+        return `
                   ${sectionHeader}
                   <tr class="book-row">
                       <td>
@@ -76,16 +79,16 @@ router.get('/', (req, res) => {
                           </div>
                       </td>
                   </tr>`;
-        })
-        .join('');
-  
-      const categoryLinks = categories
-        .map((cat) => {
-          return `<a href="/all-books?category=${encodeURIComponent(cat)}" class="category-link">${cat}</a>`;
-        })
-        .join(' | ');
-  
-      res.type('html').send(`
+      })
+      .join('');
+
+    const categoryLinks = categories
+      .map((cat) => {
+        return `<a href="/all-books?category=${encodeURIComponent(cat)}" class="category-link">${cat}</a>`;
+      })
+      .join(' | ');
+
+    res.type('html').send(`
               <!DOCTYPE html>
               <html>
               <head>
@@ -171,4 +174,4 @@ router.get('/', (req, res) => {
   }
 });
 
-module.exports = router; 
+module.exports = router;

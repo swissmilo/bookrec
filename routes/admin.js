@@ -1,54 +1,54 @@
 const express = require('express');
 const router = express.Router();
-const { WorkOS } = require('@workos-inc/node'); 
+const { WorkOS } = require('@workos-inc/node');
 
 const workos = new WorkOS(process.env.WORKOS_API_KEY, {
-    clientId: process.env.WORKOS_CLIENT_ID,
-  });
+  clientId: process.env.WORKOS_CLIENT_ID,
+});
 
 // Middleware to check if user is authenticated
 async function withAuth(req, res, next) {
-    const session = workos.userManagement.loadSealedSession({
-      sessionData: req.cookies['wos-session'],
-      cookiePassword: process.env.WORKOS_COOKIE_PASSWORD,
-    });
-  
-    const { authenticated, reason } = await session.authenticate();
-  
-    if (authenticated) {
-      return next();
-    }
-  
-    // If the cookie is missing, redirect to login
-    if (!authenticated && reason === 'no_session_cookie_provided') {
+  const session = workos.userManagement.loadSealedSession({
+    sessionData: req.cookies['wos-session'],
+    cookiePassword: process.env.WORKOS_COOKIE_PASSWORD,
+  });
+
+  const { authenticated, reason } = await session.authenticate();
+
+  if (authenticated) {
+    return next();
+  }
+
+  // If the cookie is missing, redirect to login
+  if (!authenticated && reason === 'no_session_cookie_provided') {
+    return res.redirect('/admin/login');
+  }
+
+  // If the session is invalid, attempt to refresh
+  try {
+    const { authenticated, sealedSession } = await session.refresh();
+
+    if (!authenticated) {
       return res.redirect('/admin/login');
     }
-  
-    // If the session is invalid, attempt to refresh
-    try {
-      const { authenticated, sealedSession } = await session.refresh();
-  
-      if (!authenticated) {
-        return res.redirect('/admin/login');
-      }
-  
-      // update the cookie
-      res.cookie('wos-session', sealedSession, {
-        path: '/',
-        httpOnly: true,
-        secure: true,
-        sameSite: 'lax',
-      });
-  
-      // Redirect to the same route to ensure the updated cookie is used
-      return res.redirect(req.originalUrl);
-    } catch (e) {
-      // Failed to refresh access token, redirect user to login page
-      // after deleting the cookie
-      res.clearCookie('wos-session');
-      res.redirect('/admin/login');
-    }
-  };
+
+    // update the cookie
+    res.cookie('wos-session', sealedSession, {
+      path: '/',
+      httpOnly: true,
+      secure: true,
+      sameSite: 'lax',
+    });
+
+    // Redirect to the same route to ensure the updated cookie is used
+    return res.redirect(req.originalUrl);
+  } catch (e) {
+    // Failed to refresh access token, redirect user to login page
+    // after deleting the cookie
+    res.clearCookie('wos-session');
+    res.redirect('/admin/login');
+  }
+}
 
 // Admin login page
 router.get('/login', (req, res) => {
@@ -63,14 +63,14 @@ router.get('/login', (req, res) => {
 
 // Protected admin dashboard
 router.get('/', withAuth, async (req, res) => {
-    const session = workos.userManagement.loadSealedSession({
-        sessionData: req.cookies['wos-session'],
-        cookiePassword: process.env.WORKOS_COOKIE_PASSWORD,
-      });
-    
-      const { user } = await session.authenticate();
-    
-      console.log(`User ${user.firstName} is logged in`);
+  const session = workos.userManagement.loadSealedSession({
+    sessionData: req.cookies['wos-session'],
+    cookiePassword: process.env.WORKOS_COOKIE_PASSWORD,
+  });
+
+  const { user } = await session.authenticate();
+
+  console.log(`User ${user.firstName} is logged in`);
 
   res.type('html').send(`
     <!DOCTYPE html>
@@ -95,56 +95,58 @@ router.get('/', withAuth, async (req, res) => {
 
 // Auth callback route
 router.get('/callback', async (req, res) => {
-    // The authorization code returned by AuthKit
-    const code = req.query.code;
+  // The authorization code returned by AuthKit
+  const code = req.query.code;
 
-    if (!code) {
-      return res.status(400).send('No code provided');
-    }
-  
-    try {
-      const authenticateResponse =
-        await workos.userManagement.authenticateWithCode({
-          clientId: process.env.WORKOS_CLIENT_ID,
-          code,
-          session: {
-            sealSession: true,
-            cookiePassword: process.env.WORKOS_COOKIE_PASSWORD,
-          },
-        });
-  
-      const { user, sealedSession } = authenticateResponse;
-  
-      // Store the session in a cookie
-      res.cookie('wos-session', sealedSession, {
-        path: '/',
-        httpOnly: true,
-        secure: true,
-        sameSite: 'lax',
+  if (!code) {
+    return res.status(400).send('No code provided');
+  }
+
+  try {
+    const authenticateResponse =
+      await workos.userManagement.authenticateWithCode({
+        clientId: process.env.WORKOS_CLIENT_ID,
+        code,
+        session: {
+          sealSession: true,
+          cookiePassword: process.env.WORKOS_COOKIE_PASSWORD,
+        },
       });
-  
-      // Use the information in `user` for further business logic.
-  
-      // Redirect the user to the homepage
-      return res.redirect('/admin');
-    } catch (error) {
-        console.error('Authentication error details:', error);
-        const errorMessage = encodeURIComponent(error.message || 'Authentication failed');
-        res.redirect(`/admin/login?error=${errorMessage}`);
-    }
+
+    const { user, sealedSession } = authenticateResponse;
+
+    // Store the session in a cookie
+    res.cookie('wos-session', sealedSession, {
+      path: '/',
+      httpOnly: true,
+      secure: true,
+      sameSite: 'lax',
+    });
+
+    // Use the information in `user` for further business logic.
+
+    // Redirect the user to the homepage
+    return res.redirect('/admin');
+  } catch (error) {
+    console.error('Authentication error details:', error);
+    const errorMessage = encodeURIComponent(
+      error.message || 'Authentication failed'
+    );
+    res.redirect(`/admin/login?error=${errorMessage}`);
+  }
 });
 
 // Logout route
 router.post('/logout', async (req, res) => {
-    const session = workos.userManagement.loadSealedSession({
-        sessionData: req.cookies['wos-session'],
-        cookiePassword: process.env.WORKOS_COOKIE_PASSWORD,
-      });
-    
-      const url = await session.getLogoutUrl();
+  const session = workos.userManagement.loadSealedSession({
+    sessionData: req.cookies['wos-session'],
+    cookiePassword: process.env.WORKOS_COOKIE_PASSWORD,
+  });
+
+  const url = await session.getLogoutUrl();
 
   res.clearCookie('wos-session');
   res.redirect(url);
 });
 
-module.exports = router; 
+module.exports = router;
