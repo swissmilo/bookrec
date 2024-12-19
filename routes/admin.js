@@ -6,6 +6,11 @@ const workos = new WorkOS(process.env.WORKOS_API_KEY, {
   clientId: process.env.WORKOS_CLIENT_ID,
 });
 
+console.log('WorkOS API Key exists:', !!process.env.WORKOS_API_KEY);
+console.log('WorkOS Client ID exists:', !!process.env.WORKOS_CLIENT_ID);
+console.log('WorkOS instance:', !!workos);
+console.log('WorkOS userManagement exists:', !!workos.userManagement);
+
 // Middleware to check if user is authenticated
 async function withAuth(req, res, next) {
   const session = workos.userManagement.loadSealedSession({
