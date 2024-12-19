@@ -3,6 +3,7 @@ const router = express.Router();
 const OpenAI = require('openai');
 const path = require('path');
 const fs = require('fs');
+const getHtmlHead = require('../utils/htmlHead');
 
 router.get('/', async (req, res) => {
   const query = req.query.genre || '';
@@ -58,30 +59,28 @@ router.get('/', async (req, res) => {
   res.type('html').send(`
     <!DOCTYPE html>
     <html>
-    <head>
-      <title>Milo's Book Recommendations</title>
-      <link rel="stylesheet" href="/style.css">
-      <style>
-        .spinner {
-            display: none;
-            margin: 20px auto;
-            width: 50px;
-            height: 50px;
-            border: 8px solid #f3f3f3;
-            border-top: 8px solid #3498db;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-      </style>
-      <script>
-        function showSpinner() {
-            document.getElementById('spinner').style.display = 'block';
-        }
-      </script>
+    ${getHtmlHead('Book Recommendations')}
+    <style>
+      .spinner {
+          display: none;
+          margin: 20px auto;
+          width: 50px;
+          height: 50px;
+          border: 8px solid #f3f3f3;
+          border-top: 8px solid #3498db;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+      }
+    </style>
+    <script>
+      function showSpinner() {
+          document.getElementById('spinner').style.display = 'block';
+      }
+    </script>
     </head>
     <body>
         <div class="container">

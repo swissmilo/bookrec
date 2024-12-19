@@ -1,14 +1,12 @@
 const express = require('express');
 const router = express.Router();
+const getHtmlHead = require('../utils/htmlHead');
 
 router.get('/', (req, res) => {
   res.type('html').send(`
         <!DOCTYPE html>
         <html>
-        <head>
-          <title>About Milo</title>
-          <link rel="stylesheet" href="/style.css">
-        </head>
+        ${getHtmlHead('About')}
         <body>
             <div class="container">
                 <h1>About Me</h1>

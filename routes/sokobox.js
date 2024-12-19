@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const path = require('path');
 const fs = require('fs');
+const getHtmlHead = require('../utils/htmlHead');
 
 router.get('/', (req, res) => {
   const level = req.query.level || '1';
@@ -17,14 +18,10 @@ router.get('/', (req, res) => {
     res.send(`
         <!DOCTYPE html>
         <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <title>Sokobox</title>
-            <link rel="stylesheet" href="/style.css" rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'">
-            <style>
-                canvas { background: #ddd; display: block; margin: 20px auto; }
-            </style>
-        </head>
+        ${getHtmlHead('Sokobox')}
+        <style>
+            canvas { background: #ddd; display: block; margin: 20px auto; }
+        </style>
         <body>
             <canvas id="gameCanvas" width="900" height="720"></canvas>
             <div class="controls-container">

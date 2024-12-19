@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { WorkOS } = require('@workos-inc/node');
+const getHtmlHead = require('../utils/htmlHead');
 
 const workos = new WorkOS(process.env.WORKOS_API_KEY, {
   clientId: process.env.WORKOS_CLIENT_ID,
@@ -13,7 +14,7 @@ console.log('WorkOS userManagement exists:', !!workos.userManagement);
 
 // Middleware to check if user is authenticated
 async function withAuth(req, res, next) {
-  const session = workos.userManagement.loadSealedSession({
+  const session = await workos.userManagement.loadSealedSession({
     sessionData: req.cookies['wos-session'],
     cookiePassword: process.env.WORKOS_COOKIE_PASSWORD,
   });
@@ -68,7 +69,7 @@ router.get('/login', (req, res) => {
 
 // Protected admin dashboard
 router.get('/', withAuth, async (req, res) => {
-  const session = workos.userManagement.loadSealedSession({
+  const session = await workos.userManagement.loadSealedSession({
     sessionData: req.cookies['wos-session'],
     cookiePassword: process.env.WORKOS_COOKIE_PASSWORD,
   });
@@ -80,10 +81,7 @@ router.get('/', withAuth, async (req, res) => {
   res.type('html').send(`
     <!DOCTYPE html>
     <html>
-    <head>
-      <title>Admin Dashboard</title>
-      <link rel="stylesheet" href="/style.css">
-    </head>
+    ${getHtmlHead('Admin Dashboard')}
     <body>
       <div class="container">
         <h1>Admin Dashboard</h1>
@@ -143,7 +141,7 @@ router.get('/callback', async (req, res) => {
 
 // Logout route
 router.post('/logout', async (req, res) => {
-  const session = workos.userManagement.loadSealedSession({
+  const session = await workos.userManagement.loadSealedSession({
     sessionData: req.cookies['wos-session'],
     cookiePassword: process.env.WORKOS_COOKIE_PASSWORD,
   });

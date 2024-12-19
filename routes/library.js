@@ -3,6 +3,7 @@ const router = express.Router();
 const path = require('path');
 const fs = require('fs');
 const csv = require('csv-parser');
+const getHtmlHead = require('../utils/htmlHead');
 
 // Load highlights from CSV file
 const highlights = {};
@@ -91,66 +92,64 @@ router.get('/', (req, res) => {
     res.type('html').send(`
               <!DOCTYPE html>
               <html>
-              <head>
-                <title>All Books</title>
-                <link rel="stylesheet" href="/style.css">
-                <style>
-                  .category-header {
-                      font-size: 1.4rem;
-                      font-weight: bold;
-                      background-color: #f6f9fc;
-                      color: #32325d;
-                      text-align: left;
-                  }
-                  .book-row td {
-                      width: 100%;
-                      padding: 12px;
-                      border-bottom: 1px solid #ddd;
-                      position: relative;
-                  }
-                  .category-link {
-                      margin: 0 10px;
-                      color: #5469d4;
-                      text-decoration: none;
-                      font-weight: bold;
-                  }
-                  .category-link:hover {
-                      text-decoration: underline;
-                  }
-                  .tooltip-container {
-                      position: relative;
-                      display: inline-block;
-                  }
-                  .tooltip {
-                      display: none;
-                      position: fixed;
-                      background-color: #fff;
-                      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-                      padding: 10px;
-                      border: 1px solid #ddd;
-                      border-radius: 8px;
-                      z-index: 1000;
-                      white-space: normal;
-                      width: 400px;
-                  }
-                </style>
-                <script>
-                  let tooltip;
-                  function showTooltip(event, element) {
-                      if (!tooltip) {
-                          tooltip = document.createElement('div');
-                          tooltip.className = 'tooltip';
-                          document.body.appendChild(tooltip);
-                      }
-                      tooltip.innerHTML = element.querySelector('.tooltip').innerHTML;
-                      tooltip.style.display = 'block';
-                      tooltip.style.left = (event.clientX + 10) + 'px';
-                      tooltip.style.top = (event.clientY + 10) + 'px';
-                  }
-                  function hideTooltip() {
-                      if (tooltip) tooltip.style.display = 'none';
-                  }
-                </script>
+              ${getHtmlHead('Book Library')}
+              <style>
+                .category-header {
+                    font-size: 1.4rem;
+                    font-weight: bold;
+                    background-color: #f6f9fc;
+                    color: #32325d;
+                    text-align: left;
+                }
+                .book-row td {
+                    width: 100%;
+                    padding: 12px;
+                    border-bottom: 1px solid #ddd;
+                    position: relative;
+                }
+                .category-link {
+                    margin: 0 10px;
+                    color: #5469d4;
+                    text-decoration: none;
+                    font-weight: bold;
+                }
+                .category-link:hover {
+                    text-decoration: underline;
+                }
+                .tooltip-container {
+                    position: relative;
+                    display: inline-block;
+                }
+                .tooltip {
+                    display: none;
+                    position: fixed;
+                    background-color: #fff;
+                    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                    padding: 10px;
+                    border: 1px solid #ddd;
+                    border-radius: 8px;
+                    z-index: 1000;
+                    white-space: normal;
+                    width: 400px;
+                }
+              </style>
+              <script>
+                let tooltip;
+                function showTooltip(event, element) {
+                    if (!tooltip) {
+                        tooltip = document.createElement('div');
+                        tooltip.className = 'tooltip';
+                        document.body.appendChild(tooltip);
+                    }
+                    tooltip.innerHTML = element.querySelector('.tooltip').innerHTML;
+                    tooltip.style.display = 'block';
+                    tooltip.style.left = (event.clientX + 10) + 'px';
+                    tooltip.style.top = (event.clientY + 10) + 'px';
+                }
+                function hideTooltip() {
+                    if (tooltip) tooltip.style.display = 'none';
+                }
+              </script>
               </head>
               <body>
                   <div class="container">
