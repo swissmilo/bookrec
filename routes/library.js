@@ -4,6 +4,67 @@ const path = require('path');
 const fs = require('fs');
 const csv = require('csv-parser');
 const getHtmlHead = require('../utils/htmlHead');
+const { withAuth, workos } = require('../middleware/auth');
+
+// Add new book endpoint
+router.post('/add', withAuth, async (req, res) => {
+  try {
+    const { category, name, author, link } = req.body;
+    
+    // Validate required fields
+    if (!category || !name || !author || !link) {
+      return res.status(400).json({ error: 'All fields are required' });
+    }
+
+    name = name.trim();
+    author = author.trim();
+    category = category.trim();
+    link = link.trim();
+
+    // Read existing books
+    const booksPath = path.join(__dirname, '..', 'public', 'books.json');
+    const booksData = JSON.parse(fs.readFileSync(booksPath, 'utf8'));
+
+    // Add new book
+    const newBook = {
+      category,
+      name,
+      author,
+      link
+    };
+
+    booksData.push(newBook);
+
+    // Sort books: categories with "shortlist" first (newest year first), then others alphabetically
+    booksData.sort((a, b) => {
+      const aHasShortlist = a.category.toLowerCase().includes('shortlist');
+      const bHasShortlist = b.category.toLowerCase().includes('shortlist');
+      
+      // If both are shortlists, sort by year in reverse order
+      if (aHasShortlist && bHasShortlist) {
+        const aYear = parseInt(a.category.match(/\d{4}/)?.[0] || '0');
+        const bYear = parseInt(b.category.match(/\d{4}/)?.[0] || '0');
+        return bYear - aYear; // Reverse order (newer years first)
+      }
+      
+      // If only one is a shortlist, it should come first
+      if (aHasShortlist && !bHasShortlist) return -1;
+      if (!aHasShortlist && bHasShortlist) return 1;
+      
+      // Otherwise sort alphabetically
+      return a.category.localeCompare(b.category);
+    });
+
+    // Write back to file
+    fs.writeFileSync(booksPath, JSON.stringify(booksData, null, 2));
+
+    // Redirect back to admin page with success message
+    res.redirect('/admin?add_book_success=true');
+  } catch (error) {
+    console.error('Error adding book:', error);
+    res.status(500).json({ error: 'Failed to add book' });
+  }
+});
 
 // Load highlights from CSV file
 const highlights = {};

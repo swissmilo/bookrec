@@ -1,5 +1,59 @@
 [
   {
+    "category": "2024 Shortlist",
+    "name": "Making Sense of Chaos: A Better Economics for a Better World",
+    "author": "J. Doyne Farmer",
+    "link": "https://www.amazon.com/gp/product/B0CW1GKL6V/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1"
+  },
+  {
+    "category": "2024 Shortlist",
+    "name": "Nuclear War: A Scenario",
+    "author": "Annie Jacobsen",
+    "link": "https://www.amazon.com/gp/product/B0CBGWMFSN/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1"
+  },
+  {
+    "category": "2024 Shortlist",
+    "name": "The Nvidia Way: Jensen Huang",
+    "author": "Tae Kim",
+    "link": "https://www.amazon.com/gp/product/B0DFV1HS1R/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1"
+  },
+  {
+    "category": "2024 Shortlist",
+    "name": "The Iron King",
+    "author": "Maurice Druon",
+    "link": "https://www.amazon.com/gp/product/B00B0PFYKK/"
+  },
+  {
+    "category": "2024 Shortlist",
+    "name": "James: A Novel ",
+    "author": "Percival Everett",
+    "link": "https://www.amazon.com/gp/product/B0C8MGS6GR/"
+  },
+  {
+    "category": "2024 Shortlist",
+    "name": "The Unincorporated Man",
+    "author": "Dani Kollin",
+    "link": "https://www.amazon.com/gp/product/B002ASFPY6/"
+  },
+  {
+    "category": "2024 Shortlist",
+    "name": "Hillbilly Elegy",
+    "author": "J.D. Vance",
+    "link": "https://www.amazon.com/gp/product/B079L5DDB4/"
+  },
+  {
+    "category": "2024 Shortlist",
+    "name": "The Alchemy of Air",
+    "author": "Thomas Hager",
+    "link": "https://www.amazon.com/gp/product/0307351793/"
+  },
+  {
+    "category": "2024 Shortlist",
+    "name": "To Russia with Fries",
+    "author": "George Cohon",
+    "link": "https://www.amazon.com/gp/product/B009Y4KSBO"
+  },
+  {
     "category": "2023 Shortlist",
     "name": "Invitation to a Banquet: The Story of Chinese Food",
     "author": "Fuchsia Dunlop",
@@ -188,7 +242,7 @@
   {
     "category": "2022 Shortlist",
     "name": "The Anomaly",
-    "author": "Herv\u00e9 Le Tellier",
+    "author": "Hervé Le Tellier",
     "link": "https://www.amazon.com/gp/product/B08XB11TVR/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&amp;psc=1"
   },
   {
@@ -196,6 +250,816 @@
     "name": "A History of Photography. From 1839 to the Present",
     "author": null,
     "link": "https://www.amazon.com/dp/3836540991?psc=1&amp;ref=ppx_yo2ov_dt_b_product_details"
+  },
+  {
+    "category": "Arts &amp; Music",
+    "name": "The Rest Is Noise",
+    "author": null,
+    "link": "https://www.amazon.com/Rest-Noise-Listening-Twentieth-Century-ebook/dp/B000UZQIDI/"
+  },
+  {
+    "category": "Arts &amp; Music",
+    "name": "Beethoven: Anguish and Triumph",
+    "author": null,
+    "link": "https://www.amazon.com/Beethoven-Anguish-Triumph-Jan-Swafford-ebook/dp/B00E78IB3E"
+  },
+  {
+    "category": "Arts &amp; Music",
+    "name": "The Cello Suites: J. S. Bach, Pablo Casals, and the Search for a Baroque Masterpiece",
+    "author": null,
+    "link": "https://www.amazon.com/dp/B008UX3PC4/"
+  },
+  {
+    "category": "Arts &amp; Music",
+    "name": "The Story of Art",
+    "author": null,
+    "link": "https://www.amazon.com/Story-Art-H-Gombrich/dp/1439508747/"
+  },
+  {
+    "category": "Arts &amp; Music",
+    "name": "Will in the World: How Shakespeare Became Shakespeare",
+    "author": null,
+    "link": "https://www.amazon.com/Will-World-Shakespeare-Became-Anniversary-ebook/dp/B003KVKQRS"
+  },
+  {
+    "category": "Arts &amp; Music",
+    "name": "Experiencing Architecture",
+    "author": null,
+    "link": "https://www.amazon.com/gp/product/0262680025/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&amp;psc=1"
+  },
+  {
+    "category": "Business Education",
+    "name": "High Growth Handbook",
+    "author": null,
+    "link": "https://www.amazon.com/High-Growth-Handbook-Elad-Gil/dp/1732265100/"
+  },
+  {
+    "category": "Business Education",
+    "name": "High Output Management",
+    "author": null,
+    "link": "https://www.amazon.com/High-Output-Management-Andrew-Grove-ebook/dp/B015VACHOK/"
+  },
+  {
+    "category": "Business Education",
+    "name": "An Elegant Puzzle: Systems of Engineering and Management",
+    "author": null,
+    "link": "https://www.amazon.com/Elegant-Puzzle-Systems-Engineering-Management-ebook/dp/B07QYCHJ7V/"
+  },
+  {
+    "category": "Business Education",
+    "name": "How To Win Friends and Influence People",
+    "author": null,
+    "link": "https://www.amazon.com/How-Win-Friends-Influence-People-ebook/dp/B003WEAI4E/"
+  },
+  {
+    "category": "Business Education",
+    "name": "The Art of War",
+    "author": null,
+    "link": "https://www.amazon.com/Art-War-Sun-Tzu-ebook/dp/B08574RT5P/"
+  },
+  {
+    "category": "Business Education",
+    "name": "Trillion Dollar Coach",
+    "author": null,
+    "link": "https://www.amazon.com/Trillion-Dollar-Coach-Leadership-Playbook-ebook/dp/B076ZHG3H3/"
+  },
+  {
+    "category": "Business Education",
+    "name": "Creativity, Inc",
+    "author": null,
+    "link": "https://www.amazon.com/Creativity-Inc-Overcoming-Unseen-Inspiration-ebook/dp/B00FUZQYBO/"
+  },
+  {
+    "category": "Business Education",
+    "name": "Steve Jobs",
+    "author": null,
+    "link": "https://www.amazon.com/Steve-Jobs-Walter-Isaacson-ebook/dp/B004W2UBYW/"
+  },
+  {
+    "category": "Business Education",
+    "name": "Work Rules!: Insights from Inside Google",
+    "author": null,
+    "link": "https://www.amazon.com/Work-Rules-Insights-Inside-Transform-ebook/dp/B00MEMMVB8/"
+  },
+  {
+    "category": "Business Education",
+    "name": "Zero to One",
+    "author": null,
+    "link": "https://www.amazon.com/Zero-One-Notes-Startups-Future-ebook/dp/B00J6YBOFQ/"
+  },
+  {
+    "category": "Business Education",
+    "name": "The Innovator's Dilemma",
+    "author": null,
+    "link": "https://www.amazon.com/Innovators-Dilemma-Technologies-Management-Innovation-ebook/dp/B012BLTM6I/"
+  },
+  {
+    "category": "Business Education",
+    "name": "The Five Dysfunctions of a Team",
+    "author": null,
+    "link": "https://www.amazon.com/Five-Dysfunctions-Team-Leadership-Lencioni-ebook/dp/B006960LQW/"
+  },
+  {
+    "category": "Business Education",
+    "name": "The Goal: A Process of Ongoing Improvement",
+    "author": null,
+    "link": "https://www.amazon.com/Goal-Process-Ongoing-Improvement-ebook/dp/B002LHRM2O/"
+  },
+  {
+    "category": "Business Education",
+    "name": "Being the Boss",
+    "author": null,
+    "link": "https://www.amazon.com/Being-Boss-Imperatives-Becoming-Leader-ebook/dp/B01B3935MG/"
+  },
+  {
+    "category": "Business Education",
+    "name": "Getting to Yes",
+    "author": null,
+    "link": "https://www.amazon.com/Getting-Yes-Negotiating-Agreement-Without-ebook/dp/B0051SDM5Q/"
+  },
+  {
+    "category": "Business Education",
+    "name": "The Hard Thing About Hard Things",
+    "author": null,
+    "link": "https://www.amazon.com/Hard-Thing-About-Things-Building-ebook/dp/B00DQ845EA/"
+  },
+  {
+    "category": "Business Education",
+    "name": "Electronic Value Exchange: Origins of the VISA",
+    "author": null,
+    "link": "https://www.amazon.com/gp/product/1849961387/"
+  },
+  {
+    "category": "Business Education",
+    "name": "Softwar: An Intimate Portrait of Larry Ellison and Oracle",
+    "author": null,
+    "link": "https://www.amazon.com/gp/product/0743225058/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&amp;psc=1"
+  },
+  {
+    "category": "Business Education",
+    "name": "The Culture Map",
+    "author": null,
+    "link": "https://www.amazon.com/gp/product/1610392507/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&amp;psc=1"
+  },
+  {
+    "category": "Business Education",
+    "name": "The Sales Acceleration Formula",
+    "author": null,
+    "link": "https://www.amazon.com/gp/product/1119047072/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&amp;psc=1"
+  },
+  {
+    "category": "Business Education",
+    "name": "Inspired: How to Create Tech Products Customers Love",
+    "author": null,
+    "link": "https://www.amazon.com/gp/product/1119387507/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&amp;psc=1"
+  },
+  {
+    "category": "Business Education",
+    "name": "The 4-Hour Workweek",
+    "author": null,
+    "link": "https://www.amazon.com/4-Hour-Workweek-Expanded-Updated-Cutting-Edge-ebook/dp/B002WE46UW/"
+  },
+  {
+    "category": "Economics &amp; Finance",
+    "name": "Thinking, Fast and Slow",
+    "author": null,
+    "link": "https://www.amazon.com/Thinking-Fast-Slow-Daniel-Kahneman-ebook/dp/B00555X8OA/"
+  },
+  {
+    "category": "Economics &amp; Finance",
+    "name": "Misbehaving: The Making of Behavioral Economics",
+    "author": null,
+    "link": "https://www.amazon.com/Misbehaving-Behavioral-Economics-Richard-Thaler-ebook/dp/B00NUB4GFQ/"
+  },
+  {
+    "category": "Economics &amp; Finance",
+    "name": "Fooled by Randomness",
+    "author": null,
+    "link": "https://www.amazon.com/Fooled-Randomness-Hidden-Markets-Incerto-ebook/dp/B001FA0W5W/"
+  },
+  {
+    "category": "Economics &amp; Finance",
+    "name": "Antifragile",
+    "author": null,
+    "link": "https://www.amazon.com/Antifragile-Things-That-Disorder-Incerto-ebook/dp/B0083DJWGO/"
+  },
+  {
+    "category": "Economics &amp; Finance",
+    "name": "Information Rules: A Strategic Guide to the Network Economy",
+    "author": null,
+    "link": "https://www.amazon.com/Information-Rules-Strategic-Network-Economy-ebook/dp/B004OC07FI/"
+  },
+  {
+    "category": "Economics &amp; Finance",
+    "name": "Why Information Grows",
+    "author": null,
+    "link": "https://www.amazon.com/Why-Information-Grows-Evolution-Economies-ebook/dp/B00TT1VLAO/"
+  },
+  {
+    "category": "Economics &amp; Finance",
+    "name": "Thinking Strategically",
+    "author": null,
+    "link": "https://www.amazon.com/Thinking-Strategically-Competitive-Business-Paperback-ebook/dp/B002OJIBLU/"
+  },
+  {
+    "category": "Economics &amp; Finance",
+    "name": "The Road to Serfdom",
+    "author": null,
+    "link": "https://www.amazon.com/Road-Serfdom-Documents-Definitive-Collected-ebook/dp/B0048EJXCK/"
+  },
+  {
+    "category": "Economics &amp; Finance",
+    "name": "Capitalism and Freedom",
+    "author": null,
+    "link": "https://www.amazon.com/Capitalism-Freedom-Anniversary-Milton-Friedman-ebook/dp/B006JP11HQ/"
+  },
+  {
+    "category": "Economics &amp; Finance",
+    "name": "Manias, Panics, and Crashes: A History of Financial Crises",
+    "author": null,
+    "link": "https://www.amazon.com/Manias-Panics-Crashes-Financial-Investment/dp/0471389455/"
+  },
+  {
+    "category": "Economics &amp; Finance",
+    "name": "Venture Deals",
+    "author": null,
+    "link": "https://www.amazon.com/Venture-Deals-Smarter-Lawyer-Capitalist-ebook/dp/B07WSYKG7N/"
+  },
+  {
+    "category": "Economics &amp; Finance",
+    "name": "Digital Gold: Bitcoin",
+    "author": null,
+    "link": "https://www.amazon.com/Digital-Gold-Bitcoin-Millionaires-Reinvent-ebook/dp/B01D8KFX9Q/"
+  },
+  {
+    "category": "Economics &amp; Finance",
+    "name": "Atlas Shrugged",
+    "author": null,
+    "link": "https://www.amazon.com/Atlas-Shrugged-Ayn-Rand-ebook/dp/B003V8B5XO/"
+  },
+  {
+    "category": "Fiction",
+    "name": "David Copperfield",
+    "author": null,
+    "link": "https://www.amazon.com/David-Copperfield-Charles-Dickens-ebook/dp/B004GHNIQQ/"
+  },
+  {
+    "category": "Fiction",
+    "name": "The Count of Monte Cristo",
+    "author": null,
+    "link": "https://www.amazon.com/Count-Monte-Cristo-Alexandre-Dumas-ebook/dp/B07PV4NCSN"
+  },
+  {
+    "category": "Fiction",
+    "name": "The Brothers Karamazov",
+    "author": null,
+    "link": "https://www.amazon.com/Brothers-Karamazov-Fyodor-Dostoyevsky-ebook/dp/B07NKBBBQL/"
+  },
+  {
+    "category": "Fiction",
+    "name": "Crime and Punishment",
+    "author": null,
+    "link": "https://www.amazon.com/Crime-Punishment-Fyodor-Dostoevsky-ebook/dp/B077Y58PGY"
+  },
+  {
+    "category": "Fiction",
+    "name": "1984",
+    "author": null,
+    "link": "https://www.amazon.com/1984-George-Orwell-ebook/dp/B003JTHWKU/"
+  },
+  {
+    "category": "Fiction",
+    "name": "A Game of Thrones",
+    "author": null,
+    "link": "https://www.amazon.com/Game-Thrones-Song-Fire-Book-ebook/dp/B000QCS8TW/"
+  },
+  {
+    "category": "Fiction",
+    "name": "The Glass Bead Game",
+    "author": null,
+    "link": "https://www.amazon.com/Glass-Bead-Game-Magister-Novel-ebook/dp/B00ANI9G0O/"
+  },
+  {
+    "category": "Fiction",
+    "name": "Siddhartha",
+    "author": null,
+    "link": "https://www.amazon.com/Siddhartha-Indian-Penguin-Twentieth-Century-Classics-ebook/"
+  },
+  {
+    "category": "Fiction",
+    "name": "The Hobbit",
+    "author": null,
+    "link": "https://www.amazon.com/Hobbit-Lord-Rings-J-R-R-Tolkien-ebook/dp/B0079KT81G"
+  },
+  {
+    "category": "Fiction",
+    "name": "The Goldfinch",
+    "author": null,
+    "link": "https://www.amazon.com/Goldfinch-Novel-Pulitzer-Prize-Fiction-ebook/dp/B00BAXFECK"
+  },
+  {
+    "category": "Fiction",
+    "name": "The Hitchhiker's Guide to the Galaxy",
+    "author": null,
+    "link": "https://www.amazon.com/Hitchhikers-Guide-Galaxy-Douglas-Adams-ebook/dp/B000XUBC2C"
+  },
+  {
+    "category": "Fiction",
+    "name": "The Hunchback of Notre Dame",
+    "author": null,
+    "link": "https://www.amazon.com/Hunchback-Notre-Dover-Thrift-Editions-ebook/dp/B00A735U0U"
+  },
+  {
+    "category": "Fiction",
+    "name": "Les Misérables",
+    "author": null,
+    "link": "https://www.amazon.com/Miserables-Mis%C3%A9rables-Victor-Hugo-ebook/dp/B00C5QZCK0"
+  },
+  {
+    "category": "Fiction",
+    "name": "Blindness",
+    "author": null,
+    "link": "https://www.amazon.com/Blindness-Harvest-Book-Jos%C3%A9-Saramago-ebook/dp/B003T0GBOM/"
+  },
+  {
+    "category": "Fiction",
+    "name": "Lolita",
+    "author": null,
+    "link": "https://www.amazon.com/Lolita-Vintage-International-Vladimir-Nabokov-ebook/dp/B003WUYRB8/"
+  },
+  {
+    "category": "Fiction",
+    "name": "Clockwork Orange",
+    "author": null,
+    "link": "https://www.amazon.com/Clockwork-Orange-Anthony-Burgess-ebook/dp/B005HSGB6W/"
+  },
+  {
+    "category": "Fiction",
+    "name": "Fight Club",
+    "author": null,
+    "link": "https://www.amazon.com/Fight-Club-Novel-Chuck-Palahniuk-ebook/dp/B000U0O9FM/"
+  },
+  {
+    "category": "Fiction",
+    "name": "Ivanhoe",
+    "author": null,
+    "link": "https://www.amazon.com/gp/product/B07Q8K4X3Y/"
+  },
+  {
+    "category": "Fiction",
+    "name": "Candide",
+    "author": null,
+    "link": "https://www.amazon.com/Candide-Voltaire-ebook/dp/B004UJGFKG"
+  },
+  {
+    "category": "Fiction",
+    "name": "The Trial",
+    "author": null,
+    "link": "https://www.amazon.com/Trial-Franz-Kafka-ebook/dp/B07YR7PFPT/"
+  },
+  {
+    "category": "Fiction",
+    "name": "The Picture of Dorian Gray",
+    "author": null,
+    "link": "https://www.amazon.com/Picture-Dorian-Gray-Penguin-Classics-ebook/dp/B002RI9R4S/"
+  },
+  {
+    "category": "Fiction",
+    "name": "The Feast of the Goat",
+    "author": null,
+    "link": "https://www.amazon.com/Feast-Goat-Mario-Vargas-Llosa-ebook/dp/B004QGYWJY/"
+  },
+  {
+    "category": "Fiction",
+    "name": "Norse Mythology",
+    "author": null,
+    "link": "https://www.amazon.com/Norse-Mythology-Neil-Gaiman-ebook/dp/B01HQA6EOC/"
+  },
+  {
+    "category": "Fiction",
+    "name": "The Name of the Rose",
+    "author": null,
+    "link": "https://www.amazon.com/dp/B003WUYPTC/"
+  },
+  {
+    "category": "Fiction",
+    "name": "Perfume",
+    "author": null,
+    "link": "https://www.amazon.com/Perfume-Story-Murderer-Vintage-International-ebook/dp/B00JTCJE52/"
+  },
+  {
+    "category": "Fiction",
+    "name": "Germinal",
+    "author": null,
+    "link": "https://www.amazon.com/Germinal-Penguin-Classics-%C3%89mile-Zola-ebook/dp/B002XHNN70/"
+  },
+  {
+    "category": "Fiction",
+    "name": "The Unbearable Lightness of Being",
+    "author": null,
+    "link": "https://www.amazon.com/Unbearable-Lightness-Being-Perennial-Classics/dp/0061148520"
+  },
+  {
+    "category": "Fiction",
+    "name": "A Gentleman in Moscow",
+    "author": null,
+    "link": "https://www.amazon.com/gp/product/B01COJUEZ0/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&amp;psc=1"
+  },
+  {
+    "category": "Fiction",
+    "name": "The Talented Mr. Ripley",
+    "author": null,
+    "link": "https://www.amazon.com/gp/product/B007Q6XJGS/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&amp;psc=1"
+  },
+  {
+    "category": "Fiction",
+    "name": "Independent People",
+    "author": null,
+    "link": "https://www.amazon.com/gp/product/B0031W1EIQ/ref=ppx_yo_dt_b_d_asin_title_o00?ie=UTF8&amp;psc=1"
+  },
+  {
+    "category": "Food",
+    "name": "On Food and Cooking",
+    "author": null,
+    "link": "https://www.amazon.com/Food-Cooking-Science-Lore-Kitchen-ebook/dp/B000PAAH1W/"
+  },
+  {
+    "category": "Food",
+    "name": "Salt: A World History",
+    "author": null,
+    "link": "https://www.amazon.com/Salt-World-History-Mark-Kurlansky-ebook/dp/B00BPDN33W"
+  },
+  {
+    "category": "Food",
+    "name": "Kitchen Confidential: Adventures in the Culinary Underbelly",
+    "author": null,
+    "link": "https://www.amazon.com/Kitchen-Confidential-Adventures-Culinary-Underbelly-ebook/dp/B002UM5BXW"
+  },
+  {
+    "category": "Food",
+    "name": "The Food Explorer",
+    "author": null,
+    "link": "https://www.amazon.com/Food-Explorer-Adventures-Globe-Trotting-Transformed-ebook"
+  },
+  {
+    "category": "Food",
+    "name": "The Omnivore's Dilemma",
+    "author": null,
+    "link": "https://www.amazon.com/Omnivores-Dilemma-Natural-History-Meals-ebook/dp/B000SEIDR0"
+  },
+  {
+    "category": "Food",
+    "name": "Setting the Table",
+    "author": null,
+    "link": "https://www.amazon.com/gp/product/B000OI0FCQ/ref=ppx_yo_dt_b_d_asin_title_o06?ie=UTF8&amp;psc=1"
+  },
+  {
+    "category": "Fraud &amp; Crime",
+    "name": "Billion Dollar Whale",
+    "author": null,
+    "link": "https://www.amazon.com/Billion-Dollar-Whale-Fooled-Hollywood-ebook/dp/B079WVJZCH/"
+  },
+  {
+    "category": "Fraud &amp; Crime",
+    "name": "American Kingpin",
+    "author": null,
+    "link": "https://www.amazon.com/American-Kingpin-Criminal-Mastermind-Behind-ebook/dp/B01L8C4WBG/"
+  },
+  {
+    "category": "Fraud &amp; Crime",
+    "name": "Permanent Record",
+    "author": null,
+    "link": "https://www.amazon.com/Permanent-Record-Edward-Snowden-ebook/dp/B07STQPGH6/"
+  },
+  {
+    "category": "Fraud &amp; Crime",
+    "name": "Enron: The Smartest Guys in the Room",
+    "author": null,
+    "link": "https://www.amazon.com/Smartest-Guys-Room-Amazing-Scandalous-ebook/dp/B00EOAS0EK/"
+  },
+  {
+    "category": "Fraud &amp; Crime",
+    "name": "Reminiscences of a Stock Operator",
+    "author": null,
+    "link": "https://www.amazon.com/Reminiscences-Stock-Operator-Marketplace-Book-ebook/dp/B00BOZBG2Q/"
+  },
+  {
+    "category": "Fraud &amp; Crime",
+    "name": "When Genius Failed",
+    "author": null,
+    "link": "https://www.amazon.com/When-Genius-Failed-Long-Term-Management-ebook/dp/B000FC1KZC/"
+  },
+  {
+    "category": "Fraud &amp; Crime",
+    "name": "Trump: The Art of the Deal",
+    "author": null,
+    "link": "https://www.amazon.com/Trump-Art-Deal-Donald-J-ebook/dp/B000SEGE6M/"
+  },
+  {
+    "category": "New York",
+    "name": "Gotham: A History of New York City",
+    "author": null,
+    "link": "https://www.amazon.com/Gotham-History-York-City-1898-ebook/dp/B002SAUBWM"
+  },
+  {
+    "category": "New York",
+    "name": "The Great Bridge: The Epic Story of the Brooklyn Bridge",
+    "author": null,
+    "link": "https://www.amazon.com/Great-Bridge-Story-Building-Brooklyn-ebook/dp/B000QXDGL6"
+  },
+  {
+    "category": "New York",
+    "name": "The Power Broker",
+    "author": null,
+    "link": "https://www.amazon.com/Power-Broker-Robert-Moses-Fall/dp/0394720245/"
+  },
+  {
+    "category": "Non-Fiction",
+    "name": "My Struggle: Book 1",
+    "author": null,
+    "link": "https://www.amazon.com/My-Struggle-Karl-Ove-Knausgaard-ebook/dp/B00BCFZLJ2/"
+  },
+  {
+    "category": "Non-Fiction",
+    "name": "The Beginning of Infinity",
+    "author": null,
+    "link": "https://www.amazon.com/Beginning-Infinity-Explanations-Transform-World-ebook/dp/B005DXR5ZC/"
+  },
+  {
+    "category": "Non-Fiction",
+    "name": "Born to Run",
+    "author": null,
+    "link": "https://www.amazon.com/Born-Run-Christopher-McDougall-ebook/dp/B0028MBKVG/"
+  },
+  {
+    "category": "Non-Fiction",
+    "name": "The Push: A Climber's Search for the Path",
+    "author": null,
+    "link": "https://www.amazon.com/gp/product/B01MRNJOBF/ref=ppx_yo_dt_b_d_asin_title_o01?ie=UTF8&amp;psc=1"
+  },
+  {
+    "category": "Non-Fiction",
+    "name": "Into Thin Air",
+    "author": null,
+    "link": "https://www.amazon.com/Into-Thin-Air-Jon-Krakauer-ebook/dp/B000FC1ITK/"
+  },
+  {
+    "category": "Non-Fiction",
+    "name": "Into the Wild",
+    "author": null,
+    "link": "https://www.amazon.com/gp/product/B000SEFNMS"
+  },
+  {
+    "category": "Non-Fiction",
+    "name": "The Emperor of All Maladies",
+    "author": null,
+    "link": "https://www.amazon.com/Emperor-All-Maladies-Biography-Cancer-ebook/dp/B003UYUP58/"
+  },
+  {
+    "category": "Non-Fiction",
+    "name": "Masters of Doom",
+    "author": null,
+    "link": "https://www.amazon.com/Masters-Doom-Created-Transformed-Culture-ebook/dp/B000FBFNL0/"
+  },
+  {
+    "category": "Non-Fiction",
+    "name": "Junkyard Planet",
+    "author": null,
+    "link": "https://www.amazon.com/Junkyard-Planet-Travels-Billion-Dollar-Trash-ebook/dp/B00EME5MNK/"
+  },
+  {
+    "category": "Non-Fiction",
+    "name": "The Box: How the Shipping Container Made the World",
+    "author": null,
+    "link": "https://www.amazon.com/Box-Shipping-Container-Smaller-Economy-ebook/dp/B01772PS00"
+  },
+  {
+    "category": "Non-Fiction",
+    "name": "Elon Musk: Tesla, SpaceX",
+    "author": null,
+    "link": "https://www.amazon.com/Elon-Musk-SpaceX-Fantastic-Future-ebook/dp/B00KVI76ZS/"
+  },
+  {
+    "category": "Non-Fiction",
+    "name": "What a Plant Knows",
+    "author": null,
+    "link": "https://www.amazon.com/What-Plant-Knows-Field-Senses-ebook/dp/B0071W4X7G/"
+  },
+  {
+    "category": "Non-Fiction",
+    "name": "Master of the Senate: The Years of Lyndon Johnson III",
+    "author": null,
+    "link": "https://www.amazon.com/gp/product/B002IPZBPO/ref=ppx_yo_dt_b_d_asin_title_o05?ie=UTF8&amp;psc=1"
+  },
+  {
+    "category": "Non-Fiction",
+    "name": "The Market Gardener: A Successful Grower's Handbook",
+    "author": null,
+    "link": "https://www.amazon.com/Market-Gardener-Successful-Handbook-Small-scale/dp/0865717656/"
+  },
+  {
+    "category": "Non-Fiction",
+    "name": "How to Design and Build Your Own House",
+    "author": null,
+    "link": "https://www.amazon.com/gp/product/0394752007"
+  },
+  {
+    "category": "Non-Fiction",
+    "name": "The Art of Fiction: A Guide for Writers and Readers",
+    "author": null,
+    "link": "https://www.amazon.com/dp/0452281547/"
+  },
+  {
+    "category": "Non-Fiction",
+    "name": "How to Make Love Like a Porn Star",
+    "author": null,
+    "link": "https://www.amazon.com/Make-Love-Like-Porn-Star-ebook/dp/B007MAU1IM/"
+  },
+  {
+    "category": "Non-Fiction",
+    "name": "Mating in Captivity",
+    "author": null,
+    "link": "https://www.amazon.com/Mating-Captivity-Unlocking-Erotic-Intelligence-ebook/dp/B000UODXP0/"
+  },
+  {
+    "category": "Non-Fiction",
+    "name": "Bringing up Bébé",
+    "author": null,
+    "link": "https://www.amazon.com/Bringing-Up-B%C3%A9b%C3%A9-Discovers-Parenting-ebook/dp/B00MNNAODK/"
+  },
+  {
+    "category": "Non-Fiction",
+    "name": "Endurance: Shackleton's Incredible Voyage",
+    "author": null,
+    "link": "https://www.amazon.com/gp/product/B00IC8VF10/ref=ppx_yo_dt_b_d_asin_title_o00?ie=UTF8&amp;psc=1"
+  },
+  {
+    "category": "Non-Fiction",
+    "name": "Finding Soul, From Silicon Valley to Africa",
+    "author": null,
+    "link": "https://www.amazon.com/gp/product/B08PB1D8SQ/ref=ppx_yo_dt_b_d_asin_title_o07?ie=UTF8&amp;psc=1"
+  },
+  {
+    "category": "Non-Fiction",
+    "name": "Born a Crime: Stories from a South African Childhood",
+    "author": null,
+    "link": "https://www.amazon.com/gp/product/B01DHWACVY/ref=ppx_yo_dt_b_d_asin_title_o01?ie=UTF8&amp;psc=1"
+  },
+  {
+    "category": "Science Fiction",
+    "name": "The Three-Body Problem",
+    "author": null,
+    "link": "https://www.amazon.com/Three-Body-Problem-Remembrance-Earths-Past-ebook/dp/B00IQO403K/"
+  },
+  {
+    "category": "Science Fiction",
+    "name": "I, Robot",
+    "author": null,
+    "link": "https://www.amazon.com/I-Robot-Book-1-ebook/dp/B000FC1PW0/"
+  },
+  {
+    "category": "Science Fiction",
+    "name": "Nexus",
+    "author": null,
+    "link": "https://www.amazon.com/Nexus-Trilogy-Book-1-ebook/dp/B00TOZI7FM/"
+  },
+  {
+    "category": "Science Fiction",
+    "name": "Permutation City",
+    "author": null,
+    "link": "https://www.amazon.com/Permutation-City-Greg-Egan-ebook/dp/B00FDWCPV2/"
+  },
+  {
+    "category": "Science Fiction",
+    "name": "The Diamond Age",
+    "author": null,
+    "link": "https://www.amazon.com/Diamond-Age-Illustrated-Primer-Spectra-ebook/dp/B000FBJCKI/"
+  },
+  {
+    "category": "Science Fiction",
+    "name": "Snow Crash",
+    "author": null,
+    "link": "https://www.amazon.com/Snow-Crash-Novel-Neal-Stephenson-ebook/dp/B000FBJCJE/"
+  },
+  {
+    "category": "Science Fiction",
+    "name": "Wool",
+    "author": null,
+    "link": "https://www.amazon.com/Wool-Omnibus-Kindle-Motion-Silo-ebook/dp/B0071XO8RA/"
+  },
+  {
+    "category": "Science Fiction",
+    "name": "Dune",
+    "author": null,
+    "link": "https://www.amazon.com/Dune-Frank-Herbert-ebook/dp/B00B7NPRY8/"
+  },
+  {
+    "category": "Science Fiction",
+    "name": "Do Androids Dream of Electric Sheep",
+    "author": null,
+    "link": "https://www.amazon.com/Androids-Dream-Electric-Sheep-inspiration-ebook/dp/B000SEGTI0/"
+  },
+  {
+    "category": "Science Fiction",
+    "name": "The Martian",
+    "author": null,
+    "link": "https://www.amazon.com/Martian-Novel-Andy-Weir-ebook/dp/B00EMXBDMA/"
+  },
+  {
+    "category": "Science Fiction",
+    "name": "Ready Player One",
+    "author": null,
+    "link": "https://www.amazon.com/Ready-Player-One-Ernest-Cline-ebook/dp/B004J4WKUQ/"
+  },
+  {
+    "category": "Science Fiction",
+    "name": "A Fire Upon The Deep",
+    "author": null,
+    "link": "https://www.amazon.com/Fire-Upon-Deep-Zones-Thought-ebook/dp/B000FBJAGO/"
+  },
+  {
+    "category": "Science Fiction",
+    "name": "The Moon is a Harsh Mistress",
+    "author": null,
+    "link": "https://www.amazon.com/Moon-Harsh-Mistress-Robert-Heinlein-ebook/dp/B07CWGBZ4R/"
+  },
+  {
+    "category": "Science Fiction",
+    "name": "Children of Time",
+    "author": null,
+    "link": "https://www.amazon.com/gp/product/B07DN8BQMD/ref=ppx_yo_dt_b_d_asin_title_o05?ie=UTF8&amp;psc=1"
+  },
+  {
+    "category": "Science Fiction",
+    "name": "Ministry for the Future",
+    "author": null,
+    "link": "https://www.amazon.com/gp/product/B084FY1NXB/ref=ppx_yo_dt_b_d_asin_title_o04?ie=UTF8&amp;psc=1"
+  },
+  {
+    "category": "Science Fiction",
+    "name": "Project Hail Mary",
+    "author": null,
+    "link": "https://www.amazon.com/gp/product/B08FHBV4ZX/ref=ppx_yo_dt_b_d_asin_title_o07?ie=UTF8&amp;psc=1"
+  },
+  {
+    "category": "Science History",
+    "name": "Energy and Civilization: A History",
+    "author": null,
+    "link": "https://www.amazon.com/Energy-Civilization-History-MIT-Press-ebook/dp/B072FH69YH"
+  },
+  {
+    "category": "Science History",
+    "name": "Big Bang: The Origin of the Universe",
+    "author": null,
+    "link": "https://www.amazon.com/Big-Bang-Universe-Simon-Singh/dp/0007162219"
+  },
+  {
+    "category": "Science History",
+    "name": "The Code Book",
+    "author": null,
+    "link": "https://www.amazon.com/Code-Book-Science-Secrecy-Cryptography-ebook/dp/B004IK8PLE"
+  },
+  {
+    "category": "Science History",
+    "name": "The Wright Brothers",
+    "author": null,
+    "link": "https://www.amazon.com/Wright-Brothers-David-McCullough-ebook/dp/B00LD1RWP6/"
+  },
+  {
+    "category": "Science History",
+    "name": "The Poisoner's Handbook",
+    "author": null,
+    "link": "https://www.amazon.com/Poisoners-Handbook-Murder-Forensic-Medicine-ebook/dp/B004P1JDM6/"
+  },
+  {
+    "category": "Science History",
+    "name": "Longitude: The True Story of a Lone Genius",
+    "author": null,
+    "link": "https://www.amazon.com/Longitude-Genius-Greatest-Scientific-Problem-ebook/dp/B003WUYE66"
+  },
+  {
+    "category": "Science History",
+    "name": "Leonardo da Vinci",
+    "author": null,
+    "link": "https://www.amazon.com/Leonardo-Vinci-Walter-Isaacson/dp/1501139169/"
+  },
+  {
+    "category": "Science History",
+    "name": "The Knowledge: How to Rebuild Civilization in the Aftermath",
+    "author": null,
+    "link": "https://www.amazon.com/Knowledge-Rebuild-Civilization-Aftermath-Cataclysm-ebook/dp/B00DMCV5YS/"
+  },
+  {
+    "category": "Science History",
+    "name": "Entangled Life: How Fungi Make Our Worlds",
+    "author": null,
+    "link": "https://www.amazon.com/gp/product/B07WKJS8P1/ref=ppx_yo_dt_b_d_asin_title_o00?ie=UTF8&amp;psc=1"
+  },
+  {
+    "category": "Science History",
+    "name": "The Joy of x",
+    "author": null,
+    "link": "https://www.amazon.com/gp/product/B006R8PL7G/ref=ppx_yo_dt_b_d_asin_title_o03?ie=UTF8&amp;psc=1"
   },
   {
     "category": "World History",
@@ -370,815 +1234,5 @@
     "name": "The Fabric of Civilization: How Textiles Made the World",
     "author": null,
     "link": "https://www.amazon.com/gp/product/B08KQ441QQ/ref=ppx_yo_dt_b_d_asin_title_o06?ie=UTF8&amp;psc=1"
-  },
-  {
-    "category": "New York",
-    "name": "Gotham: A History of New York City",
-    "author": null,
-    "link": "https://www.amazon.com/Gotham-History-York-City-1898-ebook/dp/B002SAUBWM"
-  },
-  {
-    "category": "New York",
-    "name": "The Great Bridge: The Epic Story of the Brooklyn Bridge",
-    "author": null,
-    "link": "https://www.amazon.com/Great-Bridge-Story-Building-Brooklyn-ebook/dp/B000QXDGL6"
-  },
-  {
-    "category": "New York",
-    "name": "The Power Broker",
-    "author": null,
-    "link": "https://www.amazon.com/Power-Broker-Robert-Moses-Fall/dp/0394720245/"
-  },
-  {
-    "category": "Arts &amp; Music",
-    "name": "The Rest Is Noise",
-    "author": null,
-    "link": "https://www.amazon.com/Rest-Noise-Listening-Twentieth-Century-ebook/dp/B000UZQIDI/"
-  },
-  {
-    "category": "Arts &amp; Music",
-    "name": "Beethoven: Anguish and Triumph",
-    "author": null,
-    "link": "https://www.amazon.com/Beethoven-Anguish-Triumph-Jan-Swafford-ebook/dp/B00E78IB3E"
-  },
-  {
-    "category": "Arts &amp; Music",
-    "name": "The Cello Suites: J. S. Bach, Pablo Casals, and the Search for a Baroque Masterpiece",
-    "author": null,
-    "link": "https://www.amazon.com/dp/B008UX3PC4/"
-  },
-  {
-    "category": "Arts &amp; Music",
-    "name": "The Story of Art",
-    "author": null,
-    "link": "https://www.amazon.com/Story-Art-H-Gombrich/dp/1439508747/"
-  },
-  {
-    "category": "Arts &amp; Music",
-    "name": "Will in the World: How Shakespeare Became Shakespeare",
-    "author": null,
-    "link": "https://www.amazon.com/Will-World-Shakespeare-Became-Anniversary-ebook/dp/B003KVKQRS"
-  },
-  {
-    "category": "Arts &amp; Music",
-    "name": "Experiencing Architecture",
-    "author": null,
-    "link": "https://www.amazon.com/gp/product/0262680025/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&amp;psc=1"
-  },
-  {
-    "category": "Food",
-    "name": "On Food and Cooking",
-    "author": null,
-    "link": "https://www.amazon.com/Food-Cooking-Science-Lore-Kitchen-ebook/dp/B000PAAH1W/"
-  },
-  {
-    "category": "Food",
-    "name": "Salt: A World History",
-    "author": null,
-    "link": "https://www.amazon.com/Salt-World-History-Mark-Kurlansky-ebook/dp/B00BPDN33W"
-  },
-  {
-    "category": "Food",
-    "name": "Kitchen Confidential: Adventures in the Culinary Underbelly",
-    "author": null,
-    "link": "https://www.amazon.com/Kitchen-Confidential-Adventures-Culinary-Underbelly-ebook/dp/B002UM5BXW"
-  },
-  {
-    "category": "Food",
-    "name": "The Food Explorer",
-    "author": null,
-    "link": "https://www.amazon.com/Food-Explorer-Adventures-Globe-Trotting-Transformed-ebook"
-  },
-  {
-    "category": "Food",
-    "name": "The Omnivore's Dilemma",
-    "author": null,
-    "link": "https://www.amazon.com/Omnivores-Dilemma-Natural-History-Meals-ebook/dp/B000SEIDR0"
-  },
-  {
-    "category": "Food",
-    "name": "Setting the Table",
-    "author": null,
-    "link": "https://www.amazon.com/gp/product/B000OI0FCQ/ref=ppx_yo_dt_b_d_asin_title_o06?ie=UTF8&amp;psc=1"
-  },
-  {
-    "category": "Science History",
-    "name": "Energy and Civilization: A History",
-    "author": null,
-    "link": "https://www.amazon.com/Energy-Civilization-History-MIT-Press-ebook/dp/B072FH69YH"
-  },
-  {
-    "category": "Science History",
-    "name": "Big Bang: The Origin of the Universe",
-    "author": null,
-    "link": "https://www.amazon.com/Big-Bang-Universe-Simon-Singh/dp/0007162219"
-  },
-  {
-    "category": "Science History",
-    "name": "The Code Book",
-    "author": null,
-    "link": "https://www.amazon.com/Code-Book-Science-Secrecy-Cryptography-ebook/dp/B004IK8PLE"
-  },
-  {
-    "category": "Science History",
-    "name": "The Wright Brothers",
-    "author": null,
-    "link": "https://www.amazon.com/Wright-Brothers-David-McCullough-ebook/dp/B00LD1RWP6/"
-  },
-  {
-    "category": "Science History",
-    "name": "The Poisoner's Handbook",
-    "author": null,
-    "link": "https://www.amazon.com/Poisoners-Handbook-Murder-Forensic-Medicine-ebook/dp/B004P1JDM6/"
-  },
-  {
-    "category": "Science History",
-    "name": "Longitude: The True Story of a Lone Genius",
-    "author": null,
-    "link": "https://www.amazon.com/Longitude-Genius-Greatest-Scientific-Problem-ebook/dp/B003WUYE66"
-  },
-  {
-    "category": "Science History",
-    "name": "Leonardo da Vinci",
-    "author": null,
-    "link": "https://www.amazon.com/Leonardo-Vinci-Walter-Isaacson/dp/1501139169/"
-  },
-  {
-    "category": "Science History",
-    "name": "The Knowledge: How to Rebuild Civilization in the Aftermath",
-    "author": null,
-    "link": "https://www.amazon.com/Knowledge-Rebuild-Civilization-Aftermath-Cataclysm-ebook/dp/B00DMCV5YS/"
-  },
-  {
-    "category": "Science History",
-    "name": "Entangled Life: How Fungi Make Our Worlds",
-    "author": null,
-    "link": "https://www.amazon.com/gp/product/B07WKJS8P1/ref=ppx_yo_dt_b_d_asin_title_o00?ie=UTF8&amp;psc=1"
-  },
-  {
-    "category": "Science History",
-    "name": "The Joy of x",
-    "author": null,
-    "link": "https://www.amazon.com/gp/product/B006R8PL7G/ref=ppx_yo_dt_b_d_asin_title_o03?ie=UTF8&amp;psc=1"
-  },
-  {
-    "category": "Economics &amp; Finance",
-    "name": "Thinking, Fast and Slow",
-    "author": null,
-    "link": "https://www.amazon.com/Thinking-Fast-Slow-Daniel-Kahneman-ebook/dp/B00555X8OA/"
-  },
-  {
-    "category": "Economics &amp; Finance",
-    "name": "Misbehaving: The Making of Behavioral Economics",
-    "author": null,
-    "link": "https://www.amazon.com/Misbehaving-Behavioral-Economics-Richard-Thaler-ebook/dp/B00NUB4GFQ/"
-  },
-  {
-    "category": "Economics &amp; Finance",
-    "name": "Fooled by Randomness",
-    "author": null,
-    "link": "https://www.amazon.com/Fooled-Randomness-Hidden-Markets-Incerto-ebook/dp/B001FA0W5W/"
-  },
-  {
-    "category": "Economics &amp; Finance",
-    "name": "Antifragile",
-    "author": null,
-    "link": "https://www.amazon.com/Antifragile-Things-That-Disorder-Incerto-ebook/dp/B0083DJWGO/"
-  },
-  {
-    "category": "Economics &amp; Finance",
-    "name": "Information Rules: A Strategic Guide to the Network Economy",
-    "author": null,
-    "link": "https://www.amazon.com/Information-Rules-Strategic-Network-Economy-ebook/dp/B004OC07FI/"
-  },
-  {
-    "category": "Economics &amp; Finance",
-    "name": "Why Information Grows",
-    "author": null,
-    "link": "https://www.amazon.com/Why-Information-Grows-Evolution-Economies-ebook/dp/B00TT1VLAO/"
-  },
-  {
-    "category": "Economics &amp; Finance",
-    "name": "Thinking Strategically",
-    "author": null,
-    "link": "https://www.amazon.com/Thinking-Strategically-Competitive-Business-Paperback-ebook/dp/B002OJIBLU/"
-  },
-  {
-    "category": "Economics &amp; Finance",
-    "name": "The Road to Serfdom",
-    "author": null,
-    "link": "https://www.amazon.com/Road-Serfdom-Documents-Definitive-Collected-ebook/dp/B0048EJXCK/"
-  },
-  {
-    "category": "Economics &amp; Finance",
-    "name": "Capitalism and Freedom",
-    "author": null,
-    "link": "https://www.amazon.com/Capitalism-Freedom-Anniversary-Milton-Friedman-ebook/dp/B006JP11HQ/"
-  },
-  {
-    "category": "Economics &amp; Finance",
-    "name": "Manias, Panics, and Crashes: A History of Financial Crises",
-    "author": null,
-    "link": "https://www.amazon.com/Manias-Panics-Crashes-Financial-Investment/dp/0471389455/"
-  },
-  {
-    "category": "Economics &amp; Finance",
-    "name": "Venture Deals",
-    "author": null,
-    "link": "https://www.amazon.com/Venture-Deals-Smarter-Lawyer-Capitalist-ebook/dp/B07WSYKG7N/"
-  },
-  {
-    "category": "Economics &amp; Finance",
-    "name": "Digital Gold: Bitcoin",
-    "author": null,
-    "link": "https://www.amazon.com/Digital-Gold-Bitcoin-Millionaires-Reinvent-ebook/dp/B01D8KFX9Q/"
-  },
-  {
-    "category": "Economics &amp; Finance",
-    "name": "Atlas Shrugged",
-    "author": null,
-    "link": "https://www.amazon.com/Atlas-Shrugged-Ayn-Rand-ebook/dp/B003V8B5XO/"
-  },
-  {
-    "category": "Business Education",
-    "name": "High Growth Handbook",
-    "author": null,
-    "link": "https://www.amazon.com/High-Growth-Handbook-Elad-Gil/dp/1732265100/"
-  },
-  {
-    "category": "Business Education",
-    "name": "High Output Management",
-    "author": null,
-    "link": "https://www.amazon.com/High-Output-Management-Andrew-Grove-ebook/dp/B015VACHOK/"
-  },
-  {
-    "category": "Business Education",
-    "name": "An Elegant Puzzle: Systems of Engineering and Management",
-    "author": null,
-    "link": "https://www.amazon.com/Elegant-Puzzle-Systems-Engineering-Management-ebook/dp/B07QYCHJ7V/"
-  },
-  {
-    "category": "Business Education",
-    "name": "How To Win Friends and Influence People",
-    "author": null,
-    "link": "https://www.amazon.com/How-Win-Friends-Influence-People-ebook/dp/B003WEAI4E/"
-  },
-  {
-    "category": "Business Education",
-    "name": "The Art of War",
-    "author": null,
-    "link": "https://www.amazon.com/Art-War-Sun-Tzu-ebook/dp/B08574RT5P/"
-  },
-  {
-    "category": "Business Education",
-    "name": "Trillion Dollar Coach",
-    "author": null,
-    "link": "https://www.amazon.com/Trillion-Dollar-Coach-Leadership-Playbook-ebook/dp/B076ZHG3H3/"
-  },
-  {
-    "category": "Business Education",
-    "name": "Creativity, Inc",
-    "author": null,
-    "link": "https://www.amazon.com/Creativity-Inc-Overcoming-Unseen-Inspiration-ebook/dp/B00FUZQYBO/"
-  },
-  {
-    "category": "Business Education",
-    "name": "Steve Jobs",
-    "author": null,
-    "link": "https://www.amazon.com/Steve-Jobs-Walter-Isaacson-ebook/dp/B004W2UBYW/"
-  },
-  {
-    "category": "Business Education",
-    "name": "Work Rules!: Insights from Inside Google",
-    "author": null,
-    "link": "https://www.amazon.com/Work-Rules-Insights-Inside-Transform-ebook/dp/B00MEMMVB8/"
-  },
-  {
-    "category": "Business Education",
-    "name": "Zero to One",
-    "author": null,
-    "link": "https://www.amazon.com/Zero-One-Notes-Startups-Future-ebook/dp/B00J6YBOFQ/"
-  },
-  {
-    "category": "Business Education",
-    "name": "The Innovator's Dilemma",
-    "author": null,
-    "link": "https://www.amazon.com/Innovators-Dilemma-Technologies-Management-Innovation-ebook/dp/B012BLTM6I/"
-  },
-  {
-    "category": "Business Education",
-    "name": "The Five Dysfunctions of a Team",
-    "author": null,
-    "link": "https://www.amazon.com/Five-Dysfunctions-Team-Leadership-Lencioni-ebook/dp/B006960LQW/"
-  },
-  {
-    "category": "Business Education",
-    "name": "The Goal: A Process of Ongoing Improvement",
-    "author": null,
-    "link": "https://www.amazon.com/Goal-Process-Ongoing-Improvement-ebook/dp/B002LHRM2O/"
-  },
-  {
-    "category": "Business Education",
-    "name": "Being the Boss",
-    "author": null,
-    "link": "https://www.amazon.com/Being-Boss-Imperatives-Becoming-Leader-ebook/dp/B01B3935MG/"
-  },
-  {
-    "category": "Business Education",
-    "name": "Getting to Yes",
-    "author": null,
-    "link": "https://www.amazon.com/Getting-Yes-Negotiating-Agreement-Without-ebook/dp/B0051SDM5Q/"
-  },
-  {
-    "category": "Business Education",
-    "name": "The Hard Thing About Hard Things",
-    "author": null,
-    "link": "https://www.amazon.com/Hard-Thing-About-Things-Building-ebook/dp/B00DQ845EA/"
-  },
-  {
-    "category": "Business Education",
-    "name": "Electronic Value Exchange: Origins of the VISA",
-    "author": null,
-    "link": "https://www.amazon.com/gp/product/1849961387/"
-  },
-  {
-    "category": "Business Education",
-    "name": "Softwar: An Intimate Portrait of Larry Ellison and Oracle",
-    "author": null,
-    "link": "https://www.amazon.com/gp/product/0743225058/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&amp;psc=1"
-  },
-  {
-    "category": "Business Education",
-    "name": "The Culture Map",
-    "author": null,
-    "link": "https://www.amazon.com/gp/product/1610392507/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&amp;psc=1"
-  },
-  {
-    "category": "Business Education",
-    "name": "The Sales Acceleration Formula",
-    "author": null,
-    "link": "https://www.amazon.com/gp/product/1119047072/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&amp;psc=1"
-  },
-  {
-    "category": "Business Education",
-    "name": "Inspired: How to Create Tech Products Customers Love",
-    "author": null,
-    "link": "https://www.amazon.com/gp/product/1119387507/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&amp;psc=1"
-  },
-  {
-    "category": "Business Education",
-    "name": "The 4-Hour Workweek",
-    "author": null,
-    "link": "https://www.amazon.com/4-Hour-Workweek-Expanded-Updated-Cutting-Edge-ebook/dp/B002WE46UW/"
-  },
-  {
-    "category": "Fraud &amp; Crime",
-    "name": "Billion Dollar Whale",
-    "author": null,
-    "link": "https://www.amazon.com/Billion-Dollar-Whale-Fooled-Hollywood-ebook/dp/B079WVJZCH/"
-  },
-  {
-    "category": "Fraud &amp; Crime",
-    "name": "American Kingpin",
-    "author": null,
-    "link": "https://www.amazon.com/American-Kingpin-Criminal-Mastermind-Behind-ebook/dp/B01L8C4WBG/"
-  },
-  {
-    "category": "Fraud &amp; Crime",
-    "name": "Permanent Record",
-    "author": null,
-    "link": "https://www.amazon.com/Permanent-Record-Edward-Snowden-ebook/dp/B07STQPGH6/"
-  },
-  {
-    "category": "Fraud &amp; Crime",
-    "name": "Enron: The Smartest Guys in the Room",
-    "author": null,
-    "link": "https://www.amazon.com/Smartest-Guys-Room-Amazing-Scandalous-ebook/dp/B00EOAS0EK/"
-  },
-  {
-    "category": "Fraud &amp; Crime",
-    "name": "Reminiscences of a Stock Operator",
-    "author": null,
-    "link": "https://www.amazon.com/Reminiscences-Stock-Operator-Marketplace-Book-ebook/dp/B00BOZBG2Q/"
-  },
-  {
-    "category": "Fraud &amp; Crime",
-    "name": "When Genius Failed",
-    "author": null,
-    "link": "https://www.amazon.com/When-Genius-Failed-Long-Term-Management-ebook/dp/B000FC1KZC/"
-  },
-  {
-    "category": "Fraud &amp; Crime",
-    "name": "Trump: The Art of the Deal",
-    "author": null,
-    "link": "https://www.amazon.com/Trump-Art-Deal-Donald-J-ebook/dp/B000SEGE6M/"
-  },
-  {
-    "category": "Science Fiction",
-    "name": "The Three-Body Problem",
-    "author": null,
-    "link": "https://www.amazon.com/Three-Body-Problem-Remembrance-Earths-Past-ebook/dp/B00IQO403K/"
-  },
-  {
-    "category": "Science Fiction",
-    "name": "I, Robot",
-    "author": null,
-    "link": "https://www.amazon.com/I-Robot-Book-1-ebook/dp/B000FC1PW0/"
-  },
-  {
-    "category": "Science Fiction",
-    "name": "Nexus",
-    "author": null,
-    "link": "https://www.amazon.com/Nexus-Trilogy-Book-1-ebook/dp/B00TOZI7FM/"
-  },
-  {
-    "category": "Science Fiction",
-    "name": "Permutation City",
-    "author": null,
-    "link": "https://www.amazon.com/Permutation-City-Greg-Egan-ebook/dp/B00FDWCPV2/"
-  },
-  {
-    "category": "Science Fiction",
-    "name": "The Diamond Age",
-    "author": null,
-    "link": "https://www.amazon.com/Diamond-Age-Illustrated-Primer-Spectra-ebook/dp/B000FBJCKI/"
-  },
-  {
-    "category": "Science Fiction",
-    "name": "Snow Crash",
-    "author": null,
-    "link": "https://www.amazon.com/Snow-Crash-Novel-Neal-Stephenson-ebook/dp/B000FBJCJE/"
-  },
-  {
-    "category": "Science Fiction",
-    "name": "Wool",
-    "author": null,
-    "link": "https://www.amazon.com/Wool-Omnibus-Kindle-Motion-Silo-ebook/dp/B0071XO8RA/"
-  },
-  {
-    "category": "Science Fiction",
-    "name": "Dune",
-    "author": null,
-    "link": "https://www.amazon.com/Dune-Frank-Herbert-ebook/dp/B00B7NPRY8/"
-  },
-  {
-    "category": "Science Fiction",
-    "name": "Do Androids Dream of Electric Sheep",
-    "author": null,
-    "link": "https://www.amazon.com/Androids-Dream-Electric-Sheep-inspiration-ebook/dp/B000SEGTI0/"
-  },
-  {
-    "category": "Science Fiction",
-    "name": "The Martian",
-    "author": null,
-    "link": "https://www.amazon.com/Martian-Novel-Andy-Weir-ebook/dp/B00EMXBDMA/"
-  },
-  {
-    "category": "Science Fiction",
-    "name": "Ready Player One",
-    "author": null,
-    "link": "https://www.amazon.com/Ready-Player-One-Ernest-Cline-ebook/dp/B004J4WKUQ/"
-  },
-  {
-    "category": "Science Fiction",
-    "name": "A Fire Upon The Deep",
-    "author": null,
-    "link": "https://www.amazon.com/Fire-Upon-Deep-Zones-Thought-ebook/dp/B000FBJAGO/"
-  },
-  {
-    "category": "Science Fiction",
-    "name": "The Moon is a Harsh Mistress",
-    "author": null,
-    "link": "https://www.amazon.com/Moon-Harsh-Mistress-Robert-Heinlein-ebook/dp/B07CWGBZ4R/"
-  },
-  {
-    "category": "Science Fiction",
-    "name": "Children of Time",
-    "author": null,
-    "link": "https://www.amazon.com/gp/product/B07DN8BQMD/ref=ppx_yo_dt_b_d_asin_title_o05?ie=UTF8&amp;psc=1"
-  },
-  {
-    "category": "Science Fiction",
-    "name": "Ministry for the Future",
-    "author": null,
-    "link": "https://www.amazon.com/gp/product/B084FY1NXB/ref=ppx_yo_dt_b_d_asin_title_o04?ie=UTF8&amp;psc=1"
-  },
-  {
-    "category": "Science Fiction",
-    "name": "Project Hail Mary",
-    "author": null,
-    "link": "https://www.amazon.com/gp/product/B08FHBV4ZX/ref=ppx_yo_dt_b_d_asin_title_o07?ie=UTF8&amp;psc=1"
-  },
-  {
-    "category": "Fiction",
-    "name": "David Copperfield",
-    "author": null,
-    "link": "https://www.amazon.com/David-Copperfield-Charles-Dickens-ebook/dp/B004GHNIQQ/"
-  },
-  {
-    "category": "Fiction",
-    "name": "The Count of Monte Cristo",
-    "author": null,
-    "link": "https://www.amazon.com/Count-Monte-Cristo-Alexandre-Dumas-ebook/dp/B07PV4NCSN"
-  },
-  {
-    "category": "Fiction",
-    "name": "The Brothers Karamazov",
-    "author": null,
-    "link": "https://www.amazon.com/Brothers-Karamazov-Fyodor-Dostoyevsky-ebook/dp/B07NKBBBQL/"
-  },
-  {
-    "category": "Fiction",
-    "name": "Crime and Punishment",
-    "author": null,
-    "link": "https://www.amazon.com/Crime-Punishment-Fyodor-Dostoevsky-ebook/dp/B077Y58PGY"
-  },
-  {
-    "category": "Fiction",
-    "name": "1984",
-    "author": null,
-    "link": "https://www.amazon.com/1984-George-Orwell-ebook/dp/B003JTHWKU/"
-  },
-  {
-    "category": "Fiction",
-    "name": "A Game of Thrones",
-    "author": null,
-    "link": "https://www.amazon.com/Game-Thrones-Song-Fire-Book-ebook/dp/B000QCS8TW/"
-  },
-  {
-    "category": "Fiction",
-    "name": "The Glass Bead Game",
-    "author": null,
-    "link": "https://www.amazon.com/Glass-Bead-Game-Magister-Novel-ebook/dp/B00ANI9G0O/"
-  },
-  {
-    "category": "Fiction",
-    "name": "Siddhartha",
-    "author": null,
-    "link": "https://www.amazon.com/Siddhartha-Indian-Penguin-Twentieth-Century-Classics-ebook/"
-  },
-  {
-    "category": "Fiction",
-    "name": "The Hobbit",
-    "author": null,
-    "link": "https://www.amazon.com/Hobbit-Lord-Rings-J-R-R-Tolkien-ebook/dp/B0079KT81G"
-  },
-  {
-    "category": "Fiction",
-    "name": "The Goldfinch",
-    "author": null,
-    "link": "https://www.amazon.com/Goldfinch-Novel-Pulitzer-Prize-Fiction-ebook/dp/B00BAXFECK"
-  },
-  {
-    "category": "Fiction",
-    "name": "The Hitchhiker's Guide to the Galaxy",
-    "author": null,
-    "link": "https://www.amazon.com/Hitchhikers-Guide-Galaxy-Douglas-Adams-ebook/dp/B000XUBC2C"
-  },
-  {
-    "category": "Fiction",
-    "name": "The Hunchback of Notre Dame",
-    "author": null,
-    "link": "https://www.amazon.com/Hunchback-Notre-Dover-Thrift-Editions-ebook/dp/B00A735U0U"
-  },
-  {
-    "category": "Fiction",
-    "name": "Les Mis\u00e9rables",
-    "author": null,
-    "link": "https://www.amazon.com/Miserables-Mis%C3%A9rables-Victor-Hugo-ebook/dp/B00C5QZCK0"
-  },
-  {
-    "category": "Fiction",
-    "name": "Blindness",
-    "author": null,
-    "link": "https://www.amazon.com/Blindness-Harvest-Book-Jos%C3%A9-Saramago-ebook/dp/B003T0GBOM/"
-  },
-  {
-    "category": "Fiction",
-    "name": "Lolita",
-    "author": null,
-    "link": "https://www.amazon.com/Lolita-Vintage-International-Vladimir-Nabokov-ebook/dp/B003WUYRB8/"
-  },
-  {
-    "category": "Fiction",
-    "name": "Clockwork Orange",
-    "author": null,
-    "link": "https://www.amazon.com/Clockwork-Orange-Anthony-Burgess-ebook/dp/B005HSGB6W/"
-  },
-  {
-    "category": "Fiction",
-    "name": "Fight Club",
-    "author": null,
-    "link": "https://www.amazon.com/Fight-Club-Novel-Chuck-Palahniuk-ebook/dp/B000U0O9FM/"
-  },
-  {
-    "category": "Fiction",
-    "name": "Ivanhoe",
-    "author": null,
-    "link": "https://www.amazon.com/gp/product/B07Q8K4X3Y/"
-  },
-  {
-    "category": "Fiction",
-    "name": "Candide",
-    "author": null,
-    "link": "https://www.amazon.com/Candide-Voltaire-ebook/dp/B004UJGFKG"
-  },
-  {
-    "category": "Fiction",
-    "name": "The Trial",
-    "author": null,
-    "link": "https://www.amazon.com/Trial-Franz-Kafka-ebook/dp/B07YR7PFPT/"
-  },
-  {
-    "category": "Fiction",
-    "name": "The Picture of Dorian Gray",
-    "author": null,
-    "link": "https://www.amazon.com/Picture-Dorian-Gray-Penguin-Classics-ebook/dp/B002RI9R4S/"
-  },
-  {
-    "category": "Fiction",
-    "name": "The Feast of the Goat",
-    "author": null,
-    "link": "https://www.amazon.com/Feast-Goat-Mario-Vargas-Llosa-ebook/dp/B004QGYWJY/"
-  },
-  {
-    "category": "Fiction",
-    "name": "Norse Mythology",
-    "author": null,
-    "link": "https://www.amazon.com/Norse-Mythology-Neil-Gaiman-ebook/dp/B01HQA6EOC/"
-  },
-  {
-    "category": "Fiction",
-    "name": "The Name of the Rose",
-    "author": null,
-    "link": "https://www.amazon.com/dp/B003WUYPTC/"
-  },
-  {
-    "category": "Fiction",
-    "name": "Perfume",
-    "author": null,
-    "link": "https://www.amazon.com/Perfume-Story-Murderer-Vintage-International-ebook/dp/B00JTCJE52/"
-  },
-  {
-    "category": "Fiction",
-    "name": "Germinal",
-    "author": null,
-    "link": "https://www.amazon.com/Germinal-Penguin-Classics-%C3%89mile-Zola-ebook/dp/B002XHNN70/"
-  },
-  {
-    "category": "Fiction",
-    "name": "The Unbearable Lightness of Being",
-    "author": null,
-    "link": "https://www.amazon.com/Unbearable-Lightness-Being-Perennial-Classics/dp/0061148520"
-  },
-  {
-    "category": "Fiction",
-    "name": "A Gentleman in Moscow",
-    "author": null,
-    "link": "https://www.amazon.com/gp/product/B01COJUEZ0/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&amp;psc=1"
-  },
-  {
-    "category": "Fiction",
-    "name": "The Talented Mr. Ripley",
-    "author": null,
-    "link": "https://www.amazon.com/gp/product/B007Q6XJGS/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&amp;psc=1"
-  },
-  {
-    "category": "Fiction",
-    "name": "Independent People",
-    "author": null,
-    "link": "https://www.amazon.com/gp/product/B0031W1EIQ/ref=ppx_yo_dt_b_d_asin_title_o00?ie=UTF8&amp;psc=1"
-  },
-  {
-    "category": "Non-Fiction",
-    "name": "My Struggle: Book 1",
-    "author": null,
-    "link": "https://www.amazon.com/My-Struggle-Karl-Ove-Knausgaard-ebook/dp/B00BCFZLJ2/"
-  },
-  {
-    "category": "Non-Fiction",
-    "name": "The Beginning of Infinity",
-    "author": null,
-    "link": "https://www.amazon.com/Beginning-Infinity-Explanations-Transform-World-ebook/dp/B005DXR5ZC/"
-  },
-  {
-    "category": "Non-Fiction",
-    "name": "Born to Run",
-    "author": null,
-    "link": "https://www.amazon.com/Born-Run-Christopher-McDougall-ebook/dp/B0028MBKVG/"
-  },
-  {
-    "category": "Non-Fiction",
-    "name": "The Push: A Climber's Search for the Path",
-    "author": null,
-    "link": "https://www.amazon.com/gp/product/B01MRNJOBF/ref=ppx_yo_dt_b_d_asin_title_o01?ie=UTF8&amp;psc=1"
-  },
-  {
-    "category": "Non-Fiction",
-    "name": "Into Thin Air",
-    "author": null,
-    "link": "https://www.amazon.com/Into-Thin-Air-Jon-Krakauer-ebook/dp/B000FC1ITK/"
-  },
-  {
-    "category": "Non-Fiction",
-    "name": "Into the Wild",
-    "author": null,
-    "link": "https://www.amazon.com/gp/product/B000SEFNMS"
-  },
-  {
-    "category": "Non-Fiction",
-    "name": "The Emperor of All Maladies",
-    "author": null,
-    "link": "https://www.amazon.com/Emperor-All-Maladies-Biography-Cancer-ebook/dp/B003UYUP58/"
-  },
-  {
-    "category": "Non-Fiction",
-    "name": "Masters of Doom",
-    "author": null,
-    "link": "https://www.amazon.com/Masters-Doom-Created-Transformed-Culture-ebook/dp/B000FBFNL0/"
-  },
-  {
-    "category": "Non-Fiction",
-    "name": "Junkyard Planet",
-    "author": null,
-    "link": "https://www.amazon.com/Junkyard-Planet-Travels-Billion-Dollar-Trash-ebook/dp/B00EME5MNK/"
-  },
-  {
-    "category": "Non-Fiction",
-    "name": "The Box: How the Shipping Container Made the World",
-    "author": null,
-    "link": "https://www.amazon.com/Box-Shipping-Container-Smaller-Economy-ebook/dp/B01772PS00"
-  },
-  {
-    "category": "Non-Fiction",
-    "name": "Elon Musk: Tesla, SpaceX",
-    "author": null,
-    "link": "https://www.amazon.com/Elon-Musk-SpaceX-Fantastic-Future-ebook/dp/B00KVI76ZS/"
-  },
-  {
-    "category": "Non-Fiction",
-    "name": "What a Plant Knows",
-    "author": null,
-    "link": "https://www.amazon.com/What-Plant-Knows-Field-Senses-ebook/dp/B0071W4X7G/"
-  },
-  {
-    "category": "Non-Fiction",
-    "name": "Master of the Senate: The Years of Lyndon Johnson III",
-    "author": null,
-    "link": "https://www.amazon.com/gp/product/B002IPZBPO/ref=ppx_yo_dt_b_d_asin_title_o05?ie=UTF8&amp;psc=1"
-  },
-  {
-    "category": "Non-Fiction",
-    "name": "The Market Gardener: A Successful Grower's Handbook",
-    "author": null,
-    "link": "https://www.amazon.com/Market-Gardener-Successful-Handbook-Small-scale/dp/0865717656/"
-  },
-  {
-    "category": "Non-Fiction",
-    "name": "How to Design and Build Your Own House",
-    "author": null,
-    "link": "https://www.amazon.com/gp/product/0394752007"
-  },
-  {
-    "category": "Non-Fiction",
-    "name": "The Art of Fiction: A Guide for Writers and Readers",
-    "author": null,
-    "link": "https://www.amazon.com/dp/0452281547/"
-  },
-  {
-    "category": "Non-Fiction",
-    "name": "How to Make Love Like a Porn Star",
-    "author": null,
-    "link": "https://www.amazon.com/Make-Love-Like-Porn-Star-ebook/dp/B007MAU1IM/"
-  },
-  {
-    "category": "Non-Fiction",
-    "name": "Mating in Captivity",
-    "author": null,
-    "link": "https://www.amazon.com/Mating-Captivity-Unlocking-Erotic-Intelligence-ebook/dp/B000UODXP0/"
-  },
-  {
-    "category": "Non-Fiction",
-    "name": "Bringing up B\u00e9b\u00e9",
-    "author": null,
-    "link": "https://www.amazon.com/Bringing-Up-B%C3%A9b%C3%A9-Discovers-Parenting-ebook/dp/B00MNNAODK/"
-  },
-  {
-    "category": "Non-Fiction",
-    "name": "Endurance: Shackleton's Incredible Voyage",
-    "author": null,
-    "link": "https://www.amazon.com/gp/product/B00IC8VF10/ref=ppx_yo_dt_b_d_asin_title_o00?ie=UTF8&amp;psc=1"
-  },
-  {
-    "category": "Non-Fiction",
-    "name": "Finding Soul, From Silicon Valley to Africa",
-    "author": null,
-    "link": "https://www.amazon.com/gp/product/B08PB1D8SQ/ref=ppx_yo_dt_b_d_asin_title_o07?ie=UTF8&amp;psc=1"
-  },
-  {
-    "category": "Non-Fiction",
-    "name": "Born a Crime: Stories from a South African Childhood",
-    "author": null,
-    "link": "https://www.amazon.com/gp/product/B01DHWACVY/ref=ppx_yo_dt_b_d_asin_title_o01?ie=UTF8&amp;psc=1"
   }
 ]
