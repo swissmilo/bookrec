@@ -294,12 +294,57 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'z') undoMove(); // Undo
 });
 
+function resizeCanvas() {
+  const canvas = document.getElementById('gameCanvas');
+  const originalWidth = parseInt(canvas.dataset.originalWidth);
+  const originalHeight = parseInt(canvas.dataset.originalHeight);
+  
+  const viewport = {
+      width: window.innerWidth,
+      height: window.innerHeight
+  };
+  
+  // Calculate the maximum size that maintains the game's aspect ratio
+  const gameAspectRatio = originalWidth / originalHeight;
+  const viewportAspectRatio = viewport.width / viewport.height;
+  
+  let newWidth, newHeight;
+  
+  if (viewportAspectRatio > gameAspectRatio) {
+      // Viewport is wider than game ratio
+      newHeight = viewport.height * 0.80; // 90% of viewport height
+      newWidth = newHeight * gameAspectRatio;
+  } else {
+      // Viewport is taller than game ratio
+      newWidth = viewport.width * 0.90; // 90% of viewport width
+      newHeight = newWidth / gameAspectRatio;
+  }
+  
+  canvas.style.width = `${newWidth}px`;
+  canvas.style.height = `${newHeight}px`;
+  
+  // Maintain internal canvas resolution
+  canvas.width = originalWidth;
+  canvas.height = originalHeight;
+}
+
 // Load a test level
 window.addEventListener('load', () => {
   Promise.all(preloadPromises).then(() => {
     console.log('All images preloaded.');
   });
+  resizeCanvas();
+  drawLevel();
 });
+
+window.addEventListener('resize', () => {
+  Promise.all(preloadPromises).then(() => {
+    console.log('All images preloaded.');
+  });
+  resizeCanvas();
+  drawLevel();
+});
+
 /*loadLevel(
 `    #####
     #---#

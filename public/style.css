@@ -145,7 +145,7 @@ td {
 @media (max-width: 768px) {
   .controls-container {
     flex-direction: column; /* Stack the buttons vertically if needed */
-    gap: 15px;
+    gap: 10px;
     margin-top: 10px;
     align-items: center;
     justify-content: center;
@@ -155,36 +155,14 @@ td {
   .horizontal-controls {
     display: flex;
     justify-content: center;
-    gap: 15px; /* Increase spacing between buttons */
   }
+}
 
-  .control-button {
-    width: 80px; /* Larger button size for mobile */
-    height: 80px;
-    font-size: 2rem; /* Larger font size for arrows */
-    background-color: #f5f5f5; /* Neutral background */
-    border: 2px solid #ccc; /* Slight border for visibility */
-    color: #333; /* Arrow color to neutral */
-    border-radius: 12px; /* Slightly rounded corners */
-    text-align: center;
-    justify-content: center;
-    align-items: center;
-    transition:
-      background-color 0.3s,
-      transform 0.1s;
-    touch-action: manipulation; /* Prevents delays on touch devices */
-  }
-
-  .control-button:hover,
-  .control-button:focus {
-    background-color: #5469d4; /* Highlight on interaction */
-    color: white; /* Make arrow color white */
-  }
-
-  .control-button:active {
-    background-color: #3b0bea; /* Active button state */
-    transform: scale(0.95); /* Slight shrink */
-  }
+#gameCanvas {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  max-height: 80vh;
 }
 
 .admin-section {

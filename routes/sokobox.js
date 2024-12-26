@@ -23,7 +23,7 @@ router.get('/', (req, res) => {
             canvas { background: #ddd; display: block; margin: 20px auto; }
         </style>
         <body>
-            <canvas id="gameCanvas" width="900" height="720"></canvas>
+            <canvas id="gameCanvas" width="900" height="720" data-original-width="900" data-original-height="720"></canvas>
             <div class="controls-container">
                 <div class="vertical-controls">
                     <button class="control-button up">▲</button>
