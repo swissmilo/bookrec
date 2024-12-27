@@ -5,7 +5,9 @@ const fs = require('fs');
 const getHtmlHead = require('../utils/htmlHead');
 
 router.get('/', (req, res) => {
-  const level = req.query.level || '1';
+  const level = req.query.level || req.session.lastLevel || '1';
+  req.session.lastLevel = level;
+
   const levelPath = path.join(__dirname, '..', 'data/levels/', level + '.lvl');
 
   fs.readFile(levelPath, 'utf8', (err, data) => {

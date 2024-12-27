@@ -2,6 +2,7 @@ const express = require('express');
 const dotenv = require('dotenv').config();
 const path = require('path');
 const cookieParser = require('cookie-parser');
+const session = require('express-session');
 const { SitemapStream, streamToPromise } = require('sitemap');
 const { Readable } = require('stream');
 
@@ -24,6 +25,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'not-very-secret-key',
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: process.env.NODE_ENV === 'production' }
+}));
 
 // Mount routes
 app.use('/', homeRouter);
