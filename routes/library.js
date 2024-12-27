@@ -133,7 +133,7 @@ router.get('/', (req, res) => {
                                 bookQuotes !== 'No quotes available'
                                   ? `
                               <div class="tooltip">
-                                  <strong>Example Highlights:</strong>
+                                  <strong>Personal Highlights:</strong>
                                   <ul><li>${bookQuotes}</li></ul>
                               </div>`
                                   : ''
@@ -153,76 +153,40 @@ router.get('/', (req, res) => {
     res.type('html').send(`
               <!DOCTYPE html>
               <html>
-              ${getHtmlHead('Book Library')}
-              <style>
-                .category-header {
-                    font-size: 1.4rem;
-                    font-weight: bold;
-                    background-color: #f6f9fc;
-                    color: #32325d;
-                    text-align: left;
-                }
-                .book-row td {
-                    width: 100%;
-                    padding: 12px;
-                    border-bottom: 1px solid #ddd;
-                    position: relative;
-                }
-                .category-link {
-                    margin: 0 10px;
-                    color: #5469d4;
-                    text-decoration: none;
-                    font-weight: bold;
-                }
-                .category-link:hover {
-                    text-decoration: underline;
-                }
-                .tooltip-container {
-                    position: relative;
-                    display: inline-block;
-                }
-                .tooltip {
-                    display: none;
-                    position: fixed;
-                    background-color: #fff;
-                    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-                    padding: 10px;
-                    border: 1px solid #ddd;
-                    border-radius: 8px;
-                    z-index: 1000;
-                    white-space: normal;
-                    width: 400px;
-                }
-              </style>
+              ${getHtmlHead('Library')}
               <script>
                 let tooltip;
                 function showTooltip(event, element) {
-                    if (!tooltip) {
-                        tooltip = document.createElement('div');
-                        tooltip.className = 'tooltip';
-                        document.body.appendChild(tooltip);
-                    }
-                    tooltip.innerHTML = element.querySelector('.tooltip').innerHTML;
-                    tooltip.style.display = 'block';
-                    tooltip.style.left = (event.clientX + 10) + 'px';
-                    tooltip.style.top = (event.clientY + 10) + 'px';
+                  if (!tooltip) {
+                    tooltip = document.createElement('div');
+                    tooltip.className = 'tooltip';
+                    document.body.appendChild(tooltip);
+                  }
+                  tooltip.innerHTML = element.querySelector('.tooltip').innerHTML;
+                  tooltip.style.display = 'block';
+                  tooltip.style.left = (event.clientX + 10) + 'px';
+                  tooltip.style.top = (event.clientY + 10) + 'px';
                 }
                 function hideTooltip() {
-                    if (tooltip) tooltip.style.display = 'none';
+                  if (tooltip) tooltip.style.display = 'none';
                 }
               </script>
-              </head>
               <body>
-                  <div class="container">
-                      <h1>All Books</h1>
-                      <div class="categories">
-                          <p>Filter by category: ${categoryLinks}</p>
+                  <div class="win95-window">
+                      <div class="win95-titlebar">
+                          <span>Library</span>
+                          <a href="/" class="win95-close">×</a>
                       </div>
-                      <table>
-                          <tbody>
-                              ${tableRows}
-                          </tbody>
-                      </table>
+                      <div class="win95-content">
+                          <div class="categories">
+                              <p>Filter by category: ${categoryLinks}</p>
+                          </div>
+                          <table>
+                              <tbody>
+                                  ${tableRows}
+                              </tbody>
+                          </table>
+                      </div>
                   </div>
               </body>
               </html>

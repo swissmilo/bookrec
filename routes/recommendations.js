@@ -60,42 +60,30 @@ router.get('/', async (req, res) => {
     <!DOCTYPE html>
     <html>
     ${getHtmlHead('Book Recommendations')}
-    <style>
-      .spinner {
-          display: none;
-          margin: 20px auto;
-          width: 50px;
-          height: 50px;
-          border: 8px solid #f3f3f3;
-          border-top: 8px solid #3498db;
-          border-radius: 50%;
-          animation: spin 1s linear infinite;
-      }
-      @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-      }
-    </style>
-    <script>
-      function showSpinner() {
-          document.getElementById('spinner').style.display = 'block';
-      }
-    </script>
-    </head>
     <body>
-        <div class="container">
-        <h1>Milo's Book Recommendations</h1>
-        <form action="/recommendations" method="get" class="search-form" onsubmit="showSpinner()">
+      <div class="win95-window">
+        <div class="win95-titlebar">
+          <span>Book Recommendations</span>
+          <a href="/" class="win95-close">×</a>
+        </div>
+        <div class="win95-content">
+          <form action="/recommendations" method="get" class="search-form" onsubmit="showSpinner()">
+            <script>
+              function showSpinner() {
+                document.getElementById('spinner').style.display = 'block';
+              }
+            </script>
             <label for="genre">Enter a genre:</label>
             <input type="text" id="genre" name="genre" value="${query}" placeholder="e.g., scifi">
             <button type="submit">Search</button>
-        </form>
-        <div id="spinner" class="spinner"></div>
-        ${query ? `<h2>Recommendations for "${query}"</h2><div class="recommendations">${recommendationsHtml}</div>` : ''}
+          </form>
+          <div id="spinner" class="spinner"></div>
+          ${query ? `<div class="recommendations">${recommendationsHtml}</div>` : ''}
         </div>
+      </div>
     </body>
     </html>
-`);
+  `);
 });
 
 module.exports = router;

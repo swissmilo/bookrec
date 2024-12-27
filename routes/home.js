@@ -8,16 +8,21 @@ router.get('/', (req, res) => {
         <html>
         ${getHtmlHead('Milo\'s Personal Website')}
         <body>
-            <div class="container">
-                <h1>Welcome to Milo's Personal Website</h1>
-                <nav>
-                    <ul>
-                        <li><a href="/about">About</a></li>
-                        <li><a href="/all-books">Library</a></li>
-                        <li><a href="/recommendations">Recommendations</a></li>
-                        <li><a href="/sokobox">Games</a></li>
-                    </ul>
-                </nav>
+            <div class="desktop">
+                <div class="desktop-icons">
+                    <a href="/about" class="desktop-icon">
+                        <div class="icon-img">👤</div>
+                    </a>
+                    <a href="/all-books" class="desktop-icon">
+                        <div class="icon-img">📚</div>
+                    </a>
+                    <a href="/recommendations" class="desktop-icon">
+                        <div class="icon-img">💡</div>
+                    </a>
+                    <a href="/sokobox" class="desktop-icon">
+                        <div class="icon-img">🎮</div>
+                    </a>
+                </div>
             </div>
         </body>
         </html>

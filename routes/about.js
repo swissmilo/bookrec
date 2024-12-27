@@ -8,8 +8,12 @@ router.get('/', (req, res) => {
         <html>
         ${getHtmlHead('About')}
         <body>
-            <div class="container">
-                <h1>About Me</h1>
+            <div class="win95-window">
+                <div class="win95-titlebar">
+                    <span>About Me</span>
+                    <a href="/" class="win95-close">×</a>
+                </div>
+                <div class="win95-content">
                 <p>Hi, I'm Milo Spirig. I'm born and raised in Switzerland and currently live in NYC.</p>
                 <p>Find me here:</p>
                 <ul>
@@ -17,6 +21,7 @@ router.get('/', (req, res) => {
                     <li><a href="https://twitter.com/SwissMilo" target="_blank">Twitter</a></li>
                     <li><a href="https://github.com/swissmilo" target="_blank">GitHub</a></li>
                 </ul>
+                </div>
             </div>
         </body>
         </html>

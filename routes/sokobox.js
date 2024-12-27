@@ -21,19 +21,24 @@ router.get('/', (req, res) => {
         <!DOCTYPE html>
         <html lang="en">
         ${getHtmlHead('Sokobox')}
-        <style>
-            canvas { background: #ddd; display: block; margin: 20px auto; }
-        </style>
         <body>
-            <canvas id="gameCanvas" width="900" height="720" data-original-width="900" data-original-height="720"></canvas>
-            <div class="controls-container">
-                <div class="vertical-controls">
-                    <button class="control-button up">▲</button>
+            <div class="win95-window sokobox-window">
+                <div class="win95-titlebar">
+                    <span>Sokobox</span>
+                    <a href="/" class="win95-close">×</a>
                 </div>
-                <div class="horizontal-controls">
-                    <button class="control-button left">◀</button>
-                    <button class="control-button down">▼</button>
-                    <button class="control-button right">▶</button>
+                <div class="win95-content">
+                    <canvas id="gameCanvas" width="900" height="720" data-original-width="900" data-original-height="720"></canvas>
+                    <div class="controls-container">
+                        <div class="vertical-controls">
+                            <button class="control-button up">▲</button>
+                        </div>
+                        <div class="horizontal-controls">
+                            <button class="control-button left">◀</button>
+                            <button class="control-button down">▼</button>
+                            <button class="control-button right">▶</button>
+                        </div>
+                    </div>
                 </div>
             </div>
             <script>
