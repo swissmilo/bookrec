@@ -21,6 +21,8 @@ let moveHistory = [];
 let moves = 0,
   pushes = 0;
 let levelComplete = false;
+let levelStartTime = null;
+let levelTime = 0;
 
 // Canvas setup
 const canvas = document.getElementById('gameCanvas');
@@ -86,6 +88,8 @@ function loadLevel(levelData) {
 
       moves = pushes = 0;
       moveHistory = [];
+      levelStartTime = Date.now();
+      levelTime = 0;
       drawLevel();
     })
     .catch((err) => {
@@ -179,7 +183,9 @@ function isGoal(x, y) {
 function checkCompletion() {
   levelComplete = !level.flat().includes(LVL_GOAL);
   if (levelComplete) {
+    levelTime = (Date.now() - levelStartTime) / 1000;
     console.log('Level completed!');
+    submitHighscore();
     fadeOutAndLoadNextLevel();
   }
 }
@@ -226,15 +232,14 @@ function drawLevel() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   // Centering offsets
-  const xOffset = 0; //(canvas.width - WIDTH * TILE_SIZE) / 2;
-  const yOffset = 0; //(canvas.height - HEIGHT * TILE_SIZE) / 2;
+  const xOffset = 0;
+  const yOffset = 0;
 
   for (let y = 0; y < HEIGHT; y++) {
     for (let x = 0; x < WIDTH; x++) {
       let tile = level[y][x];
       let imageKey;
 
-      //console.log(`tile for ${x} ${y} is ${tile}`);
       if (tile === LVL_CLEAR) imageKey = 'LVL_CLEAR';
       if (tile === LVL_WALL) imageKey = 'LVL_WALL';
       if (tile === LVL_GOAL) imageKey = 'LVL_GOAL';
@@ -243,7 +248,6 @@ function drawLevel() {
       if (tile === LVL_FLOOR) imageKey = 'LVL_FLOOR';
 
       if (imageKey) {
-        //console.log(`imagekey for ${x} ${y} is ${imageKey}`);
         ctx.drawImage(
           images[imageKey],
           x * TILE_SIZE + xOffset,
@@ -255,7 +259,6 @@ function drawLevel() {
     }
   }
   ctx.drawImage(
-    //images['PLAYER'],
     player.push
       ? images[`PUSH_PLY_${['UP', 'DOWN', 'LEFT', 'RIGHT'][player.state]}`]
       : images[`PLY_${['UP', 'DOWN', 'LEFT', 'RIGHT'][player.state]}`],
@@ -358,3 +361,52 @@ window.addEventListener('resize', () => {
     #-----#########
     #######`);
 */
+
+// Submit highscore
+async function submitHighscore() {
+  const currentLevel = parseInt(
+    new URLSearchParams(window.location.search).get('level') || '1'
+  );
+  
+  const playerName = localStorage.getItem('playerName');
+  if (!playerName) {
+    // Ask for player name if not stored
+    const name = prompt('New highscore! Enter your name:');
+    if (name) {
+      localStorage.setItem('playerName', name);
+    } else {
+      // If user cancels prompt, use 'Anonymous'
+      localStorage.setItem('playerName', 'Anonymous');
+    }
+  }
+
+  // Get the name again after potentially setting it
+  const finalName = localStorage.getItem('playerName');
+
+  const payload = {
+    level: currentLevel.toString(), // Convert to string to match server expectation
+    time: levelTime,
+    name: finalName
+  };
+  
+  console.log('Submitting highscore payload:', payload);
+
+  try {
+    const response = await fetch('/sokobox/highscore', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      console.error('Server error:', data);
+      return;
+    }
+    console.log('Highscore submitted:', data);
+  } catch (error) {
+    console.error('Error submitting highscore:', error);
+  }
+}
