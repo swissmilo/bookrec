@@ -361,6 +361,26 @@ window.addEventListener('resize', () => {
     #######`);
 */
 
+// Load highscores from localStorage
+function getLocalHighscores(level) {
+  try {
+    const scores = localStorage.getItem(`highscores_${level}`);
+    return scores ? JSON.parse(scores) : [];
+  } catch (error) {
+    console.error('Error loading local highscores:', error);
+    return [];
+  }
+}
+
+// Save highscores to localStorage
+function saveLocalHighscores(level, scores) {
+  try {
+    localStorage.setItem(`highscores_${level}`, JSON.stringify(scores));
+  } catch (error) {
+    console.error('Error saving local highscores:', error);
+  }
+}
+
 // Submit highscore
 async function submitHighscore() {
   const currentLevel = parseInt(
@@ -369,23 +389,18 @@ async function submitHighscore() {
   
   const playerName = localStorage.getItem('playerName');
   if (!playerName) {
-    // Ask for player name if not stored
     const name = prompt('Enter your nickname for the highscore:');
     if (name) {
       localStorage.setItem('playerName', name);
     } else {
-      // If user cancels prompt, use 'Anonymous'
       localStorage.setItem('playerName', 'Anonymous');
     }
   }
 
-  // Get the name again after potentially setting it
   const finalName = localStorage.getItem('playerName');
-
-  const payload = {
-    level: currentLevel.toString(),
-    time: levelTime,
-    name: finalName
+  const newScore = {
+    name: finalName,
+    time: levelTime
   };
 
   try {
@@ -394,13 +409,27 @@ async function submitHighscore() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify({
+        level: currentLevel.toString(),
+        time: levelTime,
+        name: finalName
+      })
     });
 
-    const data = await response.json();
+    let highscores;
     if (!response.ok) {
-      console.error('Server error:', data);
-      return;
+      console.log('Server error, using local highscores');
+      // Fallback to localStorage
+      const localScores = getLocalHighscores(currentLevel);
+      localScores.push(newScore);
+      localScores.sort((a, b) => a.time - b.time);
+      highscores = localScores.slice(0, 5);
+      saveLocalHighscores(currentLevel, highscores);
+    } else {
+      const data = await response.json();
+      highscores = data.highscores;
+      // Update local storage with server data
+      saveLocalHighscores(currentLevel, highscores);
     }
     
     // Show completion time
@@ -409,7 +438,7 @@ async function submitHighscore() {
     
     // Update highscore table
     const tbody = document.getElementById('highscoreTableBody');
-    tbody.innerHTML = data.highscores.map((score, index) => `
+    tbody.innerHTML = highscores.map((score, index) => `
       <tr${score.name === finalName && score.time === levelTime ? ' class="current-score"' : ''}>
         <td>${index + 1}</td>
         <td>${score.name}</td>
@@ -422,7 +451,27 @@ async function submitHighscore() {
 
   } catch (error) {
     console.error('Error submitting highscore:', error);
-    fadeOutAndLoadNextLevel(); // Continue to next level even if highscore submission fails
+    // Fallback to localStorage on error
+    const localScores = getLocalHighscores(currentLevel);
+    localScores.push(newScore);
+    localScores.sort((a, b) => a.time - b.time);
+    const highscores = localScores.slice(0, 5);
+    saveLocalHighscores(currentLevel, highscores);
+    
+    // Still show the modal with local highscores
+    document.getElementById('completionTime').textContent = 
+      `Your time: ${levelTime.toFixed(1)}s`;
+    
+    const tbody = document.getElementById('highscoreTableBody');
+    tbody.innerHTML = highscores.map((score, index) => `
+      <tr${score.name === finalName && score.time === levelTime ? ' class="current-score"' : ''}>
+        <td>${index + 1}</td>
+        <td>${score.name}</td>
+        <td>${score.time.toFixed(1)}s</td>
+      </tr>
+    `).join('');
+    
+    document.getElementById('highscoreModal').style.display = 'block';
   }
 }
 

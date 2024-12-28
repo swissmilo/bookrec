@@ -3,60 +3,57 @@ const router = express.Router();
 const path = require('path');
 const fs = require('fs');
 const getHtmlHead = require('../utils/htmlHead');
+const supabase = require('../utils/supabase');
 
-// Load highscores from JSON file
-let highscores = {};
-try {
-  const scoresPath = path.join(__dirname, '..', 'data', 'highscores.json');
-  if (fs.existsSync(scoresPath)) {
-    highscores = JSON.parse(fs.readFileSync(scoresPath, 'utf8'));
-  }
-} catch (error) {
-  console.error('Error loading highscores:', error);
-  highscores = {};
-}
-
-// Save highscores to file
-function saveHighscores() {
-  const scoresPath = path.join(__dirname, '..', 'data', 'highscores.json');
-  fs.writeFileSync(scoresPath, JSON.stringify(highscores, null, 2));
-}
-
-// Add a new highscore
-router.post('/highscore', (req, res) => {
+router.post('/highscore', async (req, res) => {
   const { level, time, name } = req.body;
   
   if (!level || !time || !name) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
 
-  // Initialize level highscores if not exists
-  if (!highscores[level]) {
-    highscores[level] = [];
+  try {
+    // Insert the new score
+    const { error: insertError } = await supabase
+      .from('highscores')
+      .insert([{ level, name, time: parseFloat(time) }]);
+
+    if (insertError) throw insertError;
+
+    // Get top 5 scores for this level
+    const { data: highscores, error: fetchError } = await supabase
+      .from('highscores')
+      .select('name, time')
+      .eq('level', level)
+      .order('time', { ascending: true })
+      .limit(5);
+
+    if (fetchError) throw fetchError;
+
+    res.json({ success: true, highscores });
+  } catch (error) {
+    console.error('Error handling highscore:', error);
+    res.status(500).json({ error: 'Server error' });
   }
-
-  // Add new score
-  highscores[level].push({
-    name,
-    time: parseFloat(time)
-  });
-
-  // Sort by time and keep top 5
-  highscores[level].sort((a, b) => a.time - b.time);
-  highscores[level] = highscores[level].slice(0, 5);
-
-  // Save to file
-  saveHighscores();
-
-  res.json({ success: true, highscores: highscores[level] });
 });
 
-// Get highscores for a level
-router.get('/highscore/:level', (req, res) => {
+router.get('/highscore/:level', async (req, res) => {
   const { level } = req.params;
-  res.json({
-    scores: highscores[level] || []
-  });
+  try {
+    const { data: scores, error } = await supabase
+      .from('highscores')
+      .select('name, time')
+      .eq('level', level)
+      .order('time', { ascending: true })
+      .limit(5);
+
+    if (error) throw error;
+
+    res.json({ scores: scores || [] });
+  } catch (error) {
+    console.error('Error fetching highscores:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
 router.get('/', (req, res) => {
