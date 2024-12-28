@@ -96,6 +96,31 @@ router.get('/', (req, res) => {
                     </div>
                 </div>
             </div>
+
+            <!-- Highscore Modal -->
+            <div id="highscoreModal" class="win95-window" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000; width: 300px;">
+                <div class="win95-titlebar">
+                    <span>Level Complete!</span>
+                </div>
+                <div class="win95-content">
+                    <div id="completionTime"></div>
+                    <div id="highscoreList">
+                        <h3>Top Scores</h3>
+                        <table class="win95-table">
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Name</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody id="highscoreTableBody"></tbody>
+                        </table>
+                    </div>
+                    <button onclick="closeHighscoreModal()" class="win95-button" style="margin-top: 15px;">Continue</button>
+                </div>
+            </div>
+
             <script>
                 const levelData = \`${data}\`;
             </script>

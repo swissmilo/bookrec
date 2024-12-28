@@ -409,3 +409,50 @@ td {
     padding: 8px;
   }
 }
+
+/* Highscore table styles */
+.win95-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 10px 0;
+}
+
+.win95-table th,
+.win95-table td {
+  padding: 5px;
+  text-align: left;
+  border: 1px solid #808080;
+}
+
+.win95-table th {
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #dfdfdf #808080 #808080 #dfdfdf;
+}
+
+.win95-table td {
+  background: #fff;
+}
+
+.win95-table tr.current-score td {
+  background: #000080;
+  color: #fff;
+}
+
+.win95-button {
+  padding: 4px 10px;
+  font-size: 14px;
+  background: #c0c0c0;
+  color: #000;
+  border: 2px solid;
+  border-color: #dfdfdf #000 #000 #dfdfdf;
+  box-shadow: 1px 1px 0 0 #808080;
+  cursor: pointer;
+  display: block;
+  margin: 0 auto;
+}
+
+.win95-button:active {
+  border-color: #000 #dfdfdf #dfdfdf #000;
+  box-shadow: none;
+}

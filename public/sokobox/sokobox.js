@@ -180,13 +180,12 @@ function isGoal(x, y) {
 }
 
 // Check if level is complete
-function checkCompletion() {
+async function checkCompletion() {
   levelComplete = !level.flat().includes(LVL_GOAL);
   if (levelComplete) {
     levelTime = (Date.now() - levelStartTime) / 1000;
     console.log('Level completed!');
-    submitHighscore();
-    fadeOutAndLoadNextLevel();
+    await submitHighscore();
   }
 }
 
@@ -371,7 +370,7 @@ async function submitHighscore() {
   const playerName = localStorage.getItem('playerName');
   if (!playerName) {
     // Ask for player name if not stored
-    const name = prompt('New highscore! Enter your name:');
+    const name = prompt('Enter your nickname for the highscore:');
     if (name) {
       localStorage.setItem('playerName', name);
     } else {
@@ -384,12 +383,10 @@ async function submitHighscore() {
   const finalName = localStorage.getItem('playerName');
 
   const payload = {
-    level: currentLevel.toString(), // Convert to string to match server expectation
+    level: currentLevel.toString(),
     time: levelTime,
     name: finalName
   };
-  
-  console.log('Submitting highscore payload:', payload);
 
   try {
     const response = await fetch('/sokobox/highscore', {
@@ -405,8 +402,31 @@ async function submitHighscore() {
       console.error('Server error:', data);
       return;
     }
-    console.log('Highscore submitted:', data);
+    
+    // Show completion time
+    document.getElementById('completionTime').textContent = 
+      `Your time: ${levelTime.toFixed(1)}s`;
+    
+    // Update highscore table
+    const tbody = document.getElementById('highscoreTableBody');
+    tbody.innerHTML = data.highscores.map((score, index) => `
+      <tr${score.name === finalName && score.time === levelTime ? ' class="current-score"' : ''}>
+        <td>${index + 1}</td>
+        <td>${score.name}</td>
+        <td>${score.time.toFixed(1)}s</td>
+      </tr>
+    `).join('');
+    
+    // Show the modal
+    document.getElementById('highscoreModal').style.display = 'block';
+
   } catch (error) {
     console.error('Error submitting highscore:', error);
+    fadeOutAndLoadNextLevel(); // Continue to next level even if highscore submission fails
   }
+}
+
+function closeHighscoreModal() {
+  document.getElementById('highscoreModal').style.display = 'none';
+  fadeOutAndLoadNextLevel();
 }
