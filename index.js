@@ -13,6 +13,7 @@ const libraryRouter = require('./routes/library');
 const recommendationsRouter = require('./routes/recommendations');
 const sokoboxRouter = require('./routes/sokobox');
 const adminRouter = require('./routes/admin');
+const notFoundRouter = require('./routes/404');
 
 
 const app = express();
@@ -39,6 +40,7 @@ app.use('/all-books', libraryRouter);
 app.use('/recommendations', recommendationsRouter);
 app.use('/sokobox', sokoboxRouter);
 app.use('/admin', adminRouter);
+app.use(notFoundRouter);
 
 /*
  * sitemap
