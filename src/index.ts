@@ -9,6 +9,7 @@ import cookieParser from 'cookie-parser';
 import session from 'express-session';
 import { SitemapStream, streamToPromise } from 'sitemap';
 import { Readable } from 'stream';
+import { SitemapLink } from './types/index';
 
 // Import routes
 import homeRouter from './routes/home';
@@ -61,12 +62,6 @@ app.use(notFoundRouter);
 
 // Error handling middleware
 app.use(errorHandler);
-
-// Sitemap generation
-interface SitemapLink {
-  url: string;
-  changefreq: string;
-}
 
 app.get('/sitemap.xml', async (req: Request, res: Response) => {
   const links: SitemapLink[] = [
