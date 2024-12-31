@@ -63,7 +63,7 @@ router.get(
             ],
           });
 
-          recommendationsHtml = response.choices[0].message.content || '';
+          recommendationsHtml = response.choices[0]?.message.content || '';
           recommendationsHtml = recommendationsHtml
             .replace(/^```html\s*/, '')
             .replace(/```$/, '')

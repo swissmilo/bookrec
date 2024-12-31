@@ -1,14 +1,15 @@
 {
-  "name": "bookrec",
+  "name": "milo-personal-website",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
     "start": "node --no-deprecation dist/index.js",
     "dev": "nodemon --no-deprecation dist/index.js",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "type-check": "tsc -p tsconfig.json --noEmit"
   },
   "author": "",
   "license": "ISC",
