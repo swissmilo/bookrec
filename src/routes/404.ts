@@ -1,8 +1,9 @@
-const express = require('express');
-const router = express.Router();
-const getHtmlHead = require('../utils/htmlHead');
+import { Router, Request, Response } from 'express';
+import { getHtmlHead } from '../utils/htmlHead';
 
-router.get('*', (req, res) => {
+const router = Router();
+
+router.get('*', (req: Request, res: Response) => {
   res.status(404).send(`
     <!DOCTYPE html>
     <html lang="en">
@@ -16,8 +17,8 @@ router.get('*', (req, res) => {
           </div>
           <div class="win95-content" style="text-align: center;">
             <div style="font-size: 64px; margin: 20px 0;">💾</div>
-            <h1 style="margin: 0; font-size: 24px;">Page Not Found</h1>
-            </p>
+            <h1 style="margin: 0; font-size: 24px;">404 - Page Not Found</h1>
+            <p style="margin: 20px 0;">The file you're looking for might have been moved or deleted.</p>
             <a href="/" class="win95-button" style="text-decoration: none; display: inline-block;">Return Home</a>
           </div>
         </div>
@@ -27,4 +28,4 @@ router.get('*', (req, res) => {
   `);
 });
 
-module.exports = router; 
+export default router;

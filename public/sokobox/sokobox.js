@@ -300,31 +300,31 @@ function resizeCanvas() {
   const canvas = document.getElementById('gameCanvas');
   const originalWidth = parseInt(canvas.dataset.originalWidth);
   const originalHeight = parseInt(canvas.dataset.originalHeight);
-  
+
   const viewport = {
-      width: window.innerWidth,
-      height: window.innerHeight
+    width: window.innerWidth,
+    height: window.innerHeight,
   };
-  
+
   // Calculate the maximum size that maintains the game's aspect ratio
   const gameAspectRatio = originalWidth / originalHeight;
   const viewportAspectRatio = viewport.width / viewport.height;
-  
+
   let newWidth, newHeight;
-  
+
   if (viewportAspectRatio > gameAspectRatio) {
-      // Viewport is wider than game ratio
-      newHeight = viewport.height * 0.80; // 90% of viewport height
-      newWidth = newHeight * gameAspectRatio;
+    // Viewport is wider than game ratio
+    newHeight = viewport.height * 0.8; // 90% of viewport height
+    newWidth = newHeight * gameAspectRatio;
   } else {
-      // Viewport is taller than game ratio
-      newWidth = viewport.width * 0.90; // 90% of viewport width
-      newHeight = newWidth / gameAspectRatio;
+    // Viewport is taller than game ratio
+    newWidth = viewport.width * 0.9; // 90% of viewport width
+    newHeight = newWidth / gameAspectRatio;
   }
-  
+
   canvas.style.width = `${newWidth}px`;
   canvas.style.height = `${newHeight}px`;
-  
+
   // Maintain internal canvas resolution
   canvas.width = originalWidth;
   canvas.height = originalHeight;
@@ -386,7 +386,7 @@ async function submitHighscore() {
   const currentLevel = parseInt(
     new URLSearchParams(window.location.search).get('level') || '1'
   );
-  
+
   const playerName = localStorage.getItem('playerName');
   if (!playerName) {
     const name = prompt('Enter your nickname for the highscore:');
@@ -400,7 +400,7 @@ async function submitHighscore() {
   const finalName = localStorage.getItem('playerName');
   const newScore = {
     name: finalName,
-    time: levelTime
+    time: levelTime,
   };
 
   try {
@@ -412,8 +412,8 @@ async function submitHighscore() {
       body: JSON.stringify({
         level: currentLevel.toString(),
         time: levelTime,
-        name: finalName
-      })
+        name: finalName,
+      }),
     });
 
     let highscores;
@@ -431,24 +431,27 @@ async function submitHighscore() {
       // Update local storage with server data
       saveLocalHighscores(currentLevel, highscores);
     }
-    
+
     // Show completion time
-    document.getElementById('completionTime').textContent = 
+    document.getElementById('completionTime').textContent =
       `Your time: ${levelTime.toFixed(1)}s`;
-    
+
     // Update highscore table
     const tbody = document.getElementById('highscoreTableBody');
-    tbody.innerHTML = highscores.map((score, index) => `
+    tbody.innerHTML = highscores
+      .map(
+        (score, index) => `
       <tr${score.name === finalName && score.time === levelTime ? ' class="current-score"' : ''}>
         <td>${index + 1}</td>
         <td>${score.name}</td>
         <td>${score.time.toFixed(1)}s</td>
       </tr>
-    `).join('');
-    
+    `
+      )
+      .join('');
+
     // Show the modal
     document.getElementById('highscoreModal').style.display = 'block';
-
   } catch (error) {
     console.error('Error submitting highscore:', error);
     // Fallback to localStorage on error
@@ -457,20 +460,24 @@ async function submitHighscore() {
     localScores.sort((a, b) => a.time - b.time);
     const highscores = localScores.slice(0, 5);
     saveLocalHighscores(currentLevel, highscores);
-    
+
     // Still show the modal with local highscores
-    document.getElementById('completionTime').textContent = 
+    document.getElementById('completionTime').textContent =
       `Your time: ${levelTime.toFixed(1)}s`;
-    
+
     const tbody = document.getElementById('highscoreTableBody');
-    tbody.innerHTML = highscores.map((score, index) => `
+    tbody.innerHTML = highscores
+      .map(
+        (score, index) => `
       <tr${score.name === finalName && score.time === levelTime ? ' class="current-score"' : ''}>
         <td>${index + 1}</td>
         <td>${score.name}</td>
         <td>${score.time.toFixed(1)}s</td>
       </tr>
-    `).join('');
-    
+    `
+      )
+      .join('');
+
     document.getElementById('highscoreModal').style.display = 'block';
   }
 }

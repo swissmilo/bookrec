@@ -101,8 +101,12 @@ h2 {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 table {
@@ -370,7 +374,9 @@ td {
   height: auto;
   max-width: 100%;
   aspect-ratio: 900/720;
-  max-height: calc(98vh - 150px); /* Account for titlebar, padding, and controls */
+  max-height: calc(
+    98vh - 150px
+  ); /* Account for titlebar, padding, and controls */
   image-rendering: pixelated;
   image-rendering: crisp-edges;
 }

@@ -15,7 +15,6 @@ const sokoboxRouter = require('./routes/sokobox');
 const adminRouter = require('./routes/admin');
 const notFoundRouter = require('./routes/404');
 
-
 const app = express();
 
 const port = process.env.PORT || 3000;
@@ -26,12 +25,14 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'not-very-secret-key',
-  resave: false,
-  saveUninitialized: true,
-  cookie: { secure: process.env.NODE_ENV === 'production' }
-}));
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || 'not-very-secret-key',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: process.env.NODE_ENV === 'production' },
+  })
+);
 
 // Mount routes
 app.use('/', homeRouter);
@@ -51,13 +52,13 @@ app.get('/sitemap.xml', async (req, res) => {
     { url: '/about', changefreq: 'weekly' },
     { url: '/all-books', changefreq: 'weekly' },
     { url: '/recommendations', changefreq: 'weekly' },
-    { url: '/sokobox', changefreq: 'weekly' }
+    { url: '/sokobox', changefreq: 'weekly' },
   ];
 
   try {
     const stream = new SitemapStream({ hostname: 'https://milo.run' });
     res.header('Content-Type', 'application/xml');
-    
+
     return streamToPromise(Readable.from(links).pipe(stream)).then((data) => {
       res.send(data);
     });
