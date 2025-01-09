@@ -531,3 +531,22 @@ td {
 .pac-container {
   z-index: 1000;
 }
+
+/* Venue type checkboxes styling */
+.checkbox-group.compact {
+  display: flex;
+  gap: 15px;
+  margin: 5px 0;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+  margin: 0;
+  cursor: pointer;
+}

@@ -1,29 +1,16 @@
-interface VenuePreferences {
-  address: string;
-  latitude: number;
-  longitude: number;
-  radiusInMiles: number;
-  venueTypes: string[];
-  minimumRating: number;
-  monthsCutoff: number;
-}
+import 'express-session';
 
-interface VenueSubscription extends VenuePreferences {
-  userId: string;
-  createdAt: Date;
-  lastNotificationSent: Date;
-}
-
-interface Venue {
-  id: string;
-  name: string;
-  address: string;
-  latitude: number;
-  longitude: number;
+export interface VenuePreferences {
+  radius: number;
   rating: number;
   types: string[];
-  openingDate: Date;
-  placeId: string;
+  address: string;
+  lat: number;
+  lng: number;
 }
 
-export { VenuePreferences, VenueSubscription, Venue }; 
+declare module 'express-session' {
+  interface SessionData {
+    venuePreferences?: VenuePreferences;
+  }
+} 
