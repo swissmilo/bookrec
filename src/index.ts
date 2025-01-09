@@ -10,6 +10,7 @@ import session from 'express-session';
 import { SitemapStream, streamToPromise } from 'sitemap';
 import { Readable } from 'stream';
 import { SitemapLink } from './types/index';
+import { startScheduler } from './jobs/scheduler';
 
 // Import routes
 import homeRouter from './routes/home';
@@ -22,9 +23,14 @@ import notFoundRouter from './routes/404';
 import { errorHandler } from './utils/errorHandler';
 import venuesRouter from './routes/venues';
 
-
 const app: Express = express();
 const port: number = parseInt(process.env.PORT || '3000', 10);
+
+// Start the scheduler in production
+if (process.env.NODE_ENV === 'production') {
+  startScheduler();
+  console.log('Venue checker scheduler started');
+}
 
 // public folder for stylesheets
 app.use(express.static(path.join(__dirname, '..', 'public')));

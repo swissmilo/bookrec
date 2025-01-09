@@ -3,8 +3,71 @@ import { getHtmlHead } from '../utils/htmlHead';
 import { withAuth } from '../middleware/auth';
 import { AppError } from '../utils/errorHandler';
 import { VenuePreferences } from '../types/venues';
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 const router = Router();
+
+// Add endpoint to handle subscription
+router.post('/subscribe', withAuth, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { places, preferences } = req.body;
+    const userId = req.session?.user?.id;
+
+    if (!userId) {
+      throw new AppError('User not authenticated', 401);
+    }
+
+    // First, store the subscription preferences
+    const { data: subscription, error: subscriptionError } = await supabase
+      .from('venue_subscriptions')
+      .upsert({
+        user_id: userId,
+        radius: preferences.radius,
+        rating: preferences.rating,
+        types: preferences.types,
+        address: preferences.address,
+        lat: preferences.lat,
+        lng: preferences.lng,
+        created_at: new Date().toISOString(),
+        last_check: new Date().toISOString()
+      })
+      .select()
+      .single();
+
+    if (subscriptionError) {
+      throw new AppError(`Error creating subscription: ${subscriptionError.message}`, 500);
+    }
+
+    // Then, store all current places
+    const placesToInsert = places.map((place: any) => ({
+      subscription_id: subscription.id,
+      place_id: place.place_id,
+      name: place.name,
+      address: place.vicinity,
+      lat: place.geometry.location.lat(),
+      lng: place.geometry.location.lng(),
+      rating: place.rating,
+      found_at: new Date().toISOString()
+    }));
+
+    const { error: placesError } = await supabase
+      .from('venue_places')
+      .upsert(placesToInsert);
+
+    if (placesError) {
+      throw new AppError(`Error storing places: ${placesError.message}`, 500);
+    }
+
+    res.json({ success: true, subscription });
+  } catch (error) {
+    next(error);
+  }
+});
 
 // Add endpoint to save preferences
 router.post('/preferences', (req: Request, res: Response) => {

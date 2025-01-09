@@ -177,8 +177,50 @@ function loadVenueTypes() {
 
 async function handleSubscribe(e) {
   e.preventDefault();
-  // We'll implement this later when we add authentication
-  alert('Subscription feature coming soon!');
+  
+  // Get current places in view
+  const currentPlaces = Array.from(uniquePlaces).map(placeId => {
+    const marker = markers.find(m => m.place?.place_id === placeId);
+    return marker?.place;
+  }).filter(Boolean);
+
+  // Get current preferences
+  const preferences = {
+    radius: parseFloat(document.getElementById('radius').value),
+    rating: parseFloat(document.getElementById('rating').value),
+    types: Array.from(document.querySelectorAll('input[name="types[]"]:checked'))
+      .map(cb => cb.value),
+    address: document.getElementById('address').value,
+    lat: circle.getCenter()?.lat() || 40.7128,
+    lng: circle.getCenter()?.lng() || -74.0060
+  };
+
+  try {
+    const response = await fetch('/venues/subscribe', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ places: currentPlaces, preferences })
+    });
+
+    const result = await response.json();
+    
+    if (response.status === 401) {
+      // Not authenticated, redirect to login
+      window.location.href = '/login?redirect=/venues';
+      return;
+    }
+    
+    if (!response.ok) {
+      throw new Error(result.message || 'Failed to subscribe');
+    }
+
+    alert('Successfully subscribed! You will receive email notifications about new venues in this area.');
+  } catch (error) {
+    console.error('Error subscribing:', error);
+    alert('Failed to subscribe. Please try again later.');
+  }
 }
 
 function clearMarkers() {

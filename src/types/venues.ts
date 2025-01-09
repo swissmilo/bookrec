@@ -9,8 +9,14 @@ export interface VenuePreferences {
   lng: number;
 }
 
+export interface User {
+  id: string;
+  email: string;
+}
+
 declare module 'express-session' {
   interface SessionData {
     venuePreferences?: VenuePreferences;
+    user?: User;
   }
 } 
