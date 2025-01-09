@@ -188,9 +188,9 @@ export async function checkForNewVenues() {
   }
 }
 
-// Add a debug version that doesn't send emails
-export async function checkForNewVenuesDebug(): Promise<{ subscription: any, newPlaces: Place[] }[]> {
-  const results: { subscription: any, newPlaces: Place[] }[] = [];
+// Add a debug version that doesn't send emails or update the database
+export async function checkForNewVenuesDebug(): Promise<{ subscription: any, newPlaces: Place[], placesToInsert: any[] }[]> {
+  const results: { subscription: any, newPlaces: Place[], placesToInsert: any[] }[] = [];
 
   try {
     // Get all active subscriptions
@@ -203,14 +203,17 @@ export async function checkForNewVenuesDebug(): Promise<{ subscription: any, new
       throw subscriptionError;
     }
 
+    console.log(`Found ${subscriptions?.length || 0} active subscriptions`);
+
     for (const subscription of subscriptions) {
       try {
+        console.log(`\nChecking subscription for ${subscription.address}...`);
         const newPlaces = await getNewVenues(subscription);
         
         if (newPlaces.length > 0) {
-          results.push({ subscription, newPlaces });
+          console.log(`Found ${newPlaces.length} new places for subscription ${subscription.id}`);
           
-          // Store new places
+          // Prepare places that would be inserted (but don't actually insert them)
           const placesToInsert = newPlaces.map(place => ({
             subscription_id: subscription.id,
             place_id: place.place_id,
@@ -222,17 +225,10 @@ export async function checkForNewVenuesDebug(): Promise<{ subscription: any, new
             found_at: new Date().toISOString()
           }));
 
-          await supabase
-            .from('venue_places')
-            .upsert(placesToInsert);
+          results.push({ subscription, newPlaces, placesToInsert });
+        } else {
+          console.log('No new places found for this subscription');
         }
-
-        // Update last check time
-        await supabase
-          .from('venue_subscriptions')
-          .update({ last_check: new Date().toISOString() })
-          .eq('id', subscription.id);
-
       } catch (error) {
         console.error(`Error processing subscription ${subscription.id}:`, error);
       }

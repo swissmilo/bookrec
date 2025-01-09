@@ -147,38 +147,9 @@ router.post('/subscribe', withAuth, async (req: Request, res: Response) => {
   }
 });
 
-// Add endpoint to save preferences
-router.post('/preferences', (req: Request, res: Response) => {
-  const { radius, rating, types, address, lat, lng } = req.body;
-  if (req.session) {
-    req.session.venuePreferences = {
-      radius: parseFloat(radius),
-      rating: parseFloat(rating),
-      types: types || [],
-      address: address || '',
-      lat: parseFloat(lat) || 40.7128,
-      lng: parseFloat(lng) || -74.0060
-    };
-  }
-  res.json({ success: true });
-});
-
-// Add endpoint to get preferences
-router.get('/preferences', (req: Request, res: Response) => {
-  const preferences = req.session?.venuePreferences || {
-    radius: 1.0,
-    rating: 4.0,
-    types: [],
-    address: '',
-    lat: 40.7128,
-    lng: -74.0060
-  };
-  res.json(preferences);
-});
-
 router.get('/', (req: Request, res: Response) => {
-  // Get saved preferences from session
-  const preferences = req.session?.venuePreferences || {
+  // Default preferences (only used for initial HTML render)
+  const defaultPreferences = {
     radius: 1.0,
     rating: 4.0,
     types: [],
@@ -203,19 +174,19 @@ router.get('/', (req: Request, res: Response) => {
           <form id="venuePreferences" class="venue-form">
             <div class="form-group">
               <label for="address">Address:</label>
-              <input type="text" id="address" name="address" value="${preferences.address}" required>
+              <input type="text" id="address" name="address" value="${defaultPreferences.address}" required>
             </div>
 
             <div class="form-group">
-              <label for="radius">Radius: <span id="radiusDisplay">${preferences.radius.toFixed(1)}</span> miles</label>
+              <label for="radius">Radius: <span id="radiusDisplay">${defaultPreferences.radius.toFixed(1)}</span> miles</label>
               <input 
                 type="range" 
                 id="radius" 
                 name="radius" 
                 min="0.1" 
-                max="3.0" 
+                max="3.0"
                 step="0.1" 
-                value="${preferences.radius}" 
+                value="${defaultPreferences.radius}" 
                 class="slider" 
                 required
               >
@@ -225,19 +196,19 @@ router.get('/', (req: Request, res: Response) => {
               <label>Venue Types:</label>
               <div id="venueTypes" class="checkbox-group compact">
                 <label class="checkbox-label">
-                  <input type="checkbox" name="types[]" value="restaurant" ${preferences.types.includes('restaurant') ? 'checked' : ''}> Restaurants
+                  <input type="checkbox" name="types[]" value="restaurant"> Restaurants
                 </label>
                 <label class="checkbox-label">
-                  <input type="checkbox" name="types[]" value="bar" ${preferences.types.includes('bar') ? 'checked' : ''}> Bars
+                  <input type="checkbox" name="types[]" value="bar"> Bars
                 </label>
                 <label class="checkbox-label">
-                  <input type="checkbox" name="types[]" value="cafe" ${preferences.types.includes('cafe') ? 'checked' : ''}> Cafes
+                  <input type="checkbox" name="types[]" value="cafe"> Cafes
                 </label>
               </div>
             </div>
 
             <div class="form-group">
-              <label for="rating">Minimum Rating: <span id="ratingDisplay">${preferences.rating.toFixed(1)}</span> ⭐</label>
+              <label for="rating">Minimum Rating: <span id="ratingDisplay">${defaultPreferences.rating.toFixed(1)}</span> ⭐</label>
               <input 
                 type="range" 
                 id="rating" 
@@ -245,7 +216,7 @@ router.get('/', (req: Request, res: Response) => {
                 min="1.0" 
                 max="5.0" 
                 step="0.1" 
-                value="${preferences.rating}" 
+                value="${defaultPreferences.rating}" 
                 class="slider" 
                 required
               >
@@ -263,24 +234,26 @@ router.get('/', (req: Request, res: Response) => {
   `);
 });
 
-// Add debug endpoint to check for new venues
+// Add debug endpoint to check for new venues (read-only)
 router.get('/check-venues', withAuth, async (req: Request, res: Response) => {
   try {
-    console.log('Starting venue check...');
+    console.log('Starting venue check (read-only mode)...');
     const results = await checkForNewVenuesDebug();
     
     console.log('Venue check results:', JSON.stringify(results, null, 2));
     
     res.json({
       success: true,
-      results: results.map(({ subscription, newPlaces }) => ({
+      summary: `Found ${results.length} subscriptions with new venues`,
+      results: results.map(({ subscription, newPlaces, placesToInsert }) => ({
         subscription: {
           id: subscription.id,
           address: subscription.address,
           radius: subscription.radius,
           rating: subscription.rating,
           types: subscription.types,
-          user_email: subscription.users.email
+          user_email: subscription.users.email,
+          last_check: subscription.last_check
         },
         newPlacesCount: newPlaces.length,
         newPlaces: newPlaces.map(place => ({
@@ -288,7 +261,9 @@ router.get('/check-venues', withAuth, async (req: Request, res: Response) => {
           vicinity: place.vicinity,
           rating: place.rating,
           place_id: place.place_id
-        }))
+        })),
+        // Include what would have been inserted into the database
+        wouldInsert: placesToInsert
       }))
     });
   } catch (error) {

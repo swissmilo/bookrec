@@ -8,32 +8,32 @@ let currentInfoWindow = null;
 let uniquePlaces = new Set();
 
 async function savePreferences() {
-  const radius = document.getElementById('radius').value;
-  const rating = document.getElementById('rating').value;
-  const types = Array.from(document.querySelectorAll('input[name="types[]"]:checked'))
-    .map(cb => cb.value);
-  const address = document.getElementById('address').value;
-  const center = circle.getCenter();
-  const lat = center ? center.lat() : 40.7128;
-  const lng = center ? center.lng() : -74.0060;
+  const preferences = {
+    radius: parseFloat(document.getElementById('radius').value),
+    rating: parseFloat(document.getElementById('rating').value),
+    types: Array.from(document.querySelectorAll('input[name="types[]"]:checked'))
+      .map(cb => cb.value),
+    address: document.getElementById('address').value,
+    lat: circle.getCenter()?.lat() || 40.7128,
+    lng: circle.getCenter()?.lng() || -74.0060
+  };
 
-  try {
-    await fetch('/venues/preferences', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ radius, rating, types, address, lat, lng })
-    });
-  } catch (error) {
-    console.error('Error saving preferences:', error);
-  }
+  // Save to localStorage
+  localStorage.setItem('venuePreferences', JSON.stringify(preferences));
 }
 
 async function loadPreferences() {
   try {
-    const response = await fetch('/venues/preferences');
-    const preferences = await response.json();
+    // Load from localStorage
+    const savedPreferences = localStorage.getItem('venuePreferences');
+    const preferences = savedPreferences ? JSON.parse(savedPreferences) : {
+      radius: 1.0,
+      rating: 4.0,
+      types: [],
+      address: '',
+      lat: 40.7128,
+      lng: -74.0060
+    };
     
     // Set radius
     const radiusInput = document.getElementById('radius');
