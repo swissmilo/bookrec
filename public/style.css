@@ -462,3 +462,72 @@ td {
   border-color: #000 #dfdfdf #dfdfdf #000;
   box-shadow: none;
 }
+
+/* Add these styles */
+.slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 20px;
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #808080 #dfdfdf #dfdfdf #808080;
+  outline: none;
+  margin: 10px 0;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #dfdfdf #808080 #808080 #dfdfdf;
+  cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #dfdfdf #808080 #808080 #dfdfdf;
+  cursor: pointer;
+}
+
+#radiusDisplay {
+  font-weight: bold;
+}
+
+/* Google Places Autocomplete styling */
+.pac-container {
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #808080 #dfdfdf #dfdfdf #808080;
+  font-family: inherit;
+}
+
+.pac-item {
+  padding: 8px;
+  border-top: 1px solid #808080;
+  cursor: pointer;
+}
+
+.pac-item:hover {
+  background: #000080;
+  color: #ffffff;
+}
+
+.pac-item-selected {
+  background: #000080;
+  color: #ffffff;
+}
+
+.pac-matched {
+  font-weight: bold;
+}
+
+/* Make sure the autocomplete shows above other elements */
+.pac-container {
+  z-index: 1000;
+}

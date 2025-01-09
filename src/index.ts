@@ -20,6 +20,7 @@ import sokoboxRouter from './routes/sokobox';
 import adminRouter from './routes/admin';
 import notFoundRouter from './routes/404';
 import { errorHandler } from './utils/errorHandler';
+import venuesRouter from './routes/venues';
 
 
 const app: Express = express();
@@ -58,6 +59,7 @@ app.use('/all-books', libraryRouter);
 app.use('/recommendations', recommendationsRouter);
 app.use('/sokobox', sokoboxRouter);
 app.use('/admin', adminRouter);
+app.use('/venues', venuesRouter);
 app.use(notFoundRouter);
 
 // Error handling middleware
