@@ -162,6 +162,15 @@ router.get('/', (req: Request, res: Response) => {
     <!DOCTYPE html>
     <html>
     ${getHtmlHead('New Venue Notifications')}
+    <style>
+      .win95-button.unsubscribe {
+        background-color: #ff6b6b;
+        color: white;
+      }
+      .win95-button.unsubscribe:hover {
+        background-color: #ff5252;
+      }
+    </style>
     <body>
       <div class="win95-window">
         <div class="win95-titlebar">
@@ -268,6 +277,94 @@ router.get('/check-venues', withAuth, async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Error in venue check:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: error instanceof Error ? error.message : 'An unknown error occurred' 
+    });
+  }
+});
+
+// Add endpoint to check subscription status
+router.get('/subscription-status', withAuth, async (req: Request, res: Response) => {
+  try {
+    const workosUserId = req.session?.user?.id;
+    if (!workosUserId) {
+      res.json({ hasSubscription: false });
+      return;
+    }
+
+    // First get the user's Supabase ID
+    const { data: user } = await supabase
+      .from('users')
+      .select('id')
+      .eq('workos_id', workosUserId)
+      .single();
+
+    if (!user) {
+      res.json({ hasSubscription: false });
+      return;
+    }
+
+    // Then check for active subscriptions
+    const { data: subscription } = await supabase
+      .from('venue_subscriptions')
+      .select('id')
+      .eq('user_id', user.id)
+      .single();
+
+    res.json({ 
+      hasSubscription: !!subscription,
+      subscriptionId: subscription?.id 
+    });
+  } catch (error) {
+    console.error('Error checking subscription status:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: error instanceof Error ? error.message : 'An unknown error occurred' 
+    });
+  }
+});
+
+// Add endpoint to handle unsubscribe
+router.post('/unsubscribe', withAuth, async (req: Request, res: Response) => {
+  try {
+    const workosUserId = req.session?.user?.id;
+    if (!workosUserId) {
+      res.status(401).json({ 
+        success: false, 
+        message: 'User not authenticated' 
+      });
+      return;
+    }
+
+    // First get the user's Supabase ID
+    const { data: user } = await supabase
+      .from('users')
+      .select('id')
+      .eq('workos_id', workosUserId)
+      .single();
+
+    if (!user) {
+      res.status(404).json({ 
+        success: false, 
+        message: 'User not found' 
+      });
+      return;
+    }
+
+    // Delete the subscription (this will cascade delete venue_places due to foreign key)
+    const { error: deleteError } = await supabase
+      .from('venue_subscriptions')
+      .delete()
+      .eq('user_id', user.id);
+
+    if (deleteError) {
+      throw deleteError;
+    }
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error unsubscribing:', error);
     res.status(500).json({ 
       success: false, 
       message: error instanceof Error ? error.message : 'An unknown error occurred' 

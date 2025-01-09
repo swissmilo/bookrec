@@ -6,6 +6,8 @@ let autocomplete;
 let markers = [];
 let currentInfoWindow = null;
 let uniquePlaces = new Set();
+let isSubscribed = false;
+let currentSubscriptionId = null;
 
 async function savePreferences() {
   const preferences = {
@@ -143,8 +145,9 @@ function initMap() {
     });
   });
 
-  // Load saved preferences
+  // Load saved preferences and check subscription status
   loadPreferences();
+  checkSubscriptionStatus();
 }
 
 function updateCircleRadius() {
@@ -176,16 +179,71 @@ function loadVenueTypes() {
   });
 }
 
+async function checkSubscriptionStatus() {
+  try {
+    const response = await fetch('/venues/subscription-status');
+    if (response.ok) {
+      const { hasSubscription, subscriptionId } = await response.json();
+      isSubscribed = hasSubscription;
+      currentSubscriptionId = subscriptionId;
+      
+      // Update button text and handler
+      const submitButton = document.querySelector('#venuePreferences button[type="submit"]');
+      if (isSubscribed) {
+        submitButton.textContent = 'Unsubscribe';
+        submitButton.classList.add('unsubscribe');
+      } else {
+        submitButton.textContent = 'Subscribe to Updates';
+        submitButton.classList.remove('unsubscribe');
+      }
+    }
+  } catch (error) {
+    console.error('Error checking subscription status:', error);
+  }
+}
+
 async function handleSubscribe(e) {
   e.preventDefault();
   
-  // Get current places in view
+  if (isSubscribed) {
+    try {
+      const response = await fetch('/venues/unsubscribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (response.status === 401) {
+        console.log('Not authenticated, redirecting to login');
+        window.location.href = '/admin/login?redirect=/venues';
+        return;
+      }
+
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.message || 'Failed to unsubscribe');
+      }
+
+      isSubscribed = false;
+      currentSubscriptionId = null;
+      const submitButton = document.querySelector('#venuePreferences button[type="submit"]');
+      submitButton.textContent = 'Subscribe to Updates';
+      submitButton.classList.remove('unsubscribe');
+      alert('Successfully unsubscribed from venue updates.');
+    } catch (error) {
+      console.error('Error unsubscribing:', error);
+      alert('Failed to unsubscribe. Please try again later.');
+    }
+    return;
+  }
+
+  // Rest of the existing subscribe logic
   const currentPlaces = Array.from(uniquePlaces).map(placeId => {
     const marker = markers.find(m => m.place?.place_id === placeId);
     return marker?.place;
   }).filter(Boolean);
 
-  // Get current preferences
   const preferences = {
     radius: parseFloat(document.getElementById('radius').value),
     rating: parseFloat(document.getElementById('rating').value),
@@ -239,6 +297,11 @@ async function handleSubscribe(e) {
       throw new Error(result.message || 'Failed to subscribe');
     }
 
+    isSubscribed = true;
+    currentSubscriptionId = result.subscription.id;
+    const submitButton = document.querySelector('#venuePreferences button[type="submit"]');
+    submitButton.textContent = 'Unsubscribe';
+    submitButton.classList.add('unsubscribe');
     alert('Successfully subscribed! You will receive email notifications about new venues in this area.');
   } catch (error) {
     console.error('Error subscribing:', error);
