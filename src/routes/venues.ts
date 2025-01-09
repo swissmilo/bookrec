@@ -3,30 +3,89 @@ import { getHtmlHead } from '../utils/htmlHead';
 import { withAuth } from '../middleware/auth';
 import { AppError } from '../utils/errorHandler';
 import { VenuePreferences } from '../types/venues';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import supabase from '../utils/supabase';
+import { checkForNewVenuesDebug } from '../jobs/venueChecker';
 
 const router = Router();
 
 // Add endpoint to handle subscription
-router.post('/subscribe', withAuth, async (req: Request, res: Response, next: NextFunction) => {
+router.post('/subscribe', withAuth, async (req: Request, res: Response) => {
   try {
     const { places, preferences } = req.body;
-    const userId = req.session?.user?.id;
-
-    if (!userId) {
-      throw new AppError('User not authenticated', 401);
+    
+    if (!places || !preferences) {
+      res.status(400).json({ 
+        success: false, 
+        message: 'Missing places or preferences in request body' 
+      });
+      return;
     }
 
-    // First, store the subscription preferences
+    const workosUserId = req.session?.user?.id;
+    const userEmail = req.session?.user?.email;
+
+    console.log('Subscription request received:', {
+      workosUserId,
+      userEmail,
+      preferences,
+      placeCount: places.length
+    });
+
+    if (!workosUserId || !userEmail) {
+      console.log('No user ID or email found in session');
+      res.status(401).json({ 
+        success: false, 
+        message: 'User not authenticated' 
+      });
+      return;
+    }
+
+    // First, get or create the user in Supabase
+    let { data: user, error: userError } = await supabase
+      .from('users')
+      .select('id')
+      .eq('workos_id', workosUserId)
+      .single();
+
+    if (userError) {
+      // User doesn't exist, create them
+      const { data: newUser, error: createError } = await supabase
+        .from('users')
+        .insert({
+          workos_id: workosUserId,
+          email: userEmail,
+          created_at: new Date().toISOString()
+        })
+        .select()
+        .single();
+
+      if (createError) {
+        console.error('Error creating user:', createError);
+        res.status(500).json({ 
+          success: false, 
+          message: `Error creating user: ${createError.message}` 
+        });
+        return;
+      }
+
+      user = newUser;
+    }
+
+    console.log('User found/created:', user);
+
+    if (!user) {
+      res.status(500).json({ 
+        success: false, 
+        message: 'Failed to create or find user' 
+      });
+      return;
+    }
+
+    // Then, store the subscription preferences
     const { data: subscription, error: subscriptionError } = await supabase
       .from('venue_subscriptions')
       .upsert({
-        user_id: userId,
+        user_id: user.id,
         radius: preferences.radius,
         rating: preferences.rating,
         types: preferences.types,
@@ -40,8 +99,15 @@ router.post('/subscribe', withAuth, async (req: Request, res: Response, next: Ne
       .single();
 
     if (subscriptionError) {
-      throw new AppError(`Error creating subscription: ${subscriptionError.message}`, 500);
+      console.error('Error creating subscription:', subscriptionError);
+      res.status(500).json({ 
+        success: false, 
+        message: `Error creating subscription: ${subscriptionError.message}` 
+      });
+      return;
     }
+
+    console.log('Subscription created:', subscription);
 
     // Then, store all current places
     const placesToInsert = places.map((place: any) => ({
@@ -49,23 +115,35 @@ router.post('/subscribe', withAuth, async (req: Request, res: Response, next: Ne
       place_id: place.place_id,
       name: place.name,
       address: place.vicinity,
-      lat: place.geometry.location.lat(),
-      lng: place.geometry.location.lng(),
+      lat: place.geometry.location.lat,
+      lng: place.geometry.location.lng,
       rating: place.rating,
       found_at: new Date().toISOString()
     }));
+
+    console.log('Inserting places:', placesToInsert);
 
     const { error: placesError } = await supabase
       .from('venue_places')
       .upsert(placesToInsert);
 
     if (placesError) {
-      throw new AppError(`Error storing places: ${placesError.message}`, 500);
+      console.error('Error storing places:', placesError);
+      res.status(500).json({ 
+        success: false, 
+        message: `Error storing places: ${placesError.message}` 
+      });
+      return;
     }
 
+    console.log('Successfully stored places');
     res.json({ success: true, subscription });
   } catch (error) {
-    next(error);
+    console.error('Subscription error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: error instanceof Error ? error.message : 'An unknown error occurred' 
+    });
   }
 });
 
@@ -112,11 +190,11 @@ router.get('/', (req: Request, res: Response) => {
   res.type('html').send(`
     <!DOCTYPE html>
     <html>
-    ${getHtmlHead('Venue Notifications')}
+    ${getHtmlHead('New Venue Notifications')}
     <body>
       <div class="win95-window">
         <div class="win95-titlebar">
-          <span>Venue Notifications</span>
+          <span>New Venue Notifications</span>
           <a href="/" class="win95-close">×</a>
         </div>
         <div class="win95-content">
@@ -183,6 +261,43 @@ router.get('/', (req: Request, res: Response) => {
     </body>
     </html>
   `);
+});
+
+// Add debug endpoint to check for new venues
+router.get('/check-venues', withAuth, async (req: Request, res: Response) => {
+  try {
+    console.log('Starting venue check...');
+    const results = await checkForNewVenuesDebug();
+    
+    console.log('Venue check results:', JSON.stringify(results, null, 2));
+    
+    res.json({
+      success: true,
+      results: results.map(({ subscription, newPlaces }) => ({
+        subscription: {
+          id: subscription.id,
+          address: subscription.address,
+          radius: subscription.radius,
+          rating: subscription.rating,
+          types: subscription.types,
+          user_email: subscription.users.email
+        },
+        newPlacesCount: newPlaces.length,
+        newPlaces: newPlaces.map(place => ({
+          name: place.name,
+          vicinity: place.vicinity,
+          rating: place.rating,
+          place_id: place.place_id
+        }))
+      }))
+    });
+  } catch (error) {
+    console.error('Error in venue check:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: error instanceof Error ? error.message : 'An unknown error occurred' 
+    });
+  }
 });
 
 export default router; 

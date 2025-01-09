@@ -24,6 +24,12 @@ export const withAuth = async (
     const authResult = await session.authenticate();
 
     if (authResult.authenticated) {
+      if (req.session && authResult.user) {
+        req.session.user = {
+          id: authResult.user.id,
+          email: authResult.user.email || ''
+        };
+      }
       return next();
     }
 
@@ -52,6 +58,13 @@ export const withAuth = async (
             secure: true,
             sameSite: 'lax',
           });
+
+          if (req.session) {
+            req.session.user = {
+              id: authResult.session?.user.id || '',
+              email: authResult.session?.user.email || ''
+            };
+          }
         }
         res.redirect(req.originalUrl);
       }

@@ -5,6 +5,7 @@ let placesService;
 let autocomplete;
 let markers = [];
 let currentInfoWindow = null;
+let uniquePlaces = new Set();
 
 async function savePreferences() {
   const radius = document.getElementById('radius').value;
@@ -92,20 +93,22 @@ function initMap() {
   // Initialize the autocomplete
   const addressInput = document.getElementById('address');
   autocomplete = new google.maps.places.Autocomplete(addressInput, {
-    types: ['address'],
-    componentRestrictions: { country: 'us' }
+    types: ['address']
   });
 
   // Initialize the circle
   circle = new google.maps.Circle({
     map: map,
-    strokeColor: '#FF0000',
+    strokeColor: '#0000FF',
     strokeOpacity: 0.8,
     strokeWeight: 2,
-    fillColor: '#FF0000',
-    fillOpacity: 0.35,
+    fillColor: '#0000FF',
+    fillOpacity: 0.10,
     radius: 1609.34
   });
+
+  // Add form submit handler
+  document.getElementById('venuePreferences').addEventListener('submit', handleSubscribe);
 
   // Listen for place selection
   autocomplete.addListener('place_changed', () => {
@@ -159,9 +162,7 @@ function loadVenueTypes() {
   const types = [
     'restaurant',
     'bar',
-    'cafe',
-    'bakery',
-    'night_club'
+    'cafe'
   ];
 
   const container = document.getElementById('venueTypes');
@@ -195,22 +196,44 @@ async function handleSubscribe(e) {
     lng: circle.getCenter()?.lng() || -74.0060
   };
 
+  console.log('Subscribing with preferences:', preferences);
+
+  // Convert the places data to a serializable format
+  const serializablePlaces = Array.from(markers).map(marker => {
+    const place = marker.place;
+    return {
+      place_id: place.place_id,
+      name: place.name,
+      vicinity: place.vicinity,
+      rating: place.rating,
+      geometry: {
+        location: {
+          lat: place.geometry.location.lat(),
+          lng: place.geometry.location.lng()
+        }
+      }
+    };
+  });
+
+  console.log('Current places:', serializablePlaces);
+
   try {
     const response = await fetch('/venues/subscribe', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ places: currentPlaces, preferences })
+      body: JSON.stringify({ places: serializablePlaces, preferences })
     });
 
-    const result = await response.json();
-    
     if (response.status === 401) {
-      // Not authenticated, redirect to login
-      window.location.href = '/login?redirect=/venues';
+      console.log('Not authenticated, redirecting to login');
+      window.location.href = '/admin/login?redirect=/venues';
       return;
     }
+
+    const result = await response.json();
+    console.log('Subscription response:', result);
     
     if (!response.ok) {
       throw new Error(result.message || 'Failed to subscribe');
@@ -258,7 +281,7 @@ async function searchVenues() {
     
   if (selectedTypes.length === 0 || !circle.getCenter()) return;
 
-  const uniquePlaces = new Set();
+  uniquePlaces.clear(); // Clear the set before adding new places
 
   const searchPromises = selectedTypes.map(type => {
     return new Promise((resolve) => {
@@ -287,6 +310,8 @@ async function searchVenues() {
                 }
               });
 
+              // Store the place data with the marker
+              marker.place = place;
               markers.push(marker);
 
               const photoHtml = details?.photos?.[0] 

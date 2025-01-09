@@ -466,9 +466,10 @@ td {
 /* Add these styles */
 .slider {
   -webkit-appearance: none;
+  appearance: none;
   width: 100%;
   height: 20px;
-  background: #c0c0c0;
+  background: #dfdfdf;
   border: 2px solid;
   border-color: #808080 #dfdfdf #dfdfdf #808080;
   outline: none;

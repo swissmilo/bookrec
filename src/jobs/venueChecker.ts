@@ -186,4 +186,60 @@ export async function checkForNewVenues() {
   } catch (error) {
     console.error('Error in venue checker job:', error);
   }
+}
+
+// Add a debug version that doesn't send emails
+export async function checkForNewVenuesDebug(): Promise<{ subscription: any, newPlaces: Place[] }[]> {
+  const results: { subscription: any, newPlaces: Place[] }[] = [];
+
+  try {
+    // Get all active subscriptions
+    const { data: subscriptions, error: subscriptionError } = await supabase
+      .from('venue_subscriptions')
+      .select('*, users(email)')
+      .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()); // Only check subscriptions created in last 30 days
+
+    if (subscriptionError) {
+      throw subscriptionError;
+    }
+
+    for (const subscription of subscriptions) {
+      try {
+        const newPlaces = await getNewVenues(subscription);
+        
+        if (newPlaces.length > 0) {
+          results.push({ subscription, newPlaces });
+          
+          // Store new places
+          const placesToInsert = newPlaces.map(place => ({
+            subscription_id: subscription.id,
+            place_id: place.place_id,
+            name: place.name,
+            address: place.vicinity,
+            lat: Number(place.geometry.location.lat),
+            lng: Number(place.geometry.location.lng),
+            rating: place.rating,
+            found_at: new Date().toISOString()
+          }));
+
+          await supabase
+            .from('venue_places')
+            .upsert(placesToInsert);
+        }
+
+        // Update last check time
+        await supabase
+          .from('venue_subscriptions')
+          .update({ last_check: new Date().toISOString() })
+          .eq('id', subscription.id);
+
+      } catch (error) {
+        console.error(`Error processing subscription ${subscription.id}:`, error);
+      }
+    }
+  } catch (error) {
+    console.error('Error in venue checker debug job:', error);
+  }
+
+  return results;
 } 
