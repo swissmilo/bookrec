@@ -28,10 +28,10 @@ const app: Express = express();
 const port: number = parseInt(process.env.PORT || '3000', 10);
 
 // Start the scheduler in production
-if (process.env.NODE_ENV === 'production') {
+//if (process.env.NODE_ENV === 'production') {
   startScheduler();
   console.log('Venue checker scheduler started');
-}
+//}
 
 // public folder for stylesheets
 app.use(express.static(path.join(__dirname, '..', 'public')));

@@ -23,6 +23,9 @@ router.get('/', (req: Request, res: Response) => {
           <a href="/sokobox" class="desktop-icon">
             <div class="icon-img">🎮</div>
           </a>
+          <a href="/venues" class="desktop-icon">
+            <div class="icon-img">🌟</div>
+          </a>
         </div>
       </div>
     </body>

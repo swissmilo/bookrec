@@ -31,7 +31,7 @@ async function loadPreferences() {
     const preferences = savedPreferences ? JSON.parse(savedPreferences) : {
       radius: 1.0,
       rating: 4.0,
-      types: [],
+      types: ['restaurant'],
       address: '',
       lat: 40.7128,
       lng: -74.0060
@@ -217,8 +217,7 @@ async function handleSubscribe(e) {
       });
 
       if (response.status === 401) {
-        console.log('Not authenticated, redirecting to login');
-        window.location.href = '/admin/login?redirect=/venues';
+        window.location.href = '/auth/login?redirect=/venues';
         return;
       }
 
@@ -284,12 +283,12 @@ async function handleSubscribe(e) {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ places: serializablePlaces, preferences })
+      body: JSON.stringify({ places: serializablePlaces, preferences }),
+      redirect: 'manual' // Don't automatically follow redirects
     });
 
-    if (response.status === 401) {
-      console.log('Not authenticated, redirecting to login');
-      window.location.href = '/admin/login?redirect=/venues';
+    if (response.status === 401 || response.type === 'opaqueredirect') {
+      window.location.href = '/auth/login?redirect=/venues';
       return;
     }
 
@@ -309,7 +308,12 @@ async function handleSubscribe(e) {
     alert('Successfully subscribed! You will receive email notifications about new venues in this area.');
   } catch (error) {
     console.error('Error subscribing:', error);
-    alert('Failed to subscribe. Please try again later.');
+    if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
+      // This might be due to a redirect, so try redirecting to login
+      window.location.href = '/auth/login?redirect=/venues';
+    } else {
+      alert('Failed to subscribe. Please try again later.');
+    }
   }
 }
 
@@ -386,12 +390,8 @@ async function searchVenues() {
               markers.push(marker);
 
               const photoHtml = details?.photos?.[0] 
-                ? `<img src="${details.photos[0].getUrl({ maxWidth: 280, maxHeight: 180 })}" 
-                      style="width: 280px; height: 180px; object-fit: cover; margin-bottom: 8px;">` 
-                : '';
-
-              const phoneHtml = details?.formatted_phone_number 
-                ? `<br>Phone: ${details.formatted_phone_number}` 
+                ? `<br><img src="${details.photos[0].getUrl({ maxWidth: 200, maxHeight: 100 })}" 
+                      style="width: 200px; height: 100px; object-fit: cover; margin-bottom: 8px;">` 
                 : '';
 
               const websiteHtml = details?.website 
@@ -400,13 +400,12 @@ async function searchVenues() {
 
               const infoWindow = new google.maps.InfoWindow({
                 content: `
-                  <div style="font-family: 'MS Sans Serif', sans-serif; padding: 10px; width: 280px;">
-                    ${photoHtml}
+                  <div style="font-family: 'MS Sans Serif', sans-serif; width: 280px">
                     <strong style="font-size: 14px;">${place.name}</strong><br>
                     Rating: ${place.rating ? place.rating.toFixed(1) + '⭐' : 'N/A'}<br>
                     ${place.vicinity}
-                    ${phoneHtml}
                     ${websiteHtml}
+                    ${photoHtml}
                   </div>
                 `
               });

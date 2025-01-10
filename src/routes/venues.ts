@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { getHtmlHead } from '../utils/htmlHead';
-import { withAuth } from '../middleware/auth';
+import { withAuth, isAdmin } from '../middleware/auth';
 import { AppError } from '../utils/errorHandler';
 import { VenuePreferences } from '../types/venues';
 import supabase from '../utils/supabase';
@@ -190,11 +190,11 @@ router.get('/', (req: Request, res: Response) => {
     <body>
       <div class="win95-window">
         <div class="win95-titlebar">
-          <span>New Venue Notifications</span>
+          <span>Get notified about new venues opening near you</span>
           <a href="/" class="win95-close">×</a>
         </div>
         <div class="win95-content">
-          <div id="map" style="height: 400px; width: 100%; margin-bottom: 20px;"></div>
+          <div id="map" style="height: 300px; width: 100%; margin-bottom: 20px;"></div>
           
           <form id="venuePreferences" class="venue-form">
             <div class="form-group">
@@ -281,7 +281,7 @@ router.get('/', (req: Request, res: Response) => {
 });
 
 // Add debug endpoint to check for new venues (read-only)
-router.get('/check-venues', withAuth, async (req: Request, res: Response) => {
+router.get('/check-venues', isAdmin, async (req: Request, res: Response) => {
   try {
     console.log('Starting venue check (read-only mode)...');
     const results = await checkForNewVenuesDebug();

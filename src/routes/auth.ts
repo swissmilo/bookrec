@@ -67,23 +67,41 @@ router.get(
   }
 );
 
-router.post(
-  '/logout',
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const session = await workos.userManagement.loadSealedSession({
-        sessionData: req.cookies['wos-session'],
-        cookiePassword: process.env.WORKOS_COOKIE_PASSWORD || '',
-      });
+// Handle both GET and POST requests for logout
+async function handleLogout(req: Request, res: Response, next: NextFunction) {
+  try {
+    let logoutUrl = '/';
 
-      const url = await session.getLogoutUrl();
-
-      res.clearCookie('wos-session');
-      res.redirect(url);
-    } catch (error) {
-      next(new AppError('Error during logout', 500));
+    // Try to get WorkOS logout URL if we have a session cookie
+    if (req.cookies['wos-session']) {
+      try {
+        const session = await workos.userManagement.loadSealedSession({
+          sessionData: req.cookies['wos-session'],
+          cookiePassword: process.env.WORKOS_COOKIE_PASSWORD || '',
+        });
+        logoutUrl = await session.getLogoutUrl();
+      } catch (error) {
+        console.log('WorkOS session logout failed, will redirect to home');
+      }
     }
+
+    // Clear the session cookie after getting the logout URL
+    res.clearCookie('wos-session', {
+      path: '/',
+      httpOnly: true,
+      secure: true,
+      sameSite: 'lax'
+    });
+
+    // Redirect to either WorkOS logout URL or home
+    res.redirect(logoutUrl);
+  } catch (error) {
+    console.error('Logout error:', error);
+    next(new AppError('Error during logout', 500));
   }
-);
+}
+
+router.get('/logout', handleLogout);
+router.post('/logout', handleLogout);
 
 export default router;

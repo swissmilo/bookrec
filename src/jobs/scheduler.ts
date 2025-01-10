@@ -3,7 +3,8 @@ import { checkForNewVenues } from './venueChecker';
 
 // Run every Monday at 9 AM
 export function startScheduler() {
-  cron.schedule('0 9 * * 1', async () => {
+  //cron.schedule('0 9 * * 1', async () => {
+  cron.schedule('0 0 * * *', async () => {
     console.log('Running venue checker job...');
     try {
       await checkForNewVenues();

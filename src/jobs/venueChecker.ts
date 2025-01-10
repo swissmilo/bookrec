@@ -103,15 +103,17 @@ async function getNewVenues(subscription: Subscription): Promise<Place[]> {
 }
 
 async function sendNotificationEmail(subscription: Subscription, newPlaces: Place[], userEmail: string) {
+  console.log(`\nPreparing email for ${userEmail} about ${newPlaces.length} new places...`);
+  
   const placesList = newPlaces
     .map(place => `
       <tr>
-        <td style="padding: 10px; border-bottom: 1px solid #ddd;">
-          <strong>${place.name}</strong><br>
-          Rating: ${place.rating}⭐<br>
-          ${place.vicinity}<br>
-          ${place.description ? `<p style="margin: 8px 0;">${place.description}</p>` : ''}
-          ${place.website ? `<a href="${place.website}" target="_blank" rel="noopener noreferrer" style="color: #000080;">Visit Website</a>` : ''}
+        <td>
+          <div style="font-weight: bold; color: #000080;">${place.name}</div>
+          <div style="margin: 4px 0;">Rating: ${place.rating}⭐</div>
+          <div style="color: #444;">${place.vicinity}</div>
+          ${place.description ? `<div style="margin: 8px 0; padding: 8px; background: #efefef; border: 1px solid #ddd;">${place.description}</div>` : ''}
+          ${place.website ? `<a href="${place.website}" target="_blank" rel="noopener noreferrer" class="win95-button" style="font-size: 12px; padding: 4px 8px;">Visit Website</a>` : ''}
         </td>
       </tr>
     `)
@@ -122,52 +124,170 @@ async function sendNotificationEmail(subscription: Subscription, newPlaces: Plac
     <html>
     <head>
       <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; }
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { background: #000080; color: white; padding: 20px; text-align: center; }
-        .content { padding: 20px; }
-        table { width: 100%; border-collapse: collapse; }
-        a { text-decoration: none; }
-        a:hover { text-decoration: underline; }
+        body { 
+          font-family: 'MS Sans Serif', 'Segoe UI', Tahoma, sans-serif;
+          line-height: 1.6;
+          background: #008080;
+          color: #000000;
+        }
+        .container { 
+          max-width: 600px;
+          margin: 20px auto;
+          background: #c0c0c0;
+          border: 2px solid;
+          border-top-color: #ffffff;
+          border-left-color: #ffffff;
+          border-right-color: #808080;
+          border-bottom-color: #808080;
+          padding: 2px;
+        }
+        .header { 
+          background: #000080;
+          color: white;
+          padding: 4px;
+          font-weight: bold;
+          font-size: 14px;
+          border: 2px solid;
+          border-top-color: #808080;
+          border-left-color: #808080;
+          border-right-color: #ffffff;
+          border-bottom-color: #ffffff;
+        }
+        .content { 
+          padding: 16px;
+          background: #c0c0c0;
+        }
+        table { 
+          width: 100%;
+          border-collapse: separate;
+          border-spacing: 0;
+          margin: 10px 0;
+        }
+        td {
+          background: #ffffff;
+          border: 2px solid;
+          border-top-color: #808080;
+          border-left-color: #808080;
+          border-right-color: #ffffff;
+          border-bottom-color: #ffffff;
+          padding: 8px;
+        }
+        .win95-button {
+          display: inline-block;
+          padding: 6px 12px;
+          background: #c0c0c0;
+          border: 2px solid;
+          border-top-color: #ffffff;
+          border-left-color: #ffffff;
+          border-right-color: #808080;
+          border-bottom-color: #808080;
+          color: #000000;
+          text-decoration: none;
+          font-size: 14px;
+          font-family: 'MS Sans Serif', 'Segoe UI', Tahoma, sans-serif;
+          cursor: pointer;
+          margin-top: 16px;
+        }
+        .win95-button:hover {
+          background: #d4d4d4;
+        }
+        .criteria-box {
+          background: #efefef;
+          border: 2px solid;
+          border-top-color: #808080;
+          border-left-color: #808080;
+          border-right-color: #ffffff;
+          border-bottom-color: #ffffff;
+          padding: 12px;
+          margin: 10px 0;
+        }
+        ul {
+          list-style-type: none;
+          padding: 0;
+          margin: 0;
+        }
+        li {
+          margin: 4px 0;
+          padding-left: 20px;
+          position: relative;
+        }
+        li:before {
+          content: "►";
+          position: absolute;
+          left: 0;
+          color: #000080;
+        }
       </style>
     </head>
     <body>
       <div class="container">
         <div class="header">
-          <h1>New Venues Alert! 🎉</h1>
+          New venues 🎉
         </div>
         <div class="content">
-          <p>Hello! We've found ${newPlaces.length} new venue(s) matching your criteria:</p>
-          <ul>
-            <li>Near: ${subscription.address}</li>
-            <li>Within: ${subscription.radius} miles</li>
-            <li>Minimum Rating: ${subscription.rating}⭐</li>
-            <li>Types: ${subscription.types.join(', ')}</li>
-          </ul>
+          <div style="font-size: 14px;">Hello! We've found ${newPlaces.length} new venue(s) matching your criteria:</div>
+          
+          <div class="criteria-box">
+            <ul>
+              <li>Near: ${subscription.address}</li>
+              <li>Within: ${subscription.radius} miles</li>
+              <li>Minimum Rating: ${subscription.rating}⭐</li>
+              <li>Types: ${subscription.types.join(', ')}</li>
+            </ul>
+          </div>
+
           <table>
             ${placesList}
           </table>
-          <p style="margin-top: 20px;">
-            <a href="https://milo.run/venues" style="background: #000080; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
-              Modify or unsubscribe from these notifications.
+
+          <center>
+            <a href="https://milo.run/venues" class="win95-button">
+              Modify Settings
             </a>
-          </p>
+          </center>
         </div>
       </div>
     </body>
     </html>
   `;
 
-  await sgMail.send({
+  const emailData = {
     to: userEmail,
-    from: 'notifications@milo.run',
-    subject: `New Venues Alert: ${newPlaces.length} new place(s) found!`,
+    from: 'info@milo.run',
+    subject: `We found ${newPlaces.length} new venues for you!`,
     html
+  };
+
+  console.log('Sending email with data:', {
+    to: emailData.to,
+    from: emailData.from,
+    subject: emailData.subject,
+    newPlaces: newPlaces.map(place => ({
+      name: place.name,
+      rating: place.rating,
+      vicinity: place.vicinity
+    }))
   });
+
+  try {
+    await sgMail.send(emailData);
+    console.log('Email sent successfully!');
+  } catch (error: any) {
+    console.error('Error sending email:', error);
+    if (error.response) {
+      console.error('SendGrid API response:', {
+        status: error.response.status,
+        statusText: error.response.statusText,
+        body: error.response.body
+      });
+    }
+    throw error; // Re-throw to be caught by the caller
+  }
 }
 
 export async function checkForNewVenues() {
   try {
+    console.log('\nStarting venue check...');
     // Get all active subscriptions
     const { data: subscriptions, error: subscriptionError } = await supabase
       .from('venue_subscriptions')
@@ -178,11 +298,16 @@ export async function checkForNewVenues() {
       throw subscriptionError;
     }
 
+    console.log(`Found ${subscriptions?.length || 0} active subscriptions`);
+
     for (const subscription of subscriptions) {
       try {
+        console.log(`\nProcessing subscription for ${subscription.address}...`);
         const newPlaces = await getNewVenues(subscription);
         
         if (newPlaces.length > 0) {
+          console.log(`Found ${newPlaces.length} new places for subscription ${subscription.id}`);
+          
           // Store new places
           const placesToInsert = newPlaces.map(place => ({
             subscription_id: subscription.id,
@@ -195,19 +320,26 @@ export async function checkForNewVenues() {
             found_at: new Date().toISOString()
           }));
 
+          console.log('Storing new places in database...');
           await supabase
             .from('venue_places')
             .upsert(placesToInsert);
+          console.log('Places stored successfully');
 
           // Send notification email
+          console.log('Attempting to send notification email...');
           await sendNotificationEmail(subscription, newPlaces, subscription.users.email);
+        } else {
+          console.log('No new places found for this subscription');
         }
 
         // Update last check time
+        console.log('Updating last check time...');
         await supabase
           .from('venue_subscriptions')
           .update({ last_check: new Date().toISOString() })
           .eq('id', subscription.id);
+        console.log('Last check time updated');
 
       } catch (error) {
         console.error(`Error processing subscription ${subscription.id}:`, error);
