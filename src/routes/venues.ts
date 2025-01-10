@@ -363,21 +363,37 @@ router.get('/check-venues', isAdmin, async (req: Request, res: Response) => {
 // Add endpoint to check subscription status
 router.get('/subscription-status', async (req: Request, res: Response) => {
   try {
+    // Add detailed logging
+    console.log('Subscription status check - Session info:', {
+      cookies: req.cookies,
+      sessionCookie: req.cookies['wos-session'],
+      sessionUser: req.session?.user,
+      headers: {
+        cookie: req.headers.cookie,
+        origin: req.headers.origin,
+        referer: req.headers.referer
+      }
+    });
+
     // Check if user is authenticated by checking the session cookie
     const sessionCookie = req.cookies['wos-session'];
     if (!sessionCookie) {
+      console.log('No session cookie found');
       res.status(401).json({ 
         authenticated: false,
-        hasSubscription: false 
+        hasSubscription: false,
+        debug: 'no_session_cookie'
       });
       return;
     }
 
     const workosUserId = req.session?.user?.id;
     if (!workosUserId) {
+      console.log('No user in session');
       res.status(401).json({ 
         authenticated: false,
-        hasSubscription: false 
+        hasSubscription: false,
+        debug: 'no_user_in_session'
       });
       return;
     }
@@ -390,9 +406,11 @@ router.get('/subscription-status', async (req: Request, res: Response) => {
       .single();
 
     if (!user) {
+      console.log('User not found in database');
       res.json({ 
         authenticated: true,
-        hasSubscription: false 
+        hasSubscription: false,
+        debug: 'user_not_in_db'
       });
       return;
     }
@@ -407,13 +425,15 @@ router.get('/subscription-status', async (req: Request, res: Response) => {
     res.json({ 
       authenticated: true,
       hasSubscription: !!subscription,
-      subscriptionId: subscription?.id 
+      subscriptionId: subscription?.id,
+      debug: 'success'
     });
   } catch (error) {
     console.error('Error checking subscription status:', error);
     res.status(500).json({ 
       success: false,
-      message: error instanceof Error ? error.message : 'An unknown error occurred' 
+      message: error instanceof Error ? error.message : 'An unknown error occurred',
+      debug: 'error'
     });
   }
 });

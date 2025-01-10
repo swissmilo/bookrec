@@ -181,10 +181,24 @@ function loadVenueTypes() {
 
 async function checkSubscriptionStatus() {
   try {
-    const response = await fetch('/venues/subscription-status');
+    const response = await fetch('/venues/subscription-status', {
+      credentials: 'include',  // Explicitly include credentials
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
     
+    console.log('Subscription status response:', {
+      status: response.status,
+      statusText: response.statusText,
+      headers: Object.fromEntries(response.headers.entries())
+    });
+
     // If we get a 401, treat it as not authenticated
     if (response.status === 401) {
+      const errorData = await response.json().catch(() => ({}));
+      console.log('Authentication error details:', errorData);
+      
       isSubscribed = false;
       currentSubscriptionId = null;
       const submitButton = document.querySelector('#venuePreferences button[type="submit"]');
@@ -195,6 +209,7 @@ async function checkSubscriptionStatus() {
     }
 
     const data = await response.json();
+    console.log('Subscription status data:', data);
 
     // Handle unauthenticated users
     if (!data.authenticated) {
