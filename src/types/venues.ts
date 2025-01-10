@@ -17,6 +17,10 @@ export interface User {
 declare module 'express-session' {
   interface SessionData {
     venuePreferences?: VenuePreferences;
-    user?: User;
+    user?: {
+      id: string;
+      email: string;
+      is_admin: boolean;
+    };
   }
 } 

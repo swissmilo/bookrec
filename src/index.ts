@@ -22,6 +22,7 @@ import adminRouter from './routes/admin';
 import notFoundRouter from './routes/404';
 import { errorHandler } from './utils/errorHandler';
 import venuesRouter from './routes/venues';
+import authRoutes from './routes/auth';
 
 const app: Express = express();
 const port: number = parseInt(process.env.PORT || '3000', 10);
@@ -64,6 +65,7 @@ app.use('/about', aboutRouter);
 app.use('/all-books', libraryRouter);
 app.use('/recommendations', recommendationsRouter);
 app.use('/sokobox', sokoboxRouter);
+app.use('/auth', authRoutes);
 app.use('/admin', adminRouter);
 app.use('/venues', venuesRouter);
 app.use(notFoundRouter);
