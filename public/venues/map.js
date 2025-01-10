@@ -192,9 +192,11 @@ async function checkSubscriptionStatus() {
       if (isSubscribed) {
         submitButton.textContent = 'Unsubscribe';
         submitButton.classList.add('unsubscribe');
+        setFormEnabled(false); // Disable form inputs
       } else {
         submitButton.textContent = 'Subscribe to Updates';
         submitButton.classList.remove('unsubscribe');
+        setFormEnabled(true); // Enable form inputs
       }
     }
   } catch (error) {
@@ -230,6 +232,7 @@ async function handleSubscribe(e) {
       const submitButton = document.querySelector('#venuePreferences button[type="submit"]');
       submitButton.textContent = 'Subscribe to Updates';
       submitButton.classList.remove('unsubscribe');
+      setFormEnabled(true); // Enable form inputs
       alert('Successfully unsubscribed from venue updates.');
     } catch (error) {
       console.error('Error unsubscribing:', error);
@@ -302,6 +305,7 @@ async function handleSubscribe(e) {
     const submitButton = document.querySelector('#venuePreferences button[type="submit"]');
     submitButton.textContent = 'Unsubscribe';
     submitButton.classList.add('unsubscribe');
+    setFormEnabled(false); // Disable form inputs immediately after successful subscription
     alert('Successfully subscribed! You will receive email notifications about new venues in this area.');
   } catch (error) {
     console.error('Error subscribing:', error);
@@ -368,8 +372,12 @@ async function searchVenues() {
                 position: place.geometry.location,
                 title: place.name,
                 icon: {
-                  url: place.icon,
-                  scaledSize: new google.maps.Size(24, 24)
+                  path: 'M 0,-24 6,-7.5 24,-7.5 9.5,4.5 15.5,21 0,9 -15.5,21 -9.5,4.5 -24,-7.5 -6,-7.5 z',
+                  fillColor: '#FFD700',
+                  fillOpacity: 1,
+                  strokeColor: '#DAA520',
+                  strokeWeight: 2,
+                  scale: 0.5
                 }
               });
 

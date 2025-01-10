@@ -170,6 +170,22 @@ router.get('/', (req: Request, res: Response) => {
       .win95-button.unsubscribe:hover {
         background-color: #ff5252;
       }
+      /* Add styles for disabled inputs */
+      input[disabled], input[type="range"][disabled] {
+        background-color: #d4d0c8;
+        color: #666;
+        cursor: not-allowed;
+      }
+      input[type="checkbox"][disabled] + label {
+        color: #666;
+        cursor: not-allowed;
+      }
+      .form-group.disabled label {
+        color: #666;
+      }
+      #radiusDisplay.disabled, #ratingDisplay.disabled {
+        color: #666;
+      }
     </style>
     <body>
       <div class="win95-window">
@@ -193,7 +209,7 @@ router.get('/', (req: Request, res: Response) => {
                 id="radius" 
                 name="radius" 
                 min="0.1" 
-                max="3.0"
+                max="3.0" 
                 step="0.1" 
                 value="${defaultPreferences.radius}" 
                 class="slider" 
@@ -238,6 +254,27 @@ router.get('/', (req: Request, res: Response) => {
 
       <script src="https://maps.googleapis.com/maps/api/js?key=${process.env.GOOGLE_MAPS_API_KEY}&libraries=places,geometry"></script>
       <script src="/venues/map.js"></script>
+      <script>
+        // Add helper function to disable/enable form
+        function setFormEnabled(enabled) {
+          const form = document.getElementById('venuePreferences');
+          const inputs = form.querySelectorAll('input');
+          const formGroups = form.querySelectorAll('.form-group');
+          const displays = form.querySelectorAll('#radiusDisplay, #ratingDisplay');
+          
+          inputs.forEach(input => {
+            input.disabled = !enabled;
+          });
+          
+          formGroups.forEach(group => {
+            group.classList.toggle('disabled', !enabled);
+          });
+          
+          displays.forEach(display => {
+            display.classList.toggle('disabled', !enabled);
+          });
+        }
+      </script>
     </body>
     </html>
   `);

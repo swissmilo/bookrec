@@ -22,7 +22,10 @@ interface Subscription {
   last_check: string;
 }
 
-type Place = Required<Pick<PlaceData, 'place_id' | 'name' | 'vicinity' | 'rating' | 'geometry'>>;
+type Place = Required<Pick<PlaceData, 'place_id' | 'name' | 'vicinity' | 'rating' | 'geometry'>> & {
+  website?: string;
+  description?: string;
+};
 
 function isValidPlace(place: Partial<PlaceData>): place is Place {
   return !!(
@@ -32,6 +35,23 @@ function isValidPlace(place: Partial<PlaceData>): place is Place {
     typeof place.rating === 'number' &&
     place.geometry?.location
   );
+}
+
+// Add function to get place details
+async function getPlaceDetails(placeId: string): Promise<any> {
+  try {
+    const response = await mapsClient.placeDetails({
+      params: {
+        place_id: placeId,
+        fields: ['website', 'editorial_summary'],
+        key: process.env.GOOGLE_MAPS_API_KEY!
+      }
+    });
+    return response.data.result;
+  } catch (error) {
+    console.error(`Error getting place details for ${placeId}:`, error);
+    return null;
+  }
 }
 
 async function getNewVenues(subscription: Subscription): Promise<Place[]> {
@@ -64,6 +84,12 @@ async function getNewVenues(subscription: Subscription): Promise<Place[]> {
             place.rating >= subscription.rating && 
             !existingPlaceIds.has(place.place_id)
           ) {
+            // Get additional details for the place
+            const details = await getPlaceDetails(place.place_id);
+            if (details) {
+              place.website = details.website;
+              place.description = details.editorial_summary?.overview;
+            }
             newPlaces.push(place);
           }
         }
@@ -83,7 +109,9 @@ async function sendNotificationEmail(subscription: Subscription, newPlaces: Plac
         <td style="padding: 10px; border-bottom: 1px solid #ddd;">
           <strong>${place.name}</strong><br>
           Rating: ${place.rating}⭐<br>
-          ${place.vicinity}
+          ${place.vicinity}<br>
+          ${place.description ? `<p style="margin: 8px 0;">${place.description}</p>` : ''}
+          ${place.website ? `<a href="${place.website}" target="_blank" rel="noopener noreferrer" style="color: #000080;">Visit Website</a>` : ''}
         </td>
       </tr>
     `)
@@ -99,6 +127,8 @@ async function sendNotificationEmail(subscription: Subscription, newPlaces: Plac
         .header { background: #000080; color: white; padding: 20px; text-align: center; }
         .content { padding: 20px; }
         table { width: 100%; border-collapse: collapse; }
+        a { text-decoration: none; }
+        a:hover { text-decoration: underline; }
       </style>
     </head>
     <body>
@@ -119,7 +149,7 @@ async function sendNotificationEmail(subscription: Subscription, newPlaces: Plac
           </table>
           <p style="margin-top: 20px;">
             <a href="https://milo.run/venues" style="background: #000080; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
-              View on Map
+              Modify or unsubscribe from these notifications.
             </a>
           </p>
         </div>
