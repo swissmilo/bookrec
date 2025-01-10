@@ -182,25 +182,55 @@ function loadVenueTypes() {
 async function checkSubscriptionStatus() {
   try {
     const response = await fetch('/venues/subscription-status');
-    if (response.ok) {
-      const { hasSubscription, subscriptionId } = await response.json();
-      isSubscribed = hasSubscription;
-      currentSubscriptionId = subscriptionId;
-      
-      // Update button text and handler
+    
+    // If we get a 401, treat it as not authenticated
+    if (response.status === 401) {
+      isSubscribed = false;
+      currentSubscriptionId = null;
       const submitButton = document.querySelector('#venuePreferences button[type="submit"]');
-      if (isSubscribed) {
-        submitButton.textContent = 'Unsubscribe';
-        submitButton.classList.add('unsubscribe');
-        setFormEnabled(false); // Disable form inputs
-      } else {
-        submitButton.textContent = 'Subscribe to Updates';
-        submitButton.classList.remove('unsubscribe');
-        setFormEnabled(true); // Enable form inputs
-      }
+      submitButton.textContent = 'Subscribe to Updates';
+      submitButton.classList.remove('unsubscribe');
+      setFormEnabled(true);
+      return;
+    }
+
+    const data = await response.json();
+
+    // Handle unauthenticated users
+    if (!data.authenticated) {
+      isSubscribed = false;
+      currentSubscriptionId = null;
+      const submitButton = document.querySelector('#venuePreferences button[type="submit"]');
+      submitButton.textContent = 'Subscribe to Updates';
+      submitButton.classList.remove('unsubscribe');
+      setFormEnabled(true);
+      return;
+    }
+
+    // Handle authenticated users
+    isSubscribed = data.hasSubscription;
+    currentSubscriptionId = data.subscriptionId;
+    
+    // Update button text and handler
+    const submitButton = document.querySelector('#venuePreferences button[type="submit"]');
+    if (isSubscribed) {
+      submitButton.textContent = 'Unsubscribe';
+      submitButton.classList.add('unsubscribe');
+      setFormEnabled(false); // Disable form inputs
+    } else {
+      submitButton.textContent = 'Subscribe to Updates';
+      submitButton.classList.remove('unsubscribe');
+      setFormEnabled(true); // Enable form inputs
     }
   } catch (error) {
+    // On error, just treat as not subscribed
     console.error('Error checking subscription status:', error);
+    isSubscribed = false;
+    currentSubscriptionId = null;
+    const submitButton = document.querySelector('#venuePreferences button[type="submit"]');
+    submitButton.textContent = 'Subscribe to Updates';
+    submitButton.classList.remove('unsubscribe');
+    setFormEnabled(true);
   }
 }
 

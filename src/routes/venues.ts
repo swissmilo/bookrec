@@ -172,8 +172,7 @@ router.get('/', (req: Request, res: Response) => {
       }
       /* Add styles for disabled inputs */
       input[disabled], input[type="range"][disabled] {
-        background-color: #d4d0c8;
-        color: #666;
+        opacity: 0.5;
         cursor: not-allowed;
       }
       input[type="checkbox"][disabled] + label {
@@ -185,6 +184,46 @@ router.get('/', (req: Request, res: Response) => {
       }
       #radiusDisplay.disabled, #ratingDisplay.disabled {
         color: #666;
+      }
+
+      /* Simple slider styles */
+      input[type="range"] {
+        -webkit-appearance: none;
+        width: 100%;
+        height: 2px;
+        background: #ddd;
+        outline: none;
+        margin: 15px 0;
+      }
+
+      input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 15px;
+        height: 15px;
+        background: #0066cc;
+        border-radius: 50%;
+        cursor: pointer;
+      }
+
+      input[type="range"]::-moz-range-thumb {
+        width: 15px;
+        height: 15px;
+        background: #0066cc;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+      }
+
+      input[type="range"]:disabled {
+        background: #eee;
+      }
+
+      input[type="range"]:disabled::-webkit-slider-thumb {
+        background: #999;
+      }
+
+      input[type="range"]:disabled::-moz-range-thumb {
+        background: #999;
       }
     </style>
     <body>
@@ -322,11 +361,24 @@ router.get('/check-venues', isAdmin, async (req: Request, res: Response) => {
 });
 
 // Add endpoint to check subscription status
-router.get('/subscription-status', withAuth, async (req: Request, res: Response) => {
+router.get('/subscription-status', async (req: Request, res: Response) => {
   try {
+    // Check if user is authenticated by checking the session cookie
+    const sessionCookie = req.cookies['wos-session'];
+    if (!sessionCookie) {
+      res.status(401).json({ 
+        authenticated: false,
+        hasSubscription: false 
+      });
+      return;
+    }
+
     const workosUserId = req.session?.user?.id;
     if (!workosUserId) {
-      res.json({ hasSubscription: false });
+      res.status(401).json({ 
+        authenticated: false,
+        hasSubscription: false 
+      });
       return;
     }
 
@@ -338,7 +390,10 @@ router.get('/subscription-status', withAuth, async (req: Request, res: Response)
       .single();
 
     if (!user) {
-      res.json({ hasSubscription: false });
+      res.json({ 
+        authenticated: true,
+        hasSubscription: false 
+      });
       return;
     }
 
@@ -350,13 +405,14 @@ router.get('/subscription-status', withAuth, async (req: Request, res: Response)
       .single();
 
     res.json({ 
+      authenticated: true,
       hasSubscription: !!subscription,
       subscriptionId: subscription?.id 
     });
   } catch (error) {
     console.error('Error checking subscription status:', error);
     res.status(500).json({ 
-      success: false, 
+      success: false,
       message: error instanceof Error ? error.message : 'An unknown error occurred' 
     });
   }
