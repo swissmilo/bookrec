@@ -28,7 +28,8 @@ router.post('/subscribe', withAuth, async (req: Request, res: Response) => {
       workosUserId,
       userEmail,
       preferences,
-      placeCount: places.length
+      placeCount: places.length,
+      sessionUser: req.session?.user
     });
 
     if (!workosUserId || !userEmail) {
@@ -47,8 +48,15 @@ router.post('/subscribe', withAuth, async (req: Request, res: Response) => {
       .eq('workos_id', workosUserId)
       .single();
 
+    console.log('Initial user lookup:', {
+      workosUserId,
+      user,
+      error: userError
+    });
+
     if (userError) {
       // User doesn't exist, create them
+      console.log('Creating new user with WorkOS ID:', workosUserId);
       const { data: newUser, error: createError } = await supabase
         .from('users')
         .insert({
@@ -68,6 +76,7 @@ router.post('/subscribe', withAuth, async (req: Request, res: Response) => {
         return;
       }
 
+      console.log('New user created:', newUser);
       user = newUser;
     }
 
@@ -407,34 +416,74 @@ router.get('/subscription-status', async (req: Request, res: Response) => {
     console.log('WorkOS User ID from session:', workosUserId);
 
     // First get the user's Supabase ID
-    const { data: user } = await supabase
+    const { data: user, error: userError } = await supabase
       .from('users')
       .select('id')
       .eq('workos_id', workosUserId)
       .single();
 
+    console.log('User lookup result:', {
+      workosUserId,
+      user,
+      error: userError,
+      query: `SELECT id FROM users WHERE workos_id = '${workosUserId}'`
+    });
+
+    if (userError) {
+      console.error('Error looking up user:', userError);
+      res.status(500).json({ 
+        authenticated: true,
+        hasSubscription: false,
+        debug: 'user_lookup_error',
+        error: userError.message
+      });
+      return;
+    }
+
     if (!user) {
-      console.log('User not found in database');
+      console.log('User not found in database for workos_id:', workosUserId);
       res.json({ 
         authenticated: true,
         hasSubscription: false,
-        debug: 'user_not_in_db'
+        debug: 'user_not_in_db',
+        workosId: workosUserId
       });
       return;
     }
 
     // Then check for active subscriptions
-    const { data: subscription } = await supabase
+    const { data: subscriptions, error: subscriptionError } = await supabase
       .from('venue_subscriptions')
       .select('id')
-      .eq('user_id', user.id)
-      .single();
+      .eq('user_id', user.id);
+
+    console.log('Subscription lookup result:', {
+      userId: user.id,
+      subscriptions,
+      error: subscriptionError,
+      query: `SELECT id FROM venue_subscriptions WHERE user_id = '${user.id}'`
+    });
+
+    if (subscriptionError) {
+      console.error('Error looking up subscription:', subscriptionError);
+      res.status(500).json({ 
+        authenticated: true,
+        hasSubscription: false,
+        debug: 'subscription_lookup_error',
+        error: subscriptionError.message
+      });
+      return;
+    }
+
+    // Get the first subscription if any exist
+    const subscription = subscriptions && subscriptions.length > 0 ? subscriptions[0] : null;
 
     res.json({ 
       authenticated: true,
       hasSubscription: !!subscription,
       subscriptionId: subscription?.id,
-      debug: 'success'
+      debug: 'success',
+      userId: user.id
     });
   } catch (error) {
     console.error('Error checking subscription status:', error);
