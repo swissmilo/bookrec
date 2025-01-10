@@ -1,16 +1,12 @@
-import cron from 'node-cron';
 import { checkForNewVenues } from './venueChecker';
 
-// Run every Monday at 9 AM
-export function startScheduler() {
-  //cron.schedule('0 9 * * 1', async () => {
-  cron.schedule('0 0 * * *', async () => {
-    console.log('Running venue checker job...');
-    try {
-      await checkForNewVenues();
-      console.log('Venue checker job completed successfully');
-    } catch (error) {
-      console.error('Error in venue checker job:', error);
-    }
-  });
+// This function is kept for manual testing and development
+export async function startScheduler() {
+  try {
+    console.log('Running initial venue check...');
+    await checkForNewVenues();
+    console.log('Initial venue check completed');
+  } catch (error) {
+    console.error('Error in initial venue check:', error);
+  }
 } 

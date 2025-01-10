@@ -1,10 +1,10 @@
-import { Router, Request, Response, NextFunction } from 'express';
+import { Router, Request, Response, NextFunction, RequestHandler } from 'express';
 import { getHtmlHead } from '../utils/htmlHead';
 import { withAuth, isAdmin, workos } from '../middleware/auth';
 import { AppError } from '../utils/errorHandler';
 import { VenuePreferences } from '../types/venues';
 import supabase from '../utils/supabase';
-import { checkForNewVenuesDebug } from '../jobs/venueChecker';
+import { checkForNewVenues, checkForNewVenuesDebug } from '../jobs/venueChecker';
 
 const router = Router();
 
@@ -541,5 +541,31 @@ router.post('/unsubscribe', withAuth, async (req: Request, res: Response) => {
     });
   }
 });
+
+// Add cron endpoint for venue checks
+const cronHandler: RequestHandler = async (req, res, next) => {
+  try {
+    // Verify the request is from Vercel Cron
+    const authHeader = req.headers.authorization;
+    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    console.log('Starting scheduled venue check...');
+    const results = await checkForNewVenues();
+    console.log('Venue check completed:', results);
+    
+    res.json({
+      success: true,
+      message: 'Venue check completed successfully',
+      results
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+router.get('/cron/check-venues', cronHandler);
 
 export default router; 
