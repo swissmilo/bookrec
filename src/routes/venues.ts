@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { getHtmlHead } from '../utils/htmlHead';
-import { withAuth, isAdmin } from '../middleware/auth';
+import { withAuth, isAdmin, workos } from '../middleware/auth';
 import { AppError } from '../utils/errorHandler';
 import { VenuePreferences } from '../types/venues';
 import supabase from '../utils/supabase';
@@ -367,8 +367,6 @@ router.get('/subscription-status', async (req: Request, res: Response) => {
     console.log('Subscription status check - Session info:', {
       cookies: req.cookies,
       sessionCookie: req.cookies['wos-session'],
-      sessionUser: req.session?.user,
-      rawSession: req.session,
       headers: {
         cookie: req.headers.cookie,
         origin: req.headers.origin,
@@ -388,28 +386,25 @@ router.get('/subscription-status', async (req: Request, res: Response) => {
       return;
     }
 
-    // Log the raw session data
-    console.log('Raw session data:', req.session);
+    // Load and authenticate the WorkOS session directly
+    const session = await workos.userManagement.loadSealedSession({
+      sessionData: sessionCookie,
+      cookiePassword: process.env.WORKOS_COOKIE_PASSWORD || '',
+    });
 
-    // Try to get user from session
-    const workosUserId = req.session?.user?.id;
-    console.log('WorkOS User ID from session:', workosUserId);
-    
-    if (!workosUserId) {
-      // Check if session needs to be parsed
-      if (req.session && !req.session.user && Object.keys(req.session).length > 0) {
-        console.log('Session exists but no user object, raw session:', req.session);
-      }
-      
-      console.log('No user in session');
+    const authResult = await session.authenticate();
+    if (!authResult.authenticated || !authResult.user) {
+      console.log('Session authentication failed:', authResult);
       res.status(401).json({ 
         authenticated: false,
         hasSubscription: false,
-        debug: 'no_user_in_session',
-        sessionData: req.session // Include session data in response for debugging
+        debug: 'session_auth_failed'
       });
       return;
     }
+
+    const workosUserId = authResult.user.id;
+    console.log('WorkOS User ID from session:', workosUserId);
 
     // First get the user's Supabase ID
     const { data: user } = await supabase
