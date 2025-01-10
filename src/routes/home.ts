@@ -28,23 +28,7 @@ router.get('/', async (req: Request, res: Response) => {
     <!DOCTYPE html>
     <html>
     ${getHtmlHead("Milo's Personal Website")}
-    <style>
-      .welcome-message {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: #c0c0c0;
-        padding: 8px 16px;
-        border: 2px solid;
-        border-color: #ffffff #808080 #808080 #ffffff;
-        font-family: 'MS Sans Serif', sans-serif;
-        font-size: 14px;
-        z-index: 1000;
-        box-shadow: 1px 1px 0 #000;
-      }
-    </style>
     <body>
-      ${welcomeMessage}
       <div class="desktop">
         <div class="desktop-icons">
           <a href="/about" class="desktop-icon">
@@ -64,6 +48,7 @@ router.get('/', async (req: Request, res: Response) => {
           </a>
         </div>
       </div>
+      ${welcomeMessage}
     </body>
     </html>
   `);

@@ -551,3 +551,20 @@ td {
   margin: 0;
   cursor: pointer;
 }
+
+.welcome-message {
+  position: fixed;
+  bottom: 4px;
+  right: 4px;
+  background: #c0c0c0;
+  padding: 6px 12px;
+  border: 2px solid;
+  border-color: #ffffff #808080 #808080 #ffffff;
+  font-family: 'MS Sans Serif', sans-serif;
+  font-size: 12px;
+  z-index: 1000;
+  box-shadow: 1px 1px 0 #000;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
