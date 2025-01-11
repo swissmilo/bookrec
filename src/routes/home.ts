@@ -46,6 +46,9 @@ router.get('/', async (req: Request, res: Response) => {
           <a href="/venues" class="desktop-icon">
             <div class="icon-img">🌟</div>
           </a>
+          <a href="/music" class="desktop-icon">
+            <div class="icon-img">🎵</div>
+          </a>
         </div>
       </div>
       ${welcomeMessage}
