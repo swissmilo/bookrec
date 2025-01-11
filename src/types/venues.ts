@@ -22,5 +22,6 @@ declare module 'express-session' {
       email: string;
       is_admin: boolean;
     };
+    redirect?: string;
   }
 } 

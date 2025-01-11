@@ -7,6 +7,11 @@ const router = Router();
 
 router.get('/login', (req: Request, res: Response, next: NextFunction) => {
   try {
+    // Store the redirect URL in session if provided
+    if (req.query.redirect) {
+      req.session.redirect = req.query.redirect as string;
+    }
+
     const authorizationUrl = workos.userManagement.getAuthorizationUrl({
       redirectUri: process.env.WORKOS_REDIRECT_URI || '',
       provider: 'authkit',
@@ -56,7 +61,12 @@ router.get(
         sameSite: 'lax',
       });
 
-      res.redirect('/');
+      // Get the redirect URL from the session or default to home
+      const redirectUrl = req.session?.redirect || '/';
+      // Clear the redirect URL from session
+      delete req.session?.redirect;
+      
+      res.redirect(redirectUrl);
     } catch (error) {
       console.error('Authentication error details:', error);
       const errorMessage = encodeURIComponent(

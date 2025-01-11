@@ -333,7 +333,7 @@ async function handleSubscribe(e) {
     });
 
     if (response.status === 401 || response.type === 'opaqueredirect') {
-      window.location.href = '/auth/login?redirect=/venues';
+      window.location.href = '/auth/login?redirect=' + encodeURIComponent('/venues');
       return;
     }
 
