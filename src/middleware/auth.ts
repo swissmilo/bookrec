@@ -24,8 +24,8 @@ export const withAuth = async (
     const authResult = await session.authenticate();
 
     if (authResult.authenticated) {
-      if (req.session && authResult.user) {
-        req.session.user = {
+      if (authResult.user) {
+        req.user = {
           id: authResult.user.id,
           email: authResult.user.email || '',
           is_admin: authResult.user.email === 'milo.spirig@gmail.com'
@@ -60,8 +60,8 @@ export const withAuth = async (
             sameSite: 'lax',
           });
 
-          if (req.session && authResult.session?.user) {
-            req.session.user = {
+          if (authResult.session?.user) {
+            req.user = {
               id: authResult.session.user.id,
               email: authResult.session.user.email || '',
               is_admin: authResult.session.user.email === 'milo.spirig@gmail.com'
@@ -75,34 +75,28 @@ export const withAuth = async (
       res.redirect('/auth/login');
     }
   } catch (error) {
-    next(new AppError('Authentication failed', 401));
+    next(error);
   }
 };
 
-// New middleware that combines authentication and admin check
 export const isAdmin = async (
   req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
   try {
-    // First run the normal authentication check
-    await withAuth(req, res, async () => {
-      // After successful authentication, check if user is admin
-      const isUserAdmin = req.session?.user?.is_admin;
-      
-      if (!isUserAdmin) {
-        res.status(403).json({
-          success: false,
-          message: 'Access denied. Admin privileges required.'
-        });
-        return;
-      }
-
-      // If we get here, user is authenticated and is an admin
-      next();
+    const session = await workos.userManagement.loadSealedSession({
+      sessionData: req.cookies['wos-session'],
+      cookiePassword: process.env.WORKOS_COOKIE_PASSWORD || '',
     });
+
+    const authResult = await session.authenticate();
+    if (authResult.authenticated && authResult.user?.email === 'milo.spirig@gmail.com') {
+      return next();
+    }
+
+    throw new AppError('Unauthorized', 401);
   } catch (error) {
-    next(new AppError('Admin authorization failed', 403));
+    next(error);
   }
 };

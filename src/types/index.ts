@@ -12,6 +12,16 @@ declare global {
       NODE_ENV: 'development' | 'production' | 'test';
     }
   }
+
+  namespace Express {
+    interface Request {
+      user?: {
+        id: string;
+        email: string;
+        is_admin: boolean;
+      };
+    }
+  }
 }
 
 export {};

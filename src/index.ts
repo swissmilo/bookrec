@@ -34,24 +34,16 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
 
-// Session configuration
-interface SessionConfig {
-  secret: string;
-  resave: boolean;
-  saveUninitialized: boolean;
-  cookie: {
-    secure: boolean;
-  };
-}
-
-const sessionConfig: SessionConfig = {
-  secret: process.env.SESSION_SECRET || 'not-very-secret-key',
+// Minimal session configuration just for game state
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'sokobox-secret',
   resave: false,
-  saveUninitialized: true,
-  cookie: { secure: process.env.NODE_ENV === 'production' }
-};
-
-app.use(session(sessionConfig));
+  saveUninitialized: false,
+  cookie: { 
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+  }
+}));
 
 // Mount routes
 app.use('/', homeRouter);
@@ -89,7 +81,7 @@ app.get('/sitemap.xml', async (req: Request, res: Response) => {
 });
 
 app.listen(port, () => {
-  console.log(`Recommendation app listening on port ${port}`);
+  console.log(`Server is running at http://localhost:${port}`);
 });
 
 export default app; 

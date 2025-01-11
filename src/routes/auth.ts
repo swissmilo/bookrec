@@ -7,15 +7,11 @@ const router = Router();
 
 router.get('/login', (req: Request, res: Response, next: NextFunction) => {
   try {
-    // Store the redirect URL in session if provided
-    if (req.query.redirect) {
-      req.session.redirect = req.query.redirect as string;
-    }
-
     const authorizationUrl = workos.userManagement.getAuthorizationUrl({
       redirectUri: process.env.WORKOS_REDIRECT_URI || '',
       provider: 'authkit',
       clientId: process.env.WORKOS_CLIENT_ID || '',
+      state: req.query.redirect ? JSON.stringify({ redirect: req.query.redirect }) : undefined,
     });
 
     res.redirect(authorizationUrl);
@@ -27,6 +23,7 @@ router.get('/login', (req: Request, res: Response, next: NextFunction) => {
 interface CallbackQuery {
   code?: string;
   error?: string;
+  state?: string;
 }
 
 router.get(
@@ -36,7 +33,7 @@ router.get(
     res: Response,
     next: NextFunction
   ) => {
-    const { code } = req.query;
+    const { code, state } = req.query;
 
     if (!code) {
       next(new AppError('No code provided', 400));
@@ -61,10 +58,18 @@ router.get(
         sameSite: 'lax',
       });
 
-      // Get the redirect URL from the session or default to home
-      const redirectUrl = req.session?.redirect || '/';
-      // Clear the redirect URL from session
-      delete req.session?.redirect;
+      // Get the redirect URL from the state parameter
+      let redirectUrl = '/';
+      if (state) {
+        try {
+          const stateData = JSON.parse(state);
+          if (stateData.redirect) {
+            redirectUrl = stateData.redirect;
+          }
+        } catch (e) {
+          console.error('Error parsing state:', e);
+        }
+      }
       
       res.redirect(redirectUrl);
     } catch (error) {
