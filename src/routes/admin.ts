@@ -101,7 +101,7 @@ const dailyStatsHandler: RequestHandler = async (req, res, next) => {
     // Get new highscores
     const { data: newHighscores, error: highscoresError } = await supabase
       .from('highscores')
-      .select('score, level, user_email, created_at')
+      .select('time, level, name, created_at')
       .gte('created_at', oneDayAgoStr)
       .order('created_at', { ascending: false });
 
@@ -131,7 +131,7 @@ const dailyStatsHandler: RequestHandler = async (req, res, next) => {
           <h3>New Highscores (${newHighscores.length})</h3>
           <ul>
             ${newHighscores.map(score => `
-              <li>${score.user_email} scored ${score.score} on level ${score.level} 
+              <li>${score.name} scored ${score.time.toFixed(1)}s on level ${score.level} 
               (${new Date(score.created_at).toLocaleString()})</li>
             `).join('')}
           </ul>
