@@ -107,14 +107,24 @@ const dailyStatsHandler: RequestHandler = async (req, res, next) => {
 
     if (highscoresError) throw highscoresError;
 
-    // Get new subscriptions
-    const { data: newSubscriptions, error: subscriptionsError } = await supabase
+    // Get new subscriptions with user emails
+    const { data: subscriptionsWithUsers, error: subscriptionsError } = await supabase
       .from('venue_subscriptions')
-      .select('address, radius, rating, types, user_email, created_at')
+      .select(`
+        *,
+        users (
+          email
+        )
+      `)
       .gte('created_at', oneDayAgoStr)
       .order('created_at', { ascending: false });
 
     if (subscriptionsError) throw subscriptionsError;
+
+    const newSubscriptions = subscriptionsWithUsers.map(sub => ({
+      ...sub,
+      userEmail: sub.users?.email
+    }));
 
     // If there are no changes, don't send an email
     if (!newUsers.length && !newHighscores.length && !newSubscriptions.length) {
@@ -154,7 +164,7 @@ const dailyStatsHandler: RequestHandler = async (req, res, next) => {
         <h3>New Venue Subscriptions (${newSubscriptions.length})</h3>
         <ul>
           ${newSubscriptions.map(sub => `
-            <li>${sub.user_email} subscribed to updates near ${sub.address} 
+            <li>${sub.userEmail} subscribed to updates near ${sub.address} 
             (${sub.radius} miles, min rating: ${sub.rating}, types: ${sub.types.join(', ')})
             (${new Date(sub.created_at).toLocaleString()})</li>
           `).join('')}
