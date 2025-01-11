@@ -1,7 +1,11 @@
-import { Router, Request, Response, NextFunction } from 'express';
+import { Router, Request, Response, NextFunction, RequestHandler } from 'express';
 import { getHtmlHead } from '../utils/htmlHead';
 import { withAuth, workos, isAdmin } from '../middleware/auth';
 import { AppError } from '../utils/errorHandler';
+import supabase from '../utils/supabase';
+import sgMail from '@sendgrid/mail';
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY || '');
 
 const router = Router();
 
@@ -70,5 +74,116 @@ router.get(
     }
   }
 );
+
+// Add cron endpoint for daily stats
+const dailyStatsHandler: RequestHandler = async (req, res, next) => {
+  try {
+    // Verify the request is from Vercel Cron
+    const authHeader = req.headers.authorization;
+    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    const oneDayAgo = new Date();
+    oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+    const oneDayAgoStr = oneDayAgo.toISOString();
+
+    // Get new users
+    const { data: newUsers, error: usersError } = await supabase
+      .from('users')
+      .select('email, created_at')
+      .gte('created_at', oneDayAgoStr)
+      .order('created_at', { ascending: false });
+
+    if (usersError) throw usersError;
+
+    // Get new highscores
+    const { data: newHighscores, error: highscoresError } = await supabase
+      .from('highscores')
+      .select('score, level, user_email, created_at')
+      .gte('created_at', oneDayAgoStr)
+      .order('created_at', { ascending: false });
+
+    if (highscoresError) throw highscoresError;
+
+    // Get new subscriptions
+    const { data: newSubscriptions, error: subscriptionsError } = await supabase
+      .from('venue_subscriptions')
+      .select('address, radius, rating, types, user_email, created_at')
+      .gte('created_at', oneDayAgoStr)
+      .order('created_at', { ascending: false });
+
+    if (subscriptionsError) throw subscriptionsError;
+
+    // If there are no changes, don't send an email
+    if (!newUsers.length && !newHighscores.length && !newSubscriptions.length) {
+      console.log('No changes in the last 24 hours');
+      res.json({ message: 'No changes to report' });
+      return;
+    }
+
+    // Prepare email content
+    let emailContent = '<h2>Daily Stats Update</h2>';
+
+    if (newHighscores.length) {
+        emailContent += `
+          <h3>New Highscores (${newHighscores.length})</h3>
+          <ul>
+            ${newHighscores.map(score => `
+              <li>${score.user_email} scored ${score.score} on level ${score.level} 
+              (${new Date(score.created_at).toLocaleString()})</li>
+            `).join('')}
+          </ul>
+        `;
+      }
+
+    if (newUsers.length) {
+      emailContent += `
+        <h3>New Users (${newUsers.length})</h3>
+        <ul>
+          ${newUsers.map(user => `
+            <li>${user.email} (joined ${new Date(user.created_at).toLocaleString()})</li>
+          `).join('')}
+        </ul>
+      `;
+    }
+
+    if (newSubscriptions.length) {
+      emailContent += `
+        <h3>New Venue Subscriptions (${newSubscriptions.length})</h3>
+        <ul>
+          ${newSubscriptions.map(sub => `
+            <li>${sub.user_email} subscribed to updates near ${sub.address} 
+            (${sub.radius} miles, min rating: ${sub.rating}, types: ${sub.types.join(', ')})
+            (${new Date(sub.created_at).toLocaleString()})</li>
+          `).join('')}
+        </ul>
+      `;
+    }
+
+    // Send email
+    await sgMail.send({
+      to: 'milo.spirig@gmail.com',
+      from: 'info@milo.run',
+      subject: 'Daily Website Stats Update',
+      html: emailContent,
+    });
+
+    res.json({ 
+      success: true,
+      message: 'Daily stats email sent',
+      stats: {
+        newUsers: newUsers.length,
+        newHighscores: newHighscores.length,
+        newSubscriptions: newSubscriptions.length
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+router.get('/cron/daily-stats', dailyStatsHandler);
 
 export default router;

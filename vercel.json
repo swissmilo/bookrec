@@ -16,6 +16,10 @@
     {
       "path": "/venues/cron/check-venues",
       "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/admin/cron/daily-stats",
+      "schedule": "0 0 * * *"
     }
   ]
 }
