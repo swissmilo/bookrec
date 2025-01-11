@@ -10,7 +10,7 @@ export function getHtmlHead(title: string): string {
       
       <link rel="icon" type="image/x-icon" href="/favicon.ico">
       <link rel="stylesheet" href="/style.css">
-      <script defer src="https://unpkg.com/@vercel/analytics"></script>
+      <script defer src="https://unpkg.com/@vercel/analytics" type="module"></script>
       <script>
         window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
       </script>
