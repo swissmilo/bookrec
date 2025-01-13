@@ -21,25 +21,44 @@ router.post('/subscribe', withAuth, async (req: Request, res: Response) => {
       return;
     }
 
-    const workosUserId = req.session?.user?.id;
-    const userEmail = req.session?.user?.email;
+    // Check if user is authenticated by checking the session cookie
+    const sessionCookie = req.cookies['wos-session'];
+    if (!sessionCookie) {
+      console.log('No session cookie found');
+      res.status(401).json({ 
+        success: false, 
+        message: 'User not authenticated',
+        debug: 'no_session_cookie'
+      });
+      return;
+    }
+
+    // Load and authenticate the WorkOS session directly
+    const session = await workos.userManagement.loadSealedSession({
+      sessionData: sessionCookie,
+      cookiePassword: process.env.WORKOS_COOKIE_PASSWORD || '',
+    });
+
+    const authResult = await session.authenticate();
+    if (!authResult.authenticated || !authResult.user) {
+      console.log('Session authentication failed:', authResult);
+      res.status(401).json({ 
+        success: false, 
+        message: 'User not authenticated',
+        debug: 'session_auth_failed'
+      });
+      return;
+    }
+
+    const workosUserId = authResult.user.id;
+    const userEmail = authResult.user.email;
 
     console.log('Subscription request received:', {
       workosUserId,
       userEmail,
       preferences,
-      placeCount: places.length,
-      sessionUser: req.session?.user
+      placeCount: places.length
     });
-
-    if (!workosUserId || !userEmail) {
-      console.log('No user ID or email found in session');
-      res.status(401).json({ 
-        success: false, 
-        message: 'User not authenticated' 
-      });
-      return;
-    }
 
     // First, get or create the user in Supabase
     let { data: user, error: userError } = await supabase
@@ -151,7 +170,8 @@ router.post('/subscribe', withAuth, async (req: Request, res: Response) => {
     console.error('Subscription error:', error);
     res.status(500).json({ 
       success: false, 
-      message: error instanceof Error ? error.message : 'An unknown error occurred' 
+      message: error instanceof Error ? error.message : 'An unknown error occurred',
+      debug: 'error'
     });
   }
 });
@@ -498,26 +518,60 @@ router.get('/subscription-status', async (req: Request, res: Response) => {
 // Add endpoint to handle unsubscribe
 router.post('/unsubscribe', withAuth, async (req: Request, res: Response) => {
   try {
-    const workosUserId = req.session?.user?.id;
-    if (!workosUserId) {
+    // Check if user is authenticated by checking the session cookie
+    const sessionCookie = req.cookies['wos-session'];
+    if (!sessionCookie) {
+      console.log('No session cookie found');
       res.status(401).json({ 
         success: false, 
-        message: 'User not authenticated' 
+        message: 'User not authenticated',
+        debug: 'no_session_cookie'
       });
       return;
     }
 
+    // Load and authenticate the WorkOS session directly
+    const session = await workos.userManagement.loadSealedSession({
+      sessionData: sessionCookie,
+      cookiePassword: process.env.WORKOS_COOKIE_PASSWORD || '',
+    });
+
+    const authResult = await session.authenticate();
+    if (!authResult.authenticated || !authResult.user) {
+      console.log('Session authentication failed:', authResult);
+      res.status(401).json({ 
+        success: false, 
+        message: 'User not authenticated',
+        debug: 'session_auth_failed'
+      });
+      return;
+    }
+
+    const workosUserId = authResult.user.id;
+    console.log('WorkOS User ID from session:', workosUserId);
+
     // First get the user's Supabase ID
-    const { data: user } = await supabase
+    const { data: user, error: userError } = await supabase
       .from('users')
       .select('id')
       .eq('workos_id', workosUserId)
       .single();
 
+    if (userError) {
+      console.error('Error looking up user:', userError);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Error looking up user',
+        debug: 'user_lookup_error'
+      });
+      return;
+    }
+
     if (!user) {
       res.status(404).json({ 
         success: false, 
-        message: 'User not found' 
+        message: 'User not found',
+        debug: 'user_not_found'
       });
       return;
     }
@@ -537,7 +591,8 @@ router.post('/unsubscribe', withAuth, async (req: Request, res: Response) => {
     console.error('Error unsubscribing:', error);
     res.status(500).json({ 
       success: false, 
-      message: error instanceof Error ? error.message : 'An unknown error occurred' 
+      message: error instanceof Error ? error.message : 'An unknown error occurred',
+      debug: 'error'
     });
   }
 });

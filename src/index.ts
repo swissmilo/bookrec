@@ -67,6 +67,8 @@ app.get('/sitemap.xml', async (req: Request, res: Response) => {
     { url: '/about', changefreq: 'weekly' },
     { url: '/all-books', changefreq: 'weekly' },
     { url: '/recommendations', changefreq: 'weekly' },
+    { url: '/venues', changefreq: 'weekly' },
+    { url: '/music', changefreq: 'weekly' },
     { url: '/sokobox', changefreq: 'weekly' }
   ];
 

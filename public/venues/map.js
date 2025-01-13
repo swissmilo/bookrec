@@ -63,7 +63,7 @@ async function loadPreferences() {
       circle.setCenter(location);
       circle.setRadius(preferences.radius * 1609.34);
       map.fitBounds(circle.getBounds());
-      searchVenues();
+      await searchVenues();
     }
   } catch (error) {
     console.error('Error loading preferences:', error);
@@ -145,9 +145,19 @@ function initMap() {
     });
   });
 
-  // Load saved preferences and check subscription status
-  loadPreferences();
-  checkSubscriptionStatus();
+  // Load saved preferences first
+  loadPreferences().then(() => {
+    // After preferences are loaded, check subscription status
+    checkSubscriptionStatus().then(() => {
+      // After checking subscription status, check if we need to auto-subscribe
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('subscribe') === 'true' && !isSubscribed) {
+        console.log('Auto-subscribing after login...');
+        // Trigger the submit button click
+        document.querySelector('#venuePreferences button[type="submit"]').click();
+      }
+    });
+  });
 }
 
 function updateCircleRadius() {
@@ -182,7 +192,7 @@ function loadVenueTypes() {
 async function checkSubscriptionStatus() {
   try {
     const response = await fetch('/venues/subscription-status', {
-      credentials: 'include',  // Explicitly include credentials
+      credentials: 'include',
       headers: {
         'Accept': 'application/json'
       }
@@ -252,13 +262,21 @@ async function checkSubscriptionStatus() {
 async function handleSubscribe(e) {
   e.preventDefault();
   
+  // Clear any subscribe=true parameter from the URL first
+  const url = new URL(window.location.href);
+  if (url.searchParams.has('subscribe')) {
+    url.searchParams.delete('subscribe');
+    window.history.replaceState({}, '', url);
+  }
+  
   if (isSubscribed) {
     try {
       const response = await fetch('/venues/unsubscribe', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-        }
+        },
+        credentials: 'include'
       });
 
       if (response.status === 401) {
@@ -329,11 +347,15 @@ async function handleSubscribe(e) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ places: serializablePlaces, preferences }),
-      redirect: 'manual' // Don't automatically follow redirects
+      credentials: 'include',
+      redirect: 'manual' // Don't follow redirects automatically
     });
 
+    // Check for 401 or redirect response
     if (response.status === 401 || response.type === 'opaqueredirect') {
-      window.location.href = '/auth/login?redirect=' + encodeURIComponent('/venues');
+      console.log('User not authenticated, redirecting to login');
+      savePreferences();
+      window.location.href = '/auth/login?redirect=' + encodeURIComponent('/venues?subscribe=true');
       return;
     }
 
@@ -353,10 +375,8 @@ async function handleSubscribe(e) {
     alert('Successfully subscribed! You will receive email notifications about new venues in this area.');
   } catch (error) {
     console.error('Error subscribing:', error);
-    if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
-      // This might be due to a redirect, so try redirecting to login
-      window.location.href = '/auth/login?redirect=/venues';
-    } else {
+    // Only show generic error if it's not a redirect
+    if (error.name !== 'TypeError' || error.message !== 'Failed to fetch') {
       alert('Failed to subscribe. Please try again later.');
     }
   }
