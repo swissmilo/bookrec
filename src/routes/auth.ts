@@ -58,19 +58,27 @@ router.get(
         sameSite: 'lax',
       });
 
-      // Get the redirect URL from the state parameter
+      // Get the redirect URL and check if this is a silent refresh
       let redirectUrl = '/';
+      let isSilentRefresh = false;
       if (state) {
         try {
           const stateData = JSON.parse(state);
           if (stateData.redirect) {
             redirectUrl = stateData.redirect;
           }
+          if (stateData.silent) {
+            isSilentRefresh = true;
+          }
         } catch (e) {
           console.error('Error parsing state:', e);
         }
       }
       
+      // For silent refreshes, redirect back to the original page
+      if (isSilentRefresh) {
+        console.log('Silent refresh successful, redirecting to:', redirectUrl);
+      }
       res.redirect(redirectUrl);
     } catch (error) {
       console.error('Authentication error details:', error);

@@ -393,15 +393,15 @@ router.get('/check-venues', isAdmin, async (req: Request, res: Response) => {
 router.get('/subscription-status', async (req: Request, res: Response) => {
   try {
     // Add detailed logging
-    console.log('Subscription status check - Session info:', {
-      cookies: req.cookies,
-      sessionCookie: req.cookies['wos-session'],
-      headers: {
-        cookie: req.headers.cookie,
-        origin: req.headers.origin,
-        referer: req.headers.referer
-      }
-    });
+    // console.log('Subscription status check - Session info:', {
+    //   cookies: req.cookies,
+    //   sessionCookie: req.cookies['wos-session'],
+    //   headers: {
+    //     cookie: req.headers.cookie,
+    //     origin: req.headers.origin,
+    //     referer: req.headers.referer
+    //   }
+    // });
 
     // Check if user is authenticated by checking the session cookie
     const sessionCookie = req.cookies['wos-session'];
