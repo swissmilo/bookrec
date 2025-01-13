@@ -414,6 +414,18 @@ td {
   td {
     padding: 8px;
   }
+
+  .welcome-message {
+    background: #c0c0c0;
+    border: 2px solid;
+    border-color: #ffffff #808080 #808080 #ffffff;
+    box-shadow: 1px 1px 0 #000;
+  }
+  
+  .welcome-message a {
+    color: inherit;
+    text-decoration: none;
+  }
 }
 
 /* Highscore table styles */
