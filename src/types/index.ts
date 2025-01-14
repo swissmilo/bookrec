@@ -98,5 +98,6 @@ export interface CustomError extends Error {
 // Utility Types
 export interface SitemapLink {
   url: string;
-  changefreq: string;
+  changefreq: 'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never';
+  priority?: number;
 }

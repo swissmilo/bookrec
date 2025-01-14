@@ -9,7 +9,10 @@
     "dev": "nodemon --no-deprecation dist/index.js",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "type-check": "tsc -p tsconfig.json --noEmit"
+    "type-check": "tsc -p tsconfig.json --noEmit",
+    "test:setup": "playwright install",
+    "test:generate": "ts-node tests/scripts/generate.ts",
+    "test:run": "playwright test"
   },
   "author": "",
   "license": "ISC",
@@ -44,6 +47,18 @@
     "@types/sendgrid": "^2.0.31",
     "nodemon": "^3.1.9",
     "prettier": "^3.4.2",
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "@playwright/test": "^1.40.0",
+    "@types/jest": "^29.5.11",
+    "jest": "^29.7.0",
+    "pixelmatch": "^5.3.0",
+    "pngjs": "^7.0.0",
+    "ts-jest": "^29.1.1",
+    "xml2js": "^0.6.2",
+    "@types/xml2js": "^0.4.14",
+    "node-fetch": "^2.7.0",
+    "@types/node-fetch": "^2.6.11",
+    "@types/pngjs": "^6.0.4",
+    "@types/pixelmatch": "^5.2.6"
   }
 }

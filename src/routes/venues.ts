@@ -24,7 +24,7 @@ router.post('/subscribe', withAuth, async (req: Request, res: Response) => {
     // Check if user is authenticated by checking the session cookie
     const sessionCookie = req.cookies['wos-session'];
     if (!sessionCookie) {
-      console.log('No session cookie found');
+      //console.log('No session cookie found');
       res.status(401).json({ 
         success: false, 
         message: 'User not authenticated',

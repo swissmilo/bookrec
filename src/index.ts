@@ -56,33 +56,37 @@ app.use('/auth', authRoutes);
 app.use('/admin', adminRouter);
 app.use('/venues', venuesRouter);
 app.use('/music', musicRouter);
+
+// Add sitemap route before 404 handler
+app.get('/sitemap.xml', async (req: Request, res: Response) => {
+  try {
+    const links: SitemapLink[] = [
+      { url: '/', changefreq: 'monthly'},
+      { url: '/about', changefreq: 'monthly'},
+      { url: '/all-books', changefreq: 'weekly'},
+      { url: '/recommendations', changefreq: 'monthly'},
+      { url: '/sokobox', changefreq: 'monthly'},
+      { url: '/venues', changefreq: 'daily'},
+      { url: '/auth/login', changefreq: 'weekly'},
+      { url: '/music', changefreq: 'monthly'}
+    ];
+
+    const stream = new SitemapStream({ hostname: process.env.BASE_URL || 'http://localhost:3000' });
+    const data = await streamToPromise(Readable.from(links).pipe(stream));
+    
+    res.header('Content-Type', 'application/xml');
+    res.send(data.toString());
+  } catch (error) {
+    console.error('Error generating sitemap:', error);
+    res.status(500).end();
+  }
+});
+
+// 404 handler should be last
 app.use(notFoundRouter);
 
 // Error handling middleware
 app.use(errorHandler);
-
-app.get('/sitemap.xml', async (req: Request, res: Response) => {
-  const links: SitemapLink[] = [
-    { url: '/', changefreq: 'weekly' },
-    { url: '/about', changefreq: 'weekly' },
-    { url: '/all-books', changefreq: 'weekly' },
-    { url: '/recommendations', changefreq: 'weekly' },
-    { url: '/venues', changefreq: 'weekly' },
-    { url: '/music', changefreq: 'weekly' },
-    { url: '/sokobox', changefreq: 'weekly' }
-  ];
-
-  try {
-    const stream = new SitemapStream({ hostname: 'https://milo.run' });
-    res.header('Content-Type', 'application/xml');
-    
-    const data = await streamToPromise(Readable.from(links).pipe(stream));
-    res.send(data);
-  } catch (error) {
-    console.error(error);
-    res.status(500).end();
-  }
-});
 
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
