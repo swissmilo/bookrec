@@ -38,30 +38,30 @@ router.get('/', async (req: Request, res: Response) => {
 
   res.type('html').send(`
     <!DOCTYPE html>
-    <html>
+    <html lang="en">
     ${getHtmlHead("Milo's Personal Website")}
     <body>
-      <div class="desktop">
-        <div class="desktop-icons">
-          <a href="/about" class="desktop-icon">
-            <div class="icon-img">👤</div>
+      <div class="desktop" role="main">
+        <nav class="desktop-icons" role="navigation" aria-label="Main navigation">
+          <a href="/about" class="desktop-icon" aria-label="About Me">
+            <div class="icon-img" aria-hidden="true">👤</div>
           </a>
-          <a href="/all-books" class="desktop-icon">
-            <div class="icon-img">📚</div>
+          <a href="/all-books" class="desktop-icon" aria-label="Book Library">
+            <div class="icon-img" aria-hidden="true">📚</div>
           </a>
-          <a href="/recommendations" class="desktop-icon">
-            <div class="icon-img">💡</div>
+          <a href="/recommendations" class="desktop-icon" aria-label="Book Recommendations">
+            <div class="icon-img" aria-hidden="true">💡</div>
           </a>
-          <a href="/sokobox" class="desktop-icon">
-            <div class="icon-img">🎮</div>
+          <a href="/sokobox" class="desktop-icon" aria-label="Play Sokobox Game">
+            <div class="icon-img" aria-hidden="true">🎮</div>
           </a>
-          <a href="/venues" class="desktop-icon">
-            <div class="icon-img">🗺️</div>
+          <a href="/venues" class="desktop-icon" aria-label="Venue Notifications">
+            <div class="icon-img" aria-hidden="true">🗺️</div>
           </a>
-          <a href="/music" class="desktop-icon">
-            <div class="icon-img">🎵</div>
+          <a href="/music" class="desktop-icon" aria-label="My Music">
+            <div class="icon-img" aria-hidden="true">🎵</div>
           </a>
-        </div>
+        </nav>
       </div>
       ${welcomeMessage}
     </body>

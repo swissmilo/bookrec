@@ -189,9 +189,9 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
       </script>
       <body>
         <div class="win95-window">
-          <div class="win95-titlebar">
-            <span>Library</span>
-            <a href="/" class="win95-close">×</a>
+          <div class="win95-titlebar" role="banner">
+            <span role="heading" aria-level="1">Library</span>
+            <a href="/" class="win95-close" aria-label="Close window">×</a>
           </div>
           <div class="win95-content">
             <div class="categories">

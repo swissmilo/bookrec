@@ -189,7 +189,7 @@ router.get('/', (req: Request, res: Response) => {
 
   res.type('html').send(`
     <!DOCTYPE html>
-    <html>
+    <html lang="en">
     ${getHtmlHead('New Venue Notifications')}
     <style>
       .win95-button.unsubscribe {
@@ -256,22 +256,22 @@ router.get('/', (req: Request, res: Response) => {
       }
     </style>
     <body>
-      <div class="win95-window">
-        <div class="win95-titlebar">
-          <span>Get notified about new venues opening near you</span>
-          <a href="/" class="win95-close">×</a>
+      <div class="win95-window" role="main">
+        <div class="win95-titlebar" role="banner">
+          <span role="heading" aria-level="1">Get notified about new venues opening near you</span>
+          <a href="/" class="win95-close" aria-label="Close window">×</a>
         </div>
         <div class="win95-content">
-          <div id="map" style="height: 300px; width: 100%; margin-bottom: 20px;"></div>
+          <div id="map" style="height: 300px; width: 100%; margin-bottom: 20px;" role="application" aria-label="Google Map"></div>
           
-          <form id="venuePreferences" class="venue-form">
+          <form id="venuePreferences" class="venue-form" role="form" aria-label="Venue preferences form">
             <div class="form-group">
               <label for="address">Address:</label>
-              <input type="text" id="address" name="address" value="${defaultPreferences.address}" required>
+              <input type="text" id="address" name="address" value="${defaultPreferences.address}" required aria-required="true">
             </div>
 
             <div class="form-group">
-              <label for="radius">Radius: <span id="radiusDisplay">${defaultPreferences.radius.toFixed(1)}</span> miles</label>
+              <label for="radius">Radius: <span id="radiusDisplay" aria-live="polite">${defaultPreferences.radius.toFixed(1)}</span> miles</label>
               <input 
                 type="range" 
                 id="radius" 
@@ -282,26 +282,30 @@ router.get('/', (req: Request, res: Response) => {
                 value="${defaultPreferences.radius}" 
                 class="slider" 
                 required
+                aria-required="true"
+                aria-valuemin="0.1"
+                aria-valuemax="3.0"
+                aria-valuenow="${defaultPreferences.radius}"
               >
             </div>
 
-            <div class="form-group">
-              <label>Venue Types:</label>
-              <div id="venueTypes" class="checkbox-group compact">
+            <fieldset class="form-group">
+              <legend>Venue Types:</legend>
+              <div id="venueTypes" class="checkbox-group compact" role="group" aria-label="Select venue types">
                 <label class="checkbox-label">
-                  <input type="checkbox" name="types[]" value="restaurant"> Restaurants
+                  <input type="checkbox" name="types[]" value="restaurant" aria-label="Include restaurants"> Restaurants
                 </label>
                 <label class="checkbox-label">
-                  <input type="checkbox" name="types[]" value="bar"> Bars
+                  <input type="checkbox" name="types[]" value="bar" aria-label="Include bars"> Bars
                 </label>
                 <label class="checkbox-label">
-                  <input type="checkbox" name="types[]" value="cafe"> Cafes
+                  <input type="checkbox" name="types[]" value="cafe" aria-label="Include cafes"> Cafes
                 </label>
               </div>
-            </div>
+            </fieldset>
 
             <div class="form-group">
-              <label for="rating">Minimum Rating: <span id="ratingDisplay">${defaultPreferences.rating.toFixed(1)}</span> ⭐</label>
+              <label for="rating">Minimum Rating: <span id="ratingDisplay" aria-live="polite">${defaultPreferences.rating.toFixed(1)}</span> ⭐</label>
               <input 
                 type="range" 
                 id="rating" 
@@ -312,6 +316,10 @@ router.get('/', (req: Request, res: Response) => {
                 value="${defaultPreferences.rating}" 
                 class="slider" 
                 required
+                aria-required="true"
+                aria-valuemin="1.0"
+                aria-valuemax="5.0"
+                aria-valuenow="${defaultPreferences.rating}"
               >
             </div>
 
@@ -332,6 +340,11 @@ router.get('/', (req: Request, res: Response) => {
           
           inputs.forEach(input => {
             input.disabled = !enabled;
+            if (!enabled) {
+              input.setAttribute('aria-disabled', 'true');
+            } else {
+              input.removeAttribute('aria-disabled');
+            }
           });
           
           formGroups.forEach(group => {

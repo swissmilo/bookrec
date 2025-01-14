@@ -97,9 +97,9 @@ router.get(
     ${getHtmlHead('Book Recommendations')}
     <body>
       <div class="win95-window">
-        <div class="win95-titlebar">
-          <span>Book Recommendations</span>
-          <a href="/" class="win95-close">×</a>
+        <div class="win95-titlebar" role="banner">
+          <span role="heading" aria-level="1">Book Recommendations</span>
+          <a href="/" class="win95-close" aria-label="Close window">×</a>
         </div>
         <div class="win95-content">
           <form action="/recommendations" method="get" class="search-form" onsubmit="showSpinner()">

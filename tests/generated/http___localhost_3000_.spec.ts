@@ -1,72 +1,74 @@
-import path from 'path';
-import fs from 'fs/promises';
-import { convertAnalysisToAssertions } from './openai';
-import type { ElementAnalysis } from './openai';
+import { test, expect } from '@playwright/test';
 
-export async function generateTestFromScreenshot(
-  route: string,
-  analysis: ElementAnalysis[]
-): Promise<void> {
-  const testDir = path.join(__dirname, '..', 'generated');
-  await fs.mkdir(testDir, { recursive: true });
+const pageName = '-';
 
-  const fileName = `${route.replace(/[^a-zA-Z0-9]/g, '_')}.spec.ts`;
-  const filePath = path.join(testDir, fileName);
-
-  const assertions = convertAnalysisToAssertions(analysis);
-  const testContent = generateTestContent(route, assertions);
-
-  await fs.writeFile(filePath, testContent);
-  console.log(`Generated test file: ${filePath}`);
-}
-
-function generateTestContent(route: string, assertions: string[]): string {
-  const normalizedRoute = route.replace(/^http:\/\/localhost:3000/, '');
-  const testDescription = `Test suite for ${normalizedRoute || 'home page'}`;
-  const pageName = normalizedRoute.replace(/[^a-zA-Z0-9]/g, '-') || 'home';
-  
-  return `import { test, expect } from '@playwright/test';
-
-const pageName = '${normalizedRoute.replace(/[^a-zA-Z0-9]/g, '-') || 'home'}';
-
-test.describe('${testDescription}', () => {
+test.describe('Test suite for /', () => {
   test.beforeEach(async ({ page }) => {
     // Navigate to the page and wait for it to load
-    await page.goto('http://localhost:3000${normalizedRoute}');
+    await page.goto('http://localhost:3000/');
     await page.waitForLoadState('networkidle');
   });
 
   test('should load and display correctly', async ({ page }) => {
     // Verify page title and URL
     const currentUrl = page.url();
-    expect(currentUrl).toContain('${normalizedRoute}');
+    expect(currentUrl).toContain('/');
     
     // Basic accessibility check - at least one ARIA role should be present
     const elements = await page.locator('[role]').count();
     expect(elements).toBeGreaterThan(0);
     
-    ${assertions.map(line => line.replace(/page\.locator\("([^"]+)"\)/g, 'page.locator(\'$1\')')).join('\n    ')}
+    // Testing .desktop-icons
+    // Navigation menu containing links to various sections of the website.
+    await expect(page.locator('.desktop-icons')).toBeVisible();
+    await page.locator('.desktop-icons').click();
+    // TODO: Implement test for: Ensure that the icons are identifiable and visually distinct.
+    await expect(page.locator('.desktop-icons')).toHaveAttribute('aria-label', /.+/);
+await expect(page.locator('.desktop-icons')).toBeFocused();
+    
+    // Testing .desktop-icon
+    // Individual icons within the navigation that each link to different sections.
+    await page.locator('.desktop-icon').click();
+    await page.locator('.desktop-icon').hover();
+    await expect(page.locator('.desktop-icon')).toHaveAttribute('aria-label', /.+/);
+await expect(page.locator('.desktop-icon')).toBeFocused();
+    // TODO: Implement test for: Ensure the icons are responsive and adjust layout on different screen sizes.
+    
+    // Testing a[href='/auth/login']
+    // Login link that allows users to navigate to the login page.
+    await expect(page.locator('a[href="/auth/login"]')).toBeVisible();
+    await page.locator('a[href="/auth/login"]').click();
+    await page.locator('a[href="/auth/login"]').click();
+    // TODO: Implement test for: Ensure the link retains consistent styling across different screen sizes.
+    
+    // Testing .welcome-message
+    // Section containing the login link and potentially other welcome messages.
+    await expect(page.locator('.welcome-message')).toBeVisible();
+    // TODO: Implement test for: Check the visibility of the login element when the user is not logged in.
+    // TODO: Implement test for: Test for responsiveness and proper positioning across various devices.
+    await expect(page.locator('.welcome-message')).toHaveText(/./);
+    
   });
 
   test('should be responsive', async ({ page }) => {
     // Test mobile viewport
     await page.setViewportSize({ width: 375, height: 667 });
     await page.waitForLoadState('networkidle');
-    await expect(page).toHaveScreenshot(\`\${pageName}-mobile.png\`, {
+    await expect(page).toHaveScreenshot(`${pageName}-mobile.png`, {
       animations: 'disabled'
     });
     
     // Test tablet viewport
     await page.setViewportSize({ width: 768, height: 1024 });
     await page.waitForLoadState('networkidle');
-    await expect(page).toHaveScreenshot(\`\${pageName}-tablet.png\`, {
+    await expect(page).toHaveScreenshot(`${pageName}-tablet.png`, {
       animations: 'disabled'
     });
     
     // Test desktop viewport
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.waitForLoadState('networkidle');
-    await expect(page).toHaveScreenshot(\`\${pageName}-desktop.png\`, {
+    await expect(page).toHaveScreenshot(`${pageName}-desktop.png`, {
       animations: 'disabled'
     });
   });
@@ -99,7 +101,7 @@ test.describe('${testDescription}', () => {
     // Check for ARIA landmarks - at least one of these should exist
     const landmarks = await page.evaluate(() => {
       const roles = ['main', 'navigation', 'banner', 'contentinfo', 'complementary', 'search'];
-      return roles.some(role => document.querySelector(\`[role="\${role}"]\`));
+      return roles.some(role => document.querySelector(`[role="${role}"]`));
     });
     expect(landmarks).toBeTruthy();
     
@@ -113,5 +115,3 @@ test.describe('${testDescription}', () => {
     }
   });
 });
-`;
-} 

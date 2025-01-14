@@ -2,6 +2,9 @@
 .vercel
 /node_modules
 dist/
-/tests/generated
 /test-results
 /tests/screenshots
+/tests/reports
+/tests/results
+/tests/snapshots
+tests/generated/*/

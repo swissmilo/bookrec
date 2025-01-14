@@ -97,9 +97,9 @@ router.get('/', (req: Request, res: Response, next: NextFunction) => {
       ${getHtmlHead('Sokobox')}
       <body>
         <div class="win95-window sokobox-window">
-          <div class="win95-titlebar">
-            <span>Sokobox</span>
-            <a href="/" class="win95-close">×</a>
+          <div class="win95-titlebar" role="banner">
+            <span role="heading" aria-level="1">Sokobox</span>
+            <a href="/" class="win95-close" aria-label="Close window">×</a>
           </div>
           <div class="win95-content">
             <canvas id="gameCanvas" width="900" height="720" data-original-width="900" data-original-height="720"></canvas>
@@ -118,8 +118,8 @@ router.get('/', (req: Request, res: Response, next: NextFunction) => {
 
         <!-- Highscore Modal -->
         <div id="highscoreModal" class="win95-window" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000; width: 300px;">
-          <div class="win95-titlebar">
-            <span>Level Complete!</span>
+          <div class="win95-titlebar" role="banner">
+            <span role="heading" aria-level="2">Level Complete!</span>
           </div>
           <div class="win95-content">
             <div id="completionTime"></div>

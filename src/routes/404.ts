@@ -11,9 +11,9 @@ router.get('*', (req: Request, res: Response) => {
     <body>
       <div class="desktop">
         <div class="win95-window" style="max-width: 500px; margin: 50px auto;">
-          <div class="win95-titlebar">
-            <span>Error</span>
-            <a href="/" class="win95-close">×</a>
+          <div class="win95-titlebar" role="banner">
+            <span role="heading" aria-level="1">404 - Page Not Found</span>
+            <a href="/" class="win95-close" aria-label="Close window">×</a>
           </div>
           <div class="win95-content" style="text-align: center;">
             <div style="font-size: 64px; margin: 20px 0;">💾</div>

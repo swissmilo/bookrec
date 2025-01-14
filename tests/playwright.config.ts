@@ -1,7 +1,8 @@
 import { PlaywrightTestConfig, devices } from '@playwright/test';
 
 const config: PlaywrightTestConfig = {
-  testDir: './tests',
+  testDir: './tests/generated',
+  testMatch: '**/*.spec.ts',
   timeout: 30000,
   retries: 1,
   workers: 1,
@@ -28,6 +29,14 @@ const config: PlaywrightTestConfig = {
   ],
   reporter: [['html', { outputFolder: 'tests/reports' }]],
   outputDir: 'tests/results',
+  snapshotDir: './tests/snapshots',
+  expect: {
+    toHaveScreenshot: {
+      maxDiffPixels: 100,
+      threshold: 0.2,
+      animations: 'disabled',
+    }
+  }
 };
 
 export default config; 

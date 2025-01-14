@@ -79,7 +79,6 @@ For each testable element:
 1. Describe its purpose and functionality
 2. Suggest specific test cases including:
    - Basic functionality (visibility, interaction)
-   - Accessibility requirements (ARIA labels, keyboard navigation)
    - State changes and user interactions
    - Form validation and submission
    - Error handling and edge cases

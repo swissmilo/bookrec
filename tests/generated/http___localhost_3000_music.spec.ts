@@ -1,72 +1,63 @@
-import path from 'path';
-import fs from 'fs/promises';
-import { convertAnalysisToAssertions } from './openai';
-import type { ElementAnalysis } from './openai';
+import { test, expect } from '@playwright/test';
 
-export async function generateTestFromScreenshot(
-  route: string,
-  analysis: ElementAnalysis[]
-): Promise<void> {
-  const testDir = path.join(__dirname, '..', 'generated');
-  await fs.mkdir(testDir, { recursive: true });
+const pageName = '-music';
 
-  const fileName = `${route.replace(/[^a-zA-Z0-9]/g, '_')}.spec.ts`;
-  const filePath = path.join(testDir, fileName);
-
-  const assertions = convertAnalysisToAssertions(analysis);
-  const testContent = generateTestContent(route, assertions);
-
-  await fs.writeFile(filePath, testContent);
-  console.log(`Generated test file: ${filePath}`);
-}
-
-function generateTestContent(route: string, assertions: string[]): string {
-  const normalizedRoute = route.replace(/^http:\/\/localhost:3000/, '');
-  const testDescription = `Test suite for ${normalizedRoute || 'home page'}`;
-  const pageName = normalizedRoute.replace(/[^a-zA-Z0-9]/g, '-') || 'home';
-  
-  return `import { test, expect } from '@playwright/test';
-
-const pageName = '${normalizedRoute.replace(/[^a-zA-Z0-9]/g, '-') || 'home'}';
-
-test.describe('${testDescription}', () => {
+test.describe('Test suite for /music', () => {
   test.beforeEach(async ({ page }) => {
     // Navigate to the page and wait for it to load
-    await page.goto('http://localhost:3000${normalizedRoute}');
+    await page.goto('http://localhost:3000/music');
     await page.waitForLoadState('networkidle');
   });
 
   test('should load and display correctly', async ({ page }) => {
     // Verify page title and URL
     const currentUrl = page.url();
-    expect(currentUrl).toContain('${normalizedRoute}');
+    expect(currentUrl).toContain('/music');
     
     // Basic accessibility check - at least one ARIA role should be present
     const elements = await page.locator('[role]').count();
     expect(elements).toBeGreaterThan(0);
     
-    ${assertions.map(line => line.replace(/page\.locator\("([^"]+)"\)/g, 'page.locator(\'$1\')')).join('\n    ')}
+    // Testing .win95-titlebar
+    // This is the title bar of the window that displays 'My Music' and contains a close button.
+    await expect(page.locator('.win95-titlebar')).toBeVisible();
+    await expect(page.locator('.win95-titlebar')).toBeVisible();
+    await page.locator('.win95-titlebar').click();
+    
+    // Testing iframe[title='Spotify Playlist Embed']
+    // This iframe embeds a Spotify playlist, allowing users to interact with the music directly.
+    await expect(page.locator('iframe[title="Spotify Playlist Embed"]')).toBeVisible();
+    // TODO: Implement test for: Test that the iframe loads correctly and displays the embedded Spotify playlist.
+    // TODO: Implement test for: Ensure music controls (play, pause, skip) within the iframe work as intended.
+    await page.locator('iframe[title="Spotify Playlist Embed"]').click();
+    
+    // Testing a.win95-close
+    // The close button that allows users to exit the music window.
+    await page.locator('a.win95-close').click();
+    await page.locator('a.win95-close').click();
+    await page.locator('a.win95-close').click();
+    
   });
 
   test('should be responsive', async ({ page }) => {
     // Test mobile viewport
     await page.setViewportSize({ width: 375, height: 667 });
     await page.waitForLoadState('networkidle');
-    await expect(page).toHaveScreenshot(\`\${pageName}-mobile.png\`, {
+    await expect(page).toHaveScreenshot(`${pageName}-mobile.png`, {
       animations: 'disabled'
     });
     
     // Test tablet viewport
     await page.setViewportSize({ width: 768, height: 1024 });
     await page.waitForLoadState('networkidle');
-    await expect(page).toHaveScreenshot(\`\${pageName}-tablet.png\`, {
+    await expect(page).toHaveScreenshot(`${pageName}-tablet.png`, {
       animations: 'disabled'
     });
     
     // Test desktop viewport
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.waitForLoadState('networkidle');
-    await expect(page).toHaveScreenshot(\`\${pageName}-desktop.png\`, {
+    await expect(page).toHaveScreenshot(`${pageName}-desktop.png`, {
       animations: 'disabled'
     });
   });
@@ -99,7 +90,7 @@ test.describe('${testDescription}', () => {
     // Check for ARIA landmarks - at least one of these should exist
     const landmarks = await page.evaluate(() => {
       const roles = ['main', 'navigation', 'banner', 'contentinfo', 'complementary', 'search'];
-      return roles.some(role => document.querySelector(\`[role="\${role}"]\`));
+      return roles.some(role => document.querySelector(`[role="${role}"]`));
     });
     expect(landmarks).toBeTruthy();
     
@@ -111,7 +102,7 @@ test.describe('${testDescription}', () => {
         await expect(images.nth(i)).toHaveAttribute('alt', /.*/);
       }
     }
+    
+    expect(hasHeadings).toBeTruthy();
   });
 });
-`;
-} 
