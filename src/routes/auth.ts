@@ -56,6 +56,8 @@ router.get(
         httpOnly: true,
         secure: true,
         sameSite: 'lax',
+        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+        expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days
       });
 
       // Get the redirect URL and check if this is a silent refresh

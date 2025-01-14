@@ -58,6 +58,8 @@ export const withAuth = async (
             httpOnly: true,
             secure: true,
             sameSite: 'lax',
+            maxAge: 30 * 24 * 60 * 60 * 1000,
+            expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
           });
 
           if (authResult.session?.user) {
