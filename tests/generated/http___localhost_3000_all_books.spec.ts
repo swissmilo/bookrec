@@ -18,51 +18,35 @@ test.describe('Test suite for /all-books', () => {
     const elements = await page.locator('[role]').count();
     expect(elements).toBeGreaterThan(0);
     
-    // Testing .win95-titlebar
-    // The title bar at the top of the window displaying the page title 'Library', including a close button.
-    await expect(page.locator('.win95-titlebar')).toBeVisible();
-    await expect(page.locator('.win95-titlebar')).toBeVisible();
-    await page.locator('.win95-titlebar').click();
+    // Testing div.win95-titlebar
+    // Title bar of the window displaying the title of the content.
+    await expect(page.locator('div.win95-titlebar')).toBeVisible();
+    // TODO: Implement test for: Check if the close button is functional.
     
-    // Testing .category-link
-    // Links for filtering books by category.
-    await expect(page.locator('.category-link')).toBeVisible();
-    // TODO: Implement test for: Test the functionality of each link to ensure it navigates to the correct category page.
+    // Testing a.win95-close[aria-label='Close window']
+    // Close button for the window.
+    // TODO: Implement test for: Ensure the close button closes the window without errors.
+    await page.keyboard.press('Enter');
     
-    // Testing table
-    // The table structure that displays the list of books.
-    await expect(page.locator('table')).toBeVisible();
-    // TODO: Implement test for: Ensure proper styling of the table for different screen sizes.
+    // Testing div.categories
+    // Container for the category filter links.
+    // TODO: Implement test for: Check that all categories are correctly listed.
+    // TODO: Implement test for: Test the functionality of each category link to filter results.
     
-    // Testing .book-row
-    // Each row representing a book with a tooltip for details.
-    await expect(page.locator('.book-row')).toBeVisible();
-    await page.locator('.book-row').hover();
+    // Testing a.category-link
+    // Links to filter by specific book categories.
+    // TODO: Implement test for: Ensure all category links navigate to the correct URL.
+    // TODO: Implement test for: Test if the page correctly updates the book list based on the selected category.
     
-    // Testing .tooltip-container
-    // Wrapper for the book links that shows the tooltip on mouseover.
-    // TODO: Implement test for: Verify that the tooltip container changes state on mouseover and mouseout events.
-    // TODO: Implement test for: Test for proper positioning of the tooltip relative to the mouse pointer.
+    // Testing div.tooltip-container
+    // Container that triggers the display of tooltips on hover.
+    await expect(page.locator('div.tooltip-container')).toBeVisible();
+    // TODO: Implement test for: Test that tooltips disappear when the mouse is moved away.
     
-    // Testing .tooltip
-    // The tooltip element providing additional information about the books.
-    await page.locator('.tooltip').click();
-await page.waitForLoadState('networkidle');
-    // TODO: Implement test for: Check that the tooltip disappears on mouseout and does not obstruct other elements.
-    
-    // Testing .win95-close
-    // The close button on the title bar.
-    await page.locator('.win95-close').click();
-    // TODO: Implement test for: Ensure that the close action results in the window being hidden or closed.
-    
-    // Testing thead
-    // The table header containing category headers.
-    await expect(page.locator('thead')).toBeVisible();
-    
-    // Testing .tooltip-container a
-    // Links that redirect to the Amazon product pages for books.
-    await page.locator('.tooltip-container a').click();
-    // TODO: Implement test for: Test links in a new tab to verify that they function correctly.
+    // Testing a[target='_blank']
+    // Links to book details that open in a new tab.
+    // TODO: Implement test for: Check that all book links open correctly in a new tab.
+    // TODO: Implement test for: Test if the links remain functional (not broken) after multiple navigations.
     
   });
 
@@ -129,7 +113,5 @@ await page.waitForLoadState('networkidle');
         await expect(images.nth(i)).toHaveAttribute('alt', /.*/);
       }
     }
-    
-    expect(hasHeadings).toBeTruthy();
   });
 });

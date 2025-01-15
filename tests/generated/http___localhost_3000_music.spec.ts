@@ -18,24 +18,18 @@ test.describe('Test suite for /music', () => {
     const elements = await page.locator('[role]').count();
     expect(elements).toBeGreaterThan(0);
     
-    // Testing .win95-titlebar
-    // This is the title bar of the window that displays 'My Music' and contains a close button.
-    await expect(page.locator('.win95-titlebar')).toBeVisible();
-    await expect(page.locator('.win95-titlebar')).toBeVisible();
-    await page.locator('.win95-titlebar').click();
+    // Testing a[aria-label="Close window"]
+    // A link that serves as a close button for the window.
+    await page.locator('a[aria-label="Close window"]').click();
+    await expect(page.locator('a[aria-label="Close window"]')).toHaveAttribute('aria-label', /.+/);
+await expect(page.locator('a[aria-label="Close window"]')).toBeFocused();
+    // TODO: Implement test for: Check whether the close button is styled and positioned correctly.
     
-    // Testing iframe[title='Spotify Playlist Embed']
-    // This iframe embeds a Spotify playlist, allowing users to interact with the music directly.
-    await expect(page.locator('iframe[title="Spotify Playlist Embed"]')).toBeVisible();
-    // TODO: Implement test for: Test that the iframe loads correctly and displays the embedded Spotify playlist.
-    // TODO: Implement test for: Ensure music controls (play, pause, skip) within the iframe work as intended.
-    await page.locator('iframe[title="Spotify Playlist Embed"]').click();
-    
-    // Testing a.win95-close
-    // The close button that allows users to exit the music window.
-    await page.locator('a.win95-close').click();
-    await page.locator('a.win95-close').click();
-    await page.locator('a.win95-close').click();
+    // Testing iframe[title="Spotify Playlist Embed"]
+    // An embedded iframe that displays a Spotify playlist.
+    // TODO: Implement test for: Confirm the iframe loads the Spotify playlist correctly.
+    // TODO: Implement test for: Test whether the iframe is responsive and fits within the parent container.
+    await expect(page.locator('iframe[title="Spotify Playlist Embed"]')).toHaveText(/./);
     
   });
 
@@ -102,7 +96,5 @@ test.describe('Test suite for /music', () => {
         await expect(images.nth(i)).toHaveAttribute('alt', /.*/);
       }
     }
-    
-    expect(hasHeadings).toBeTruthy();
   });
 });

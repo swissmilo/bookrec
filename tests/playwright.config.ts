@@ -32,8 +32,7 @@ const config: PlaywrightTestConfig = {
   snapshotDir: './tests/snapshots',
   expect: {
     toHaveScreenshot: {
-      maxDiffPixels: 100,
-      threshold: 0.2,
+      threshold: 0.03,
       animations: 'disabled',
     }
   }

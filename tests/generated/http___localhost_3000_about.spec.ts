@@ -18,52 +18,42 @@ test.describe('Test suite for /about', () => {
     const elements = await page.locator('[role]').count();
     expect(elements).toBeGreaterThan(0);
     
-    // Testing .win95-titlebar
-    // The title bar of the window, displaying 'About Me' title and a close button.
-    // TODO: Implement test for: Verify that the title bar displays 'About Me'.
-    await expect(page.locator('.win95-titlebar')).toBeVisible();
-    await page.locator('.win95-titlebar').click();
+    // Testing div.win95-window[role='main']
+    // The main container for the 'About Me' content.
+    // TODO: Implement test for: Verify that the window appears on initial page load
+    // TODO: Implement test for: Check that the window can be closed by the close button
     
-    // Testing .win95-close
-    // The button to close the About Me window.
-    await expect(page.locator('.win95-close')).toBeVisible();
-    await expect(page.locator('.win95-close')).toHaveAttribute('aria-label', /.+/);
-await expect(page.locator('.win95-close')).toBeFocused();
-    await page.locator('.win95-close').click();
+    // Testing div.win95-titlebar[role='banner']
+    // The title bar displaying the title of the window and a close button.
+    await expect(page.locator('div.win95-titlebar[role="banner"]')).toBeVisible();
+    await expect(page.locator('div.win95-titlebar[role="banner"]')).toBeVisible();
     
-    // Testing .win95-content
-    // The main content area of the window containing personal information.
-    await expect(page.locator('.win95-content')).toBeVisible();
-    await expect(page.locator('.win95-content')).toHaveText(/./);
-    await expect(page.locator('.win95-content')).toHaveText(/./);
+    // Testing a.win95-close[aria-label='Close window']
+    // A button to close the window.
+    await page.locator('a.win95-close[aria-label="Close window"]').click();
+    // TODO: Implement test for: Check for any visual changes after closing the window
     
     // Testing nav[aria-label='Social links']
-    // The navigation area containing links to social media profiles.
+    // Navigation section containing social media links.
     await expect(page.locator('nav[aria-label="Social links"]')).toBeVisible();
-    await expect(page.locator('nav[aria-label="Social links"]')).toHaveText(/./);
-    await page.locator('nav[aria-label="Social links"]').click();
-    await page.locator('nav[aria-label="Social links"]').click();
+    await expect(page.locator('nav[aria-label="Social links"]')).toHaveAttribute('aria-label', /.+/);
+await expect(page.locator('nav[aria-label="Social links"]')).toBeFocused();
+    // TODO: Implement test for: Check that links are functional and open in new tabs
     
-    // Testing a[href='https://www.linkedin.com/in/milospirig/']
+    // Testing a[href='https://www.linkedin.com/in/milospirig/'][aria-label='Visit my LinkedIn profile']
     // Link to Milo's LinkedIn profile.
-    await expect(page.locator('a[href="https://www.linkedin.com/in/milospirig/"]')).toBeVisible();
-    await page.locator('a[href="https://www.linkedin.com/in/milospirig/"]').click();
-    await expect(page.locator('a[href="https://www.linkedin.com/in/milospirig/"]')).toHaveAttribute('aria-label', /.+/);
-await expect(page.locator('a[href="https://www.linkedin.com/in/milospirig/"]')).toBeFocused();
+    // TODO: Implement test for: Test that the link opens in a new tab
+    // TODO: Implement test for: Confirm the correct URL is linked
     
-    // Testing a[href='https://twitter.com/SwissMilo']
+    // Testing a[href='https://twitter.com/SwissMilo'][aria-label='Visit my Twitter profile']
     // Link to Milo's Twitter profile.
-    await expect(page.locator('a[href="https://twitter.com/SwissMilo"]')).toBeVisible();
-    await page.locator('a[href="https://twitter.com/SwissMilo"]').click();
-    await expect(page.locator('a[href="https://twitter.com/SwissMilo"]')).toHaveAttribute('aria-label', /.+/);
-await expect(page.locator('a[href="https://twitter.com/SwissMilo"]')).toBeFocused();
+    // TODO: Implement test for: Test that the link opens in a new tab
+    // TODO: Implement test for: Confirm the correct URL is linked
     
-    // Testing a[href='https://github.com/swissmilo']
+    // Testing a[href='https://github.com/swissmilo'][aria-label='Visit my GitHub profile']
     // Link to Milo's GitHub profile.
-    await expect(page.locator('a[href="https://github.com/swissmilo"]')).toBeVisible();
-    await page.locator('a[href="https://github.com/swissmilo"]').click();
-    await expect(page.locator('a[href="https://github.com/swissmilo"]')).toHaveAttribute('aria-label', /.+/);
-await expect(page.locator('a[href="https://github.com/swissmilo"]')).toBeFocused();
+    // TODO: Implement test for: Test that the link opens in a new tab
+    // TODO: Implement test for: Confirm the correct URL is linked
     
   });
 

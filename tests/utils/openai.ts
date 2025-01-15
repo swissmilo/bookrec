@@ -1,5 +1,6 @@
 import OpenAI from 'openai';
 import fs from 'fs/promises';
+import { JSDOM } from 'jsdom';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -20,6 +21,17 @@ function isValidAnalysis(obj: any): obj is ElementAnalysis {
     Array.isArray(obj.testSuggestions) &&
     obj.testSuggestions.every((suggestion: any) => typeof suggestion === 'string')
   );
+}
+
+// Add function to verify selector exists in HTML
+function selectorExistsInHtml(selector: string, html: string): boolean {
+  const dom = new JSDOM(html);
+  try {
+    return dom.window.document.querySelector(selector) !== null;
+  } catch (e) {
+    console.warn(`Invalid selector: ${selector}`);
+    return false;
+  }
 }
 
 // Add delay helper
@@ -70,26 +82,34 @@ export async function analyzeScreenshot(
   // Truncate HTML source to avoid token limits
   const truncatedHtml = truncateHtmlSource(htmlSource);
 
-  const prompt = `Analyze this webpage screenshot and its HTML source to identify key UI elements that should be tested. Focus on creating comprehensive, realistic test scenarios.
+  const prompt = `Analyze this webpage screenshot and its HTML source to identify key UI elements that should be tested. You must ONLY suggest elements that exist in the provided HTML source.
 
 HTML Source:
 ${truncatedHtml}
 
-For each testable element:
-1. Describe its purpose and functionality
-2. Suggest specific test cases including:
-   - Basic functionality (visibility, interaction)
-   - State changes and user interactions
-   - Form validation and submission
-   - Error handling and edge cases
-3. Use precise selectors from the HTML source
-4. Consider responsive design testing
-5. Include data-testid attributes if present
+Rules for element selection:
+1. ONLY use selectors that match EXACTLY with elements in the HTML source
+2. For forms and inputs, use the exact id, name, and type attributes from the HTML
+3. For buttons and links, use exact text content or aria-labels
+4. Prefer specific selectors like '#id' or '[name="example"]' over general ones
+5. Verify each selector exists in the HTML before including it
+
+Example of good selectors:
+- input[name="address"][type="text"]
+- button[type="submit"]
+- input[name="types[]"][value="restaurant"]
+
+Example of bad selectors:
+- input[placeholder="Enter location"] (if not in HTML)
+- .some-class (if too generic)
+- div > span (if too broad)
 
 Return a JSON object with an "elements" array containing objects with properties:
-- element: the selector to use (class name, ID, data-testid, or appropriate CSS selector)
+- element: the exact selector that matches an element in the HTML
 - description: its purpose and functionality
-- testSuggestions: array of specific test cases as strings`;
+- testSuggestions: array of specific test cases as strings
+
+Before suggesting any selector, verify it exists in the HTML source.`;
 
   try {
     return await retryWithBackoff(async () => {
@@ -120,7 +140,6 @@ Return a JSON object with an "elements" array containing objects with properties
       }
 
       try {
-        // No need to clean up markdown since we're using JSON mode
         const parsed = JSON.parse(content);
         
         // Expect the response to have an "elements" array
@@ -130,9 +149,19 @@ Return a JSON object with an "elements" array containing objects with properties
           return [];
         }
 
-        const validAnalyses = elements.filter(isValidAnalysis);
+        // Filter out elements with invalid selectors
+        const validAnalyses = elements
+          .filter(isValidAnalysis)
+          .filter(analysis => {
+            const exists = selectorExistsInHtml(analysis.element, truncatedHtml);
+            if (!exists) {
+              console.warn(`Filtered out invalid selector: ${analysis.element}`);
+            }
+            return exists;
+          });
+
         if (validAnalyses.length < elements.length) {
-          console.warn('Some analyses were invalid and filtered out');
+          console.warn(`Filtered out ${elements.length - validAnalyses.length} invalid elements`);
         }
 
         return validAnalyses;
@@ -194,7 +223,12 @@ function convertSuggestionToAssertion(
     },
     {
       match: /type|input|fill/i,
-      generate: () => `await page.locator('${escapedSelector}').fill('test value');`
+      generate: () => {
+        if (elementName.includes('checkbox')) {
+          return `await page.locator('${escapedSelector}').check();`;
+        }
+        return `await page.locator('${escapedSelector}').fill('test value');`;
+      }
     },
     {
       match: /submit|form/i,

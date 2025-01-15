@@ -18,49 +18,16 @@ test.describe('Test suite for /venues', () => {
     const elements = await page.locator('[role]').count();
     expect(elements).toBeGreaterThan(0);
     
-    // Testing .win95-window > .win95-titlebar > span
-    // The title of the window which indicates the purpose of the application.
-    await expect(page.locator('.win95-window > .win95-titlebar > span')).toBeVisible();
-    await expect(page.locator('.win95-window > .win95-titlebar > span')).toBeVisible();
+    // Testing button[aria-label='Show street map']
+    // Button to toggle the map view to display the street map.
+    // TODO: Implement test for: Verify that the button toggles the view between street and satellite mode.
+    await expect(page.locator('button[aria-label="Show street map"]')).toHaveAttribute('aria-label', /.+/);
+await expect(page.locator('button[aria-label="Show street map"]')).toBeFocused();
     
-    // Testing #map
-    // Displays a Google Map showing areas related to venue notifications.
-    await expect(page.locator('#map')).toBeVisible();
-    // TODO: Implement test for: Test interactions such as zooming in/out and dragging the map.
-    // TODO: Implement test for: Verify map functionality on different screen sizes.
-    
-    // Testing input[placeholder='Enter a location']
-    // Input field to enter an address for venue notifications.
-    await page.locator('input[placeholder="Enter a location"]').fill('test value');
-    await page.locator('input[placeholder="Enter a location"]').fill('test value');
-    await page.locator('input[placeholder="Enter a location"]').fill('test value');
-    
-    // Testing input[type='range']
-    // Slider to select the radius for venue notifications.
-    // TODO: Implement test for: Ensure the slider is functional and can be adjusted between minimum and maximum values.
-    // TODO: Implement test for: Test the slider's appearance at different resolutions.
-    // TODO: Implement test for: Verify that the radius value updates in real-time with slider movement.
-    
-    // Testing input[type='checkbox'][name='venue-type']
-    // Checkbox options for selecting types of venues.
-    await page.locator('input[type="checkbox"][name="venue-type"]').fill('test value');
-    await page.locator('input[type="checkbox"][name="venue-type"]').fill('test value');
-    await page.locator('input[type="checkbox"][name="venue-type"]').click();
-await page.waitForLoadState('networkidle');
-    
-    // Testing input[type='range'][name='rating']
-    // Slider to set the minimum rating for venues.
-    await expect(page.locator('input[type="range"][name="rating"]')).toBeVisible();
-    // TODO: Implement test for: Test for boundary values (minimum and maximum) to confirm functionality.
-    await expect(page.locator('input[type="range"][name="rating"]')).toBeVisible();
-    
-    // Testing button[type='submit']
-    // Button to subscribe to updates based on selected venue criteria.
-    await page.locator('button[type="submit"]').click();
-    await page.locator('button[type="submit"]').click();
-await page.waitForLoadState('networkidle');
-    await expect(page.locator('button[type="submit"]')).toHaveAttribute('aria-label', /.+/);
-await expect(page.locator('button[type="submit"]')).toBeFocused();
+    // Testing button[aria-label='Show satellite imagery']
+    // Button to toggle the map view to display satellite imagery.
+    await page.locator('button[aria-label="Show satellite imagery"]').click();
+    // TODO: Implement test for: Ensure visual changes are reflected immediately on the map.
     
   });
 

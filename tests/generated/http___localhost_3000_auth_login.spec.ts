@@ -18,44 +18,23 @@ test.describe('Test suite for /auth/login', () => {
     const elements = await page.locator('[role]').count();
     expect(elements).toBeGreaterThan(0);
     
-    // Testing h1.HeaderHeading
-    // Displays the title of the sign-in page.
-    await expect(page.locator('h1.HeaderHeading')).toBeVisible();
-    await expect(page.locator('h1.HeaderHeading')).toHaveText(/./);
+    // Testing [name="email"]
+    // Input field for the user's email address.
+    await page.locator('[name="email"]').fill('test value');
+    await page.locator('[name="email"]').fill('test value');
+    await page.locator('[name="email"]').fill('test value');
     
-    // Testing label[for='radix-:Rl6pnltbnla:']
-    // Label for the email input field, indicating what the user should enter.
-    await expect(page.locator('label[for="radix-:Rl6pnltbnla:"]')).toBeVisible();
-    await expect(page.locator('label[for="radix-:Rl6pnltbnla:"]')).toHaveText(/./);
-    await page.locator('label[for="radix-:Rl6pnltbnla:"]').click();
-    
-    // Testing input#radix-:Rl6pnltbnla:
-    // Input field for users to enter their email address.
-    await expect(page.locator('input#radix-:Rl6pnltbnla:')).toBeVisible();
-    await page.locator('input#radix-:Rl6pnltbnla:').fill('test value');
-    await expect(page.locator('input#radix-:Rl6pnltbnla:')).toHaveText(/./);
-    await page.locator('input#radix-:Rl6pnltbnla:').fill('test value');
-    await expect(page.locator('input#radix-:Rl6pnltbnla:')).toBeVisible();
-    
-    // Testing button[type='submit']
-    // The submit button to continue the sign-in process.
-    await expect(page.locator('button[type="submit"]')).toBeVisible();
+    // Testing button[type="submit"]
+    // Button to submit the sign-in form.
+    await page.locator('button[type="submit"]').fill('test value');
     await page.locator('button[type="submit"]').click();
     await expect(page.locator('button[type="submit"]')).toHaveText(/./);
-    await page.locator('button[type="submit"]').fill('test value');
-    await expect(page.locator('button[type="submit"]')).toBeVisible();
     
-    // Testing p.rt-Text.rt-r-ta-center.rt-r-lt-end.rt-r-mt-5
-    // Text that provides additional information about signing up for a new account.
-    await expect(page.locator('p.rt-Text.rt-r-ta-center.rt-r-lt-end.rt-r-mt-5')).toBeVisible();
-    await expect(page.locator('p.rt-Text.rt-r-ta-center.rt-r-lt-end.rt-r-mt-5')).toBeVisible();
-    await page.locator('p.rt-Text.rt-r-ta-center.rt-r-lt-end.rt-r-mt-5').click();
-    
-    // Testing a.rt-Text.BrandedLink.rt-reset
-    // Link to the sign-up page for new users.
-    await page.locator('a.rt-Text.BrandedLink.rt-reset').click();
-    // TODO: Implement test for: Check that the link opens in the same tab.
-    await expect(page.locator('a.rt-Text.BrandedLink.rt-reset')).toHaveText(/./);
+    // Testing a[href="/sign-up?redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fauth%2Fcallback&authorization_session_id=01JHNF68YG46XGE856HMAN8P65"]
+    // Link for users to navigate to the sign-up page.
+    await page.locator('a[href="/sign-up?redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fauth%2Fcallback&authorization_session_id=01JHNF68YG46XGE856HMAN8P65"]').click();
+    // TODO: Implement test for: Check that the link is accessible and visually distinguishable.
+    // TODO: Implement test for: Ensure the link opens in the same tab.
     
   });
 

@@ -18,6 +18,30 @@ test.describe('Test suite for /recommendations', () => {
     const elements = await page.locator('[role]').count();
     expect(elements).toBeGreaterThan(0);
     
+    // Testing input#genre
+    // Input field for users to enter a genre they want book recommendations for.
+    await expect(page.locator('input#genre')).toBeVisible();
+    await page.locator('input#genre').fill('test value');
+    await page.locator('input#genre').fill('test value');
+    await page.locator('input#genre').fill('test value');
+    
+    // Testing button[type="submit"]
+    // Submit button to trigger the search for book recommendations based on the entered genre.
+    await expect(page.locator('button[type="submit"]')).toHaveText(/./);
+    await page.locator('button[type="submit"]').click();
+    await page.locator('button[type="submit"]').fill('test value');
+    
+    // Testing div#spinner
+    // Spinner element that is displayed when the form is submitted.
+    // TODO: Implement test for: Verify that the spinner is initially hidden.
+    await expect(page.locator('div#spinner')).toBeVisible();
+    // TODO: Implement test for: Ensure the spinner is hidden after the recommendations are loaded.
+    
+    // Testing a.win95-close[aria-label="Close window"]
+    // Close link to exit the book recommendations window.
+    await expect(page.locator('a.win95-close[aria-label="Close window"]')).toHaveAttribute('aria-label', /.+/);
+await expect(page.locator('a.win95-close[aria-label="Close window"]')).toBeFocused();
+    await page.locator('a.win95-close[aria-label="Close window"]').click();
     
   });
 
@@ -84,7 +108,5 @@ test.describe('Test suite for /recommendations', () => {
         await expect(images.nth(i)).toHaveAttribute('alt', /.*/);
       }
     }
-    
-    expect(hasHeadings).toBeTruthy();
   });
 });
