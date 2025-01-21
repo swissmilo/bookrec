@@ -61,6 +61,9 @@ router.get('/', async (req: Request, res: Response) => {
           <a href="/music" class="desktop-icon" aria-label="My Music">
             <div class="icon-img" aria-hidden="true">🎵</div>
           </a>
+          <a href="https://www.amazon.com/dp/B0DTFPDZWP" class="desktop-icon" aria-label="World Without Edges Book" target="_blank" rel="noopener noreferrer">
+            <div class="icon-img" aria-hidden="true">🔮</div>
+          </a>
         </nav>
       </div>
       ${welcomeMessage}
