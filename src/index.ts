@@ -24,6 +24,7 @@ import { errorHandler } from './utils/errorHandler';
 import venuesRouter from './routes/venues';
 import authRoutes from './routes/auth';
 import musicRouter from './routes/music';
+import smarthomeRouter from './routes/smarthome';
 
 const app: Express = express();
 const port: number = parseInt(process.env.PORT || '3000', 10);
@@ -56,6 +57,7 @@ app.use('/auth', authRoutes);
 app.use('/admin', adminRouter);
 app.use('/venues', venuesRouter);
 app.use('/music', musicRouter);
+app.use('/smarthome', smarthomeRouter);
 
 // Add sitemap route before 404 handler
 app.get('/sitemap.xml', async (req: Request, res: Response) => {
