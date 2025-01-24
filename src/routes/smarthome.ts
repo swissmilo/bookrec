@@ -149,6 +149,17 @@ router.get('/', async (req: Request, res: Response) => {
             // Get the latest non-null value
             const latestValue = todayData.reduce((latest, value) => value !== null ? value : latest, null);
             const formattedLatest = latestValue !== null ? latestValue.toFixed(1) : 'N/A';
+
+            // Calculate min and max values from both datasets
+            const allValues = [...todayData, ...avgData].filter(v => v !== null);
+            const dataMin = Math.min(...allValues);
+            const dataMax = Math.max(...allValues);
+            const range = dataMax - dataMin;
+            
+            // Add 10% padding to the range
+            const padding = range * 0.1;
+            const yMin = Math.max(yAxisConfig?.min || -Infinity, Math.floor(dataMin - padding));
+            const yMax = yAxisConfig?.max || Math.ceil(dataMax + padding);
             
             return new Chart(ctx, {
               type: 'line',
@@ -162,7 +173,6 @@ router.get('/', async (req: Request, res: Response) => {
                     tension: 0.1,
                     spanGaps: true,
                     pointStyle: (ctx) => {
-                      // Make the latest point larger
                       const index = ctx.dataIndex;
                       const value = ctx.dataset.data[index];
                       if (value === todayData[todayData.length - 1] && value !== null) {
@@ -197,7 +207,15 @@ router.get('/', async (req: Request, res: Response) => {
                   intersect: false
                 },
                 scales: {
-                  y: yAxisConfig || {}
+                  y: {
+                    ...yAxisConfig,
+                    min: yMin,
+                    max: yMax,
+                    ticks: {
+                      callback: (value) => value.toFixed(1),
+                      count: 8  // Suggest approximately 8 tick marks on the Y axis
+                    }
+                  }
                 }
               }
             });
@@ -210,7 +228,6 @@ router.get('/', async (req: Request, res: Response) => {
             avgData: hourlyAverages.map(avg => avg.temperature),
             color: 'rgba(255, 99, 132, 1)',
             yAxisConfig: {
-              min: 50,
               title: {
                 display: true,
                 text: 'Fahrenheit (°F)'
@@ -224,10 +241,7 @@ router.get('/', async (req: Request, res: Response) => {
             todayData: getHourlyData(todayReadings, 'humidity'),
             avgData: hourlyAverages.map(avg => avg.humidity),
             color: 'rgba(54, 162, 235, 1)',
-            yAxisConfig: {
-              min: 0,
-              max: 100
-            }
+            yAxisConfig: {}
           });
 
           // Create CO2 chart
@@ -236,9 +250,7 @@ router.get('/', async (req: Request, res: Response) => {
             todayData: getHourlyData(todayReadings, 'co2'),
             avgData: hourlyAverages.map(avg => avg.co2),
             color: 'rgba(75, 192, 192, 1)',
-            yAxisConfig: {
-              min: 500
-            }
+            yAxisConfig: {}
           });
 
           // Create pressure chart
@@ -247,9 +259,7 @@ router.get('/', async (req: Request, res: Response) => {
             todayData: getHourlyData(todayReadings, 'pressure'),
             avgData: hourlyAverages.map(avg => avg.pressure),
             color: 'rgba(255, 159, 64, 1)',
-            yAxisConfig: {
-              min: 980
-            }
+            yAxisConfig: {}
           });
         </script>
       </body>
