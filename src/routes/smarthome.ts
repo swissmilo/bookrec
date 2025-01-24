@@ -62,10 +62,11 @@ router.get('/', async (req: Request, res: Response) => {
     // Process readings to get today's data and 7-day averages
     const todayMidnight = new Date();
     todayMidnight.setHours(0, 0, 0, 0);
+    const todayMidnightUTC = new Date(todayMidnight.getTime() + todayMidnight.getTimezoneOffset() * 60000);
 
     const todayReadings = readingsEST?.filter(r => {
       const date = new Date(r.timestamp);
-      return date >= todayMidnight;
+      return date >= todayMidnightUTC;
     }) || [];
     
     // Calculate 7-day averages for each hour using local time
@@ -134,7 +135,8 @@ router.get('/', async (req: Request, res: Response) => {
             return Array.from({ length: 24 }, (_, hour) => {
               const hourReadings = readings.filter(r => {
                 const date = new Date(r.timestamp);
-                return date.getHours() === hour;
+                const utcHour = (date.getUTCHours() + 19) % 24; // Convert UTC to EST (UTC-5)
+                return utcHour === hour;
               });
               if (hourReadings.length === 0) return null;
               return transform(hourReadings[hourReadings.length - 1][valueKey]);
