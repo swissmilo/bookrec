@@ -63,23 +63,32 @@ router.get('/', async (req: Request, res: Response) => {
     const todayReadings = readingsEST?.filter(r => {
       const date = new Date(r.timestamp);
       const today = new Date();
+      // Compare dates in local time
       return date.getFullYear() === today.getFullYear() &&
              date.getMonth() === today.getMonth() &&
              date.getDate() === today.getDate();
     }) || [];
     
-    // Calculate 7-day averages for each hour
+    // Calculate 7-day averages for each hour using local time
     const hourlyAverages = Array.from({ length: 24 }, (_, hour) => {
       const hourReadings = readingsEST?.filter(r => {
-        const readingHour = new Date(r.timestamp).getHours();
-        return readingHour === hour;
+        const date = new Date(r.timestamp);
+        // Use local hours for grouping
+        return date.getHours() === hour;
       }) || [];
 
+      if (hourReadings.length === 0) return {
+        temperature: null,
+        humidity: null,
+        co2: null,
+        pressure: null
+      };
+
       return {
-        temperature: hourReadings.reduce((sum, r) => sum + ((r.temperature * 9/5) + 32), 0) / (hourReadings.length || 1),
-        humidity: hourReadings.reduce((sum, r) => sum + r.humidity, 0) / (hourReadings.length || 1),
-        co2: hourReadings.reduce((sum, r) => sum + r.co2, 0) / (hourReadings.length || 1),
-        pressure: hourReadings.reduce((sum, r) => sum + r.pressure, 0) / (hourReadings.length || 1)
+        temperature: hourReadings.reduce((sum, r) => sum + ((r.temperature * 9/5) + 32), 0) / hourReadings.length,
+        humidity: hourReadings.reduce((sum, r) => sum + r.humidity, 0) / hourReadings.length,
+        co2: hourReadings.reduce((sum, r) => sum + r.co2, 0) / hourReadings.length,
+        pressure: hourReadings.reduce((sum, r) => sum + r.pressure, 0) / hourReadings.length
       };
     });
 
