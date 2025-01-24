@@ -30,23 +30,13 @@ const validateApiKey = (req: Request, res: Response, next: NextFunction) => {
 // GET endpoint to display the dashboard
 router.get('/', async (req: Request, res: Response) => {
   try {
-    // Get today's date at midnight in EST (UTC-5)
+    // Get today's date at midnight UTC for 7-day window
     const now = new Date();
-    // Convert current time to EST
-    const estOffset = -5 * 60; // EST offset in minutes
-    const nowEST = new Date(now.getTime() + (now.getTimezoneOffset() + estOffset) * 60000);
+    const todayUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
     
-    // Set to midnight in EST
-    const todayEST = new Date(
-      nowEST.getFullYear(),
-      nowEST.getMonth(),
-      nowEST.getDate(),
-      0, 0, 0, 0
-    );
-    
-    // Get 7 days ago at midnight EST
-    const sevenDaysAgo = new Date(todayEST);
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    // Get 7 days ago at midnight UTC
+    const sevenDaysAgo = new Date(todayUTC);
+    sevenDaysAgo.setUTCDate(sevenDaysAgo.getUTCDate() - 7);
 
     // Fetch the last 7 days of readings
     const { data: readings, error } = await supabase
@@ -57,16 +47,11 @@ router.get('/', async (req: Request, res: Response) => {
 
     if (error) throw error;
 
-    // Convert timestamps to EST
-    const readingsEST = readings?.map(reading => {
-      const timestamp = new Date(reading.timestamp);
-      // Convert to EST
-      const estTime = new Date(timestamp.getTime() + (timestamp.getTimezoneOffset() + estOffset) * 60000);
-      return {
-        ...reading,
-        timestamp: estTime.toISOString()
-      };
-    }) || [];
+    // Keep timestamps in UTC, let browser handle conversion
+    const readingsEST = readings?.map(reading => ({
+      ...reading,
+      timestamp: reading.timestamp  // Keep the UTC timestamp
+    })) || [];
 
     // Generate 24-hour timeline labels (00:00 to 23:59)
     const timeLabels = Array.from({ length: 24 }, (_, i) => {
@@ -75,7 +60,13 @@ router.get('/', async (req: Request, res: Response) => {
     });
 
     // Process readings to get today's data and 7-day averages
-    const todayReadings = readingsEST?.filter(r => new Date(r.timestamp) >= todayEST) || [];
+    const todayReadings = readingsEST?.filter(r => {
+      const date = new Date(r.timestamp);
+      const today = new Date();
+      return date.getFullYear() === today.getFullYear() &&
+             date.getMonth() === today.getMonth() &&
+             date.getDate() === today.getDate();
+    }) || [];
     
     // Calculate 7-day averages for each hour
     const hourlyAverages = Array.from({ length: 24 }, (_, hour) => {
@@ -133,7 +124,10 @@ router.get('/', async (req: Request, res: Response) => {
           // Helper function to get data point for each hour
           function getHourlyData(readings, valueKey, transform = (x) => x) {
             return Array.from({ length: 24 }, (_, hour) => {
-              const hourReadings = readings.filter(r => new Date(r.timestamp).getHours() === hour);
+              const hourReadings = readings.filter(r => {
+                const date = new Date(r.timestamp);
+                return date.getHours() === hour;
+              });
               if (hourReadings.length === 0) return null;
               return transform(hourReadings[hourReadings.length - 1][valueKey]);
             });
