@@ -51,7 +51,7 @@ router.get('/', async (req: Request, res: Response) => {
             <a href="/" class="win95-close" aria-label="Close window">×</a>
           </div>
           <div class="win95-content">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 20px;">
               <div class="win95-window" style="padding: 10px;">
                 <canvas id="tempChart"></canvas>
               </div>
