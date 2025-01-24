@@ -96,14 +96,62 @@ router.get('/', async (req: Request, res: Response) => {
             });
           }
 
-          // Create charts
-          createChart(
-            document.getElementById('tempChart').getContext('2d'),
-            'Temperature (°C)',
-            readings.map(r => r.temperature),
-            '#FF6384'
-          );
+          // Create temperature chart with both C and F
+          new Chart(document.getElementById('tempChart').getContext('2d'), {
+            type: 'line',
+            data: {
+              labels: timeLabels,
+              datasets: [
+                {
+                  label: 'Temperature (°C)',
+                  data: readings.map(r => r.temperature),
+                  borderColor: '#FF6384',
+                  tension: 0.1,
+                  yAxisID: 'celsius'
+                },
+                {
+                  label: 'Temperature (°F)',
+                  data: readings.map(r => (r.temperature * 9/5) + 32),
+                  borderColor: '#FF9F40',
+                  tension: 0.1,
+                  yAxisID: 'fahrenheit'
+                }
+              ]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              interaction: {
+                mode: 'index',
+                intersect: false,
+              },
+              scales: {
+                celsius: {
+                  type: 'linear',
+                  display: true,
+                  position: 'left',
+                  title: {
+                    display: true,
+                    text: 'Celsius (°C)'
+                  }
+                },
+                fahrenheit: {
+                  type: 'linear',
+                  display: true,
+                  position: 'right',
+                  title: {
+                    display: true,
+                    text: 'Fahrenheit (°F)'
+                  },
+                  grid: {
+                    drawOnChartArea: false
+                  }
+                }
+              }
+            }
+          });
 
+          // Create humidity chart
           createChart(
             document.getElementById('humidityChart').getContext('2d'),
             'Humidity (%)',
