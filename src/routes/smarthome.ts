@@ -62,11 +62,11 @@ router.get('/', async (req: Request, res: Response) => {
     // Process readings to get today's data and 7-day averages
     const todayMidnight = new Date();
     todayMidnight.setHours(0, 0, 0, 0);
-    const todayMidnightUTC = new Date(todayMidnight.getTime() + todayMidnight.getTimezoneOffset() * 60000);
-
+    
     const todayReadings = readingsEST?.filter(r => {
       const date = new Date(r.timestamp);
-      return date >= todayMidnightUTC;
+      const localDate = new Date(date.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+      return localDate >= todayMidnight;
     }) || [];
     
     // Calculate 7-day averages for each hour using local time
