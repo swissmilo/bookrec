@@ -132,6 +132,16 @@ router.get('/', async (req: Request, res: Response) => {
 
           // Helper function to get data point for each hour
           function getHourlyData(readings, valueKey, transform = (x) => x) {
+            // Only log temperature data
+            if (valueKey === 'temperature') {
+              console.log('Today temperature readings:', readings.map((r) => ({
+                timestamp: r.timestamp,
+                localTime: new Date(r.timestamp).toLocaleTimeString(),
+                temp_f: ((r.temperature * 9/5) + 32).toFixed(1),
+                hour: new Date(r.timestamp).getHours()
+              })));
+            }
+
             return Array.from({ length: 24 }, (_, hour) => {
               const hourReadings = readings.filter(r => {
                 const date = new Date(r.timestamp);
