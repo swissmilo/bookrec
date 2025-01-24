@@ -30,12 +30,14 @@ const validateApiKey = (req: Request, res: Response, next: NextFunction) => {
 // GET endpoint to display the dashboard
 router.get('/', async (req: Request, res: Response) => {
   try {
-    // Get today's date at midnight
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    // Get today's date at midnight in EST (UTC-5)
+    const now = new Date();
+    // Set to midnight in local time
+    const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+    const todayEST = todayMidnight;
     
-    // Get 7 days ago at midnight
-    const sevenDaysAgo = new Date(today);
+    // Get 7 days ago at midnight EST
+    const sevenDaysAgo = new Date(todayEST);
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
     // Fetch the last 7 days of readings
@@ -47,6 +49,12 @@ router.get('/', async (req: Request, res: Response) => {
 
     if (error) throw error;
 
+    // Convert timestamps to Date objects
+    const readingsEST = readings?.map(reading => ({
+      ...reading,
+      timestamp: new Date(reading.timestamp).toISOString()
+    })) || [];
+
     // Generate 24-hour timeline labels (00:00 to 23:59)
     const timeLabels = Array.from({ length: 24 }, (_, i) => {
       const hour = i.toString().padStart(2, '0');
@@ -54,11 +62,11 @@ router.get('/', async (req: Request, res: Response) => {
     });
 
     // Process readings to get today's data and 7-day averages
-    const todayReadings = readings?.filter(r => new Date(r.timestamp) >= today) || [];
+    const todayReadings = readingsEST?.filter(r => new Date(r.timestamp) >= todayEST) || [];
     
     // Calculate 7-day averages for each hour
     const hourlyAverages = Array.from({ length: 24 }, (_, hour) => {
-      const hourReadings = readings?.filter(r => {
+      const hourReadings = readingsEST?.filter(r => {
         const readingHour = new Date(r.timestamp).getHours();
         return readingHour === hour;
       }) || [];
