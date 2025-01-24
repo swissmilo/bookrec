@@ -60,21 +60,20 @@ router.get('/', async (req: Request, res: Response) => {
     });
 
     // Process readings to get today's data and 7-day averages
+    const todayMidnight = new Date();
+    todayMidnight.setHours(0, 0, 0, 0);
+
     const todayReadings = readingsEST?.filter(r => {
       const date = new Date(r.timestamp);
-      const today = new Date();
-      // Compare dates in local time
-      return date.getFullYear() === today.getFullYear() &&
-             date.getMonth() === today.getMonth() &&
-             date.getDate() === today.getDate();
+      return date >= todayMidnight;
     }) || [];
     
     // Calculate 7-day averages for each hour using local time
     const hourlyAverages = Array.from({ length: 24 }, (_, hour) => {
       const hourReadings = readingsEST?.filter(r => {
         const date = new Date(r.timestamp);
-        // Use local hours for grouping
-        return date.getHours() === hour;
+        const utcHour = (date.getUTCHours() + 19) % 24; // Convert UTC to EST (UTC-5)
+        return utcHour === hour;
       }) || [];
 
       if (hourReadings.length === 0) return {
