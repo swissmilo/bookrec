@@ -32,9 +32,17 @@ router.get('/', async (req: Request, res: Response) => {
   try {
     // Get today's date at midnight in EST (UTC-5)
     const now = new Date();
-    // Set to midnight in local time
-    const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
-    const todayEST = todayMidnight;
+    // Convert current time to EST
+    const estOffset = -5 * 60; // EST offset in minutes
+    const nowEST = new Date(now.getTime() + (now.getTimezoneOffset() + estOffset) * 60000);
+    
+    // Set to midnight in EST
+    const todayEST = new Date(
+      nowEST.getFullYear(),
+      nowEST.getMonth(),
+      nowEST.getDate(),
+      0, 0, 0, 0
+    );
     
     // Get 7 days ago at midnight EST
     const sevenDaysAgo = new Date(todayEST);
@@ -49,11 +57,16 @@ router.get('/', async (req: Request, res: Response) => {
 
     if (error) throw error;
 
-    // Convert timestamps to Date objects
-    const readingsEST = readings?.map(reading => ({
-      ...reading,
-      timestamp: new Date(reading.timestamp).toISOString()
-    })) || [];
+    // Convert timestamps to EST
+    const readingsEST = readings?.map(reading => {
+      const timestamp = new Date(reading.timestamp);
+      // Convert to EST
+      const estTime = new Date(timestamp.getTime() + (timestamp.getTimezoneOffset() + estOffset) * 60000);
+      return {
+        ...reading,
+        timestamp: estTime.toISOString()
+      };
+    }) || [];
 
     // Generate 24-hour timeline labels (00:00 to 23:59)
     const timeLabels = Array.from({ length: 24 }, (_, i) => {
