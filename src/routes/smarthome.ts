@@ -53,8 +53,8 @@ router.get('/', async (req: Request, res: Response) => {
       timestamp: reading.timestamp  // Keep the UTC timestamp
     })) || [];
 
-    // Generate 24-hour timeline labels (00:00 to 23:59)
-    const timeLabels = Array.from({ length: 24 }, (_, i) => {
+    // Generate 24-hour timeline labels (00:00 to 24:00)
+    const timeLabels = Array.from({ length: 25 }, (_, i) => {
       const hour = i.toString().padStart(2, '0');
       return `${hour}:00`;
     });
@@ -70,11 +70,11 @@ router.get('/', async (req: Request, res: Response) => {
     }) || [];
     
     // Calculate 7-day averages for each hour using local time
-    const hourlyAverages = Array.from({ length: 24 }, (_, hour) => {
+    const hourlyAverages = Array.from({ length: 25 }, (_, hour) => {
       const hourReadings = readingsEST?.filter(r => {
         const date = new Date(r.timestamp);
         const utcHour = (date.getUTCHours() + 19) % 24; // Convert UTC to EST (UTC-5)
-        return utcHour === hour;
+        return utcHour === (hour % 24);
       }) || [];
 
       if (hourReadings.length === 0) return {
@@ -132,11 +132,11 @@ router.get('/', async (req: Request, res: Response) => {
 
           // Helper function to get data point for each hour
           function getHourlyData(readings, valueKey, transform = (x) => x) {
-            return Array.from({ length: 24 }, (_, hour) => {
+            return Array.from({ length: 25 }, (_, hour) => {
               const hourReadings = readings.filter(r => {
                 const date = new Date(r.timestamp);
                 const utcHour = (date.getUTCHours() + 19) % 24; // Convert UTC to EST (UTC-5)
-                return utcHour === hour;
+                return utcHour === (hour % 24);
               });
               if (hourReadings.length === 0) return null;
               return transform(hourReadings[hourReadings.length - 1][valueKey]);
