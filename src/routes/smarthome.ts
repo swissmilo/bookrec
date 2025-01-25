@@ -60,7 +60,15 @@ router.get('/', async (req: Request, res: Response) => {
     });
 
     // Process readings to get today's data and 7-day averages
-    const todayMidnight = new Date();
+    const todayMidnight = new Date(new Date().toLocaleString('en-US', { 
+      timeZone: 'America/New_York',
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    }));
     todayMidnight.setHours(0, 0, 0, 0);
     
     const todayReadings = readingsEST?.filter(r => {
