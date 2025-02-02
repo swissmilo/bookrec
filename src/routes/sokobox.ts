@@ -73,7 +73,7 @@ router.get(
 
 router.get('/', (req: Request, res: Response, next: NextFunction) => {
   const level = Number(
-    req.query.level?.toString() || req.session.lastLevel || '1'
+    req.query.level?.toString() || req.session.lastLevel || '0'
   );
   req.session.lastLevel = level;
 

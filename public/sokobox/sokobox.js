@@ -206,7 +206,7 @@ function fadeOutAndLoadNextLevel() {
 
 function loadNextLevel() {
   const currentLevel = parseInt(
-    new URLSearchParams(window.location.search).get('level') || '1'
+    new URLSearchParams(window.location.search).get('level') || '0'
   );
   const nextLevel = currentLevel + 1;
 
@@ -217,7 +217,7 @@ function loadNextLevel() {
         window.location.href = `/sokobox?level=${nextLevel}`;
       } else {
         alert('Congratulations! No more levels available.');
-        window.location.href = `/sokobox?level=1`; // Restart the game from level 1 or go to a different page
+        window.location.href = `/sokobox?level=0`; // Restart the game from level 1 or go to a different page
       }
     })
     .catch((err) => {
@@ -384,7 +384,7 @@ function saveLocalHighscores(level, scores) {
 // Submit highscore
 async function submitHighscore() {
   const currentLevel = parseInt(
-    new URLSearchParams(window.location.search).get('level') || '1'
+    new URLSearchParams(window.location.search).get('level') || '0'
   );
 
   const playerName = localStorage.getItem('playerName');
