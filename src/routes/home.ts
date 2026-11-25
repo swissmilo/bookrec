@@ -49,14 +49,8 @@ router.get('/', async (req: Request, res: Response) => {
           <a href="/all-books" class="desktop-icon" aria-label="Book Library">
             <div class="icon-img" aria-hidden="true">📚</div>
           </a>
-          <a href="/recommendations" class="desktop-icon" aria-label="Book Recommendations">
-            <div class="icon-img" aria-hidden="true">💡</div>
-          </a>
           <a href="/sokobox" class="desktop-icon" aria-label="Play Sokobox Game">
             <div class="icon-img" aria-hidden="true">🎮</div>
-          </a>
-          <a href="/venues" class="desktop-icon" aria-label="Venue Notifications">
-            <div class="icon-img" aria-hidden="true">🗺️</div>
           </a>
           <a href="/music" class="desktop-icon" aria-label="My Music">
             <div class="icon-img" aria-hidden="true">🎵</div>

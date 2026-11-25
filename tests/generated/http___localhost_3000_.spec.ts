@@ -28,20 +28,10 @@ test.describe('Test suite for /', () => {
     await page.locator('a[aria-label="Book Library"]').click();
     // TODO: Implement test for: Confirm that the book library page displays a list of available books.
     
-    // Testing a[aria-label="Book Recommendations"]
-    // Link to the Book Recommendations section.
-    // TODO: Implement test for: Test if the link correctly redirects to '/recommendations'.
-    await expect(page.locator('a[aria-label="Book Recommendations"]')).toBeVisible();
-    
     // Testing a[aria-label="Play Sokobox Game"]
     // Link to play the Sokobox game.
     // TODO: Implement test for: Check that the link navigates to the '/sokobox' URL.
     // TODO: Implement test for: Validate that the game loads and functions correctly.
-    
-    // Testing a[aria-label="Venue Notifications"]
-    // Link to view Venue Notifications.
-    await page.locator('a[aria-label="Venue Notifications"]').click();
-    await expect(page.locator('a[aria-label="Venue Notifications"]')).toBeVisible();
     
     // Testing a[aria-label="My Music"]
     // Link to the Music section.
