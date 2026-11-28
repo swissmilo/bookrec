@@ -1,40 +1,8 @@
 import { Router, Request, Response } from 'express';
-import { workos } from '../middleware/auth';
 
 const router = Router();
 
-router.get('/', async (req: Request, res: Response) => {
-  let welcomeMessage = `<a href="/auth/login">Login 🔑</a>`;
-  
-  try {
-    const sessionCookie = req.cookies['wos-session'];
-    if (sessionCookie) {
-      try {
-        const session = await workos.userManagement.loadSealedSession({
-          sessionData: sessionCookie,
-          cookiePassword: process.env.WORKOS_COOKIE_PASSWORD || '',
-        });
-
-        const authResult = await session.authenticate();
-        if (authResult.authenticated && authResult.user?.firstName) {
-          welcomeMessage = `Welcome back, ${authResult.user.firstName}! 👋`;
-        } 
-      } catch (sessionError) {
-        // If session is expired but user has valid credentials, refresh silently
-        console.log('Session expired, attempting silent refresh...');
-        const authorizationUrl = workos.userManagement.getAuthorizationUrl({
-          redirectUri: process.env.WORKOS_REDIRECT_URI || '',
-          provider: 'authkit',
-          clientId: process.env.WORKOS_CLIENT_ID || '',
-          state: JSON.stringify({ redirect: '/', silent: true }),
-        });
-        return res.redirect(authorizationUrl);
-      }
-    } 
-  } catch (error) {
-    console.error('Error checking session:', error);
-  }
-
+router.get('/', (req: Request, res: Response) => {
   res.type('html').send(`
     <!DOCTYPE html>
     <html lang="en">
@@ -68,7 +36,6 @@ router.get('/', async (req: Request, res: Response) => {
       <a href="/sokobox">Play Sokobox Game</a>
       <a href="/music">My Music</a>
     </nav>
-    <div class="corner">${welcomeMessage}</div>
     <div id="tip"></div>
     <aside id="card" aria-live="polite">
       <div class="cat"></div>

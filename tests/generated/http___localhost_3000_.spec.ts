@@ -25,10 +25,6 @@ test.describe('Test suite for /', () => {
     // Testing nav[aria-label="Main navigation"]
     // Screen-reader navigation to the standalone pages.
     await expect(page.locator('nav[aria-label="Main navigation"] a')).toHaveCount(4);
-
-    // Testing a[href="/auth/login"]
-    // Login link that redirects users to the login page.
-    await expect(page.locator('a[href="/auth/login"]')).toBeVisible();
   });
 
   test('should be responsive', async ({ page }) => {

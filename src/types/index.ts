@@ -48,6 +48,7 @@ export interface Book {
   color?: string;
   inkColor?: string;
   highlightsId?: string;
+  highlight?: string;
 }
 
 export interface AddBookRequestBody {

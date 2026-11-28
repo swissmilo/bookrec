@@ -15,6 +15,7 @@ const GROUP_GAP = 0.04;
 const LABEL_W = 0.16;
 const INCH = 0.0254;
 const LAMP_Z = DEPTH / 2 + 0.3;
+const LAMP_DROP = 0.7;
 
 const FILLERS = [
   {
@@ -147,6 +148,7 @@ function prepareBook(raw) {
     category: raw.category,
     link: raw.link,
     highlightsId: raw.highlightsId || (asin ? asin[1] : null),
+    highlight: raw.highlight,
     t: clamp(thickness, 0.009, 0.07),
     h: clamp(
       raw.heightIn ? raw.heightIn * INCH : 0.19 + random.h * 0.06,
@@ -934,7 +936,10 @@ async function main() {
   lampLight.shadow.radius = 3;
   lamp.add(shade, cap, cord, bulb, grip, lampLight);
   lamp.userData = { kind: 'lamp' };
-  scene.add(lamp);
+  lamp.position.y = -LAMP_DROP;
+  const lampPivot = new THREE.Group();
+  lampPivot.add(lamp);
+  scene.add(lampPivot);
   const lampOffset = new THREE.Vector2(-0.3, 0.3);
   const lampOffsetTarget = lampOffset.clone();
 
@@ -1148,20 +1153,30 @@ async function main() {
     return o || null;
   }
 
-  async function showHighlights(b) {
+  function showQuote(text) {
+    const p = document.createElement('p');
+    p.textContent =
+      text.length > 330 ? `${text.slice(0, 320).trimEnd()}…` : text;
+    quotes.replaceChildren(p);
+  }
+
+  async function showHighlight(b) {
     quotes.replaceChildren();
+    if (b.highlight !== undefined) {
+      if (b.highlight) showQuote(b.highlight);
+      return;
+    }
     if (!b.highlightsId) return;
     try {
       const res = await fetch(`/all-books/highlights/${b.highlightsId}`);
       if (!res.ok) return;
       const data = await res.json();
-      if (selected?.userData.book !== b || !Array.isArray(data.highlights))
-        return;
-      for (const text of data.highlights.slice(0, 2)) {
-        const p = document.createElement('p');
-        p.textContent =
-          text.length > 260 ? `${text.slice(0, 250).trimEnd()}…` : text;
-        quotes.append(p);
+      if (
+        selected?.userData.book === b &&
+        Array.isArray(data.highlights) &&
+        data.highlights.length
+      ) {
+        showQuote(data.highlights[0]);
       }
     } catch (error) {
       quotes.replaceChildren();
@@ -1188,7 +1203,7 @@ async function main() {
     card.style.setProperty('--ink', b.ink);
     card.classList.add('on');
     tip.classList.remove('on');
-    showHighlights(b);
+    showHighlight(b);
   }
 
   function deselect() {
@@ -1378,6 +1393,9 @@ async function main() {
   const forward = new THREE.Vector3();
   const rightV = new THREE.Vector3();
   const cam = new THREE.Vector3(scroll.x, scroll.y, dist);
+  let lastCamY = cam.y;
+  let sway = 0;
+  let swaySpeed = 0;
 
   function frame() {
     const dt = Math.min(clock.getDelta(), 0.05);
@@ -1412,7 +1430,17 @@ async function main() {
     camera.updateMatrixWorld();
 
     lampOffset.lerp(lampOffsetTarget, kSlow);
-    lamp.position.set(cam.x + lampOffset.x, cam.y + lampOffset.y, LAMP_Z);
+    const drift = (cam.y - lastCamY) / Math.max(dt, 0.001);
+    lastCamY = cam.y;
+    swaySpeed +=
+      (-24 * sway - 1.7 * swaySpeed + clamp(drift, -2, 2) * 0.45) * dt;
+    sway = clamp(sway + swaySpeed * dt, -0.045, 0.045);
+    lampPivot.position.set(
+      cam.x + lampOffset.x,
+      cam.y + lampOffset.y + LAMP_DROP,
+      LAMP_Z
+    );
+    lampPivot.rotation.z = sway;
     readLight.position.set(cam.x + 0.1, cam.y + 0.25, cam.z);
     readLight.intensity += ((selected ? 1.5 : 0) - readLight.intensity) * kSlow;
 
