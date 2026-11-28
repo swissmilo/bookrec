@@ -299,6 +299,24 @@
     });
     banner.addEventListener('click', advance);
 
+    const screen = document.querySelector('#arcade-modal .screen');
+    let swipe = null;
+    screen.addEventListener('pointerdown', (ev) => {
+      swipe = { x: ev.clientX, y: ev.clientY };
+    });
+    screen.addEventListener('pointerup', (ev) => {
+      if (!swipe) return;
+      const dx = ev.clientX - swipe.x;
+      const dy = ev.clientY - swipe.y;
+      swipe = null;
+      if (Math.max(Math.abs(dx), Math.abs(dy)) < 24) return;
+      if (Math.abs(dx) > Math.abs(dy)) move(dx > 0 ? 'right' : 'left');
+      else move(dy > 0 ? 'down' : 'up');
+    });
+    screen.addEventListener('pointercancel', () => {
+      swipe = null;
+    });
+
     return {
       async start() {
         await load();
