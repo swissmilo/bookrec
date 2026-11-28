@@ -130,6 +130,14 @@ router.get('/', (req: Request, res: Response) => {
         ></iframe>
       </div>
     </div>
+    <div id="reader" role="dialog" aria-modal="true" aria-label="A World Without Edges">
+      <div class="reader-bar">
+        <button type="button" class="reader-contents">Contents</button>
+        <a class="reader-buy" target="_blank" rel="noopener noreferrer">Get the book</a>
+        <button type="button" class="reader-close" aria-label="Close">×</button>
+      </div>
+      <article class="reader-page" tabindex="0"></article>
+    </div>
     <script defer src="/shelf/arcade.js"></script>
     <script defer src="/shelf/shelf.js"></script>
     </body>

@@ -2333,8 +2333,9 @@
     "pages": 79,
     "widthIn": 6.0,
     "heightIn": 9.0,
-    "thicknessIn": 0.2,
-    "color": "#03040c"
+    "thicknessIn": 1.06,
+    "color": "#03040c",
+    "reader": "/shelf/edges.json"
   },
   {
     "category": "Science History",
