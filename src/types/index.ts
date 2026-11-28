@@ -41,6 +41,13 @@ export interface Book {
   name: string;
   author: string;
   link: string;
+  pages?: number;
+  widthIn?: number;
+  heightIn?: number;
+  thicknessIn?: number;
+  color?: string;
+  inkColor?: string;
+  highlightsId?: string;
 }
 
 export interface AddBookRequestBody {

@@ -18,31 +18,17 @@ test.describe('Test suite for /', () => {
     const elements = await page.locator('[role]').count();
     expect(elements).toBeGreaterThan(0);
     
-    // Testing a[aria-label="About Me"]
-    // Link to the About Me section of the website.
-    await page.locator('a[aria-label="About Me"]').click();
-    // TODO: Implement test for: Check that the about page loads correctly without errors.
-    
-    // Testing a[aria-label="Book Library"]
-    // Link to the Book Library section.
-    await page.locator('a[aria-label="Book Library"]').click();
-    // TODO: Implement test for: Confirm that the book library page displays a list of available books.
-    
-    // Testing a[aria-label="Play Sokobox Game"]
-    // Link to play the Sokobox game.
-    // TODO: Implement test for: Check that the link navigates to the '/sokobox' URL.
-    // TODO: Implement test for: Validate that the game loads and functions correctly.
-    
-    // Testing a[aria-label="My Music"]
-    // Link to the Music section.
-    await page.locator('a[aria-label="My Music"]').click();
-    await expect(page.locator('a[aria-label="My Music"]')).toHaveText(/./);
-    
+    // Testing canvas#scene
+    // The 3D bookshelf that replaces the old desktop icons.
+    await expect(page.locator('canvas#scene')).toBeVisible();
+
+    // Testing nav[aria-label="Main navigation"]
+    // Screen-reader navigation to the standalone pages.
+    await expect(page.locator('nav[aria-label="Main navigation"] a')).toHaveCount(4);
+
     // Testing a[href="/auth/login"]
     // Login link that redirects users to the login page.
-    // TODO: Implement test for: Check that the login link redirects to the correct '/auth/login' URL.
-    // TODO: Implement test for: Verify that the login page loads successfully without issues.
-    
+    await expect(page.locator('a[href="/auth/login"]')).toBeVisible();
   });
 
   test('should be responsive', async ({ page }) => {

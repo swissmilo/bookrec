@@ -103,6 +103,13 @@ router.post(
   }
 );
 
+router.get(
+  '/highlights/:bookId',
+  (req: Request<{ bookId: string }>, res: Response<{ highlights: string[] }>) => {
+    res.json({ highlights: (highlights[req.params.bookId] || []).slice(0, 3) });
+  }
+);
+
 router.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const booksPath = path.join(__dirname, '..', '..', 'public', 'books.json');
@@ -126,7 +133,7 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
         const bookIdMatch = book.link.match(
           /(?:product|dp)\/([A-Z0-9]+)(?:\/|$)/i
         );
-        const bookId = bookIdMatch ? bookIdMatch[1] : null;
+        const bookId = book.highlightsId || (bookIdMatch ? bookIdMatch[1] : null);
         const bookQuotes =
           bookId && highlights[bookId]
             ? highlights[bookId]
