@@ -47,7 +47,6 @@ router.get('/', (req: Request, res: Response) => {
       <a href="/sokobox">Play Sokobox Game</a>
       <a href="/music">My Music</a>
     </nav>
-    <div id="tip"></div>
     <aside id="card" aria-live="polite">
       <div class="cat"></div>
       <h1></h1>
