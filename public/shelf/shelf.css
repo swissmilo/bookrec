@@ -13,47 +13,6 @@ canvas#scene {
   height: 100vh;
   touch-action: none;
 }
-#tip {
-  position: fixed;
-  pointer-events: none;
-  max-width: 320px;
-  padding: 12px 16px 11px 26px;
-  background: linear-gradient(
-      90deg,
-      transparent 15px,
-      rgba(176, 58, 46, 0.55) 15px,
-      rgba(176, 58, 46, 0.55) 16px,
-      transparent 16px
-    ),
-    linear-gradient(180deg, #f8f1de 0%, #efe4c9 100%);
-  border: 1px solid #cdbb93;
-  border-radius: 2px;
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.5);
-  color: #2b2118;
-  font:
-    15px/1.35 'American Typewriter',
-    'Courier Prime',
-    'Courier New',
-    monospace;
-  opacity: 0;
-  transition: opacity 0.12s;
-  z-index: 5;
-}
-#tip strong {
-  display: block;
-  font-weight: 600;
-}
-#tip span {
-  display: block;
-  margin-top: 5px;
-  padding-top: 5px;
-  border-top: 1px solid rgba(70, 110, 150, 0.35);
-  font-size: 13px;
-  color: #5d4d3a;
-}
-#tip.on {
-  opacity: 1;
-}
 #card {
   --cloth: #7a1f1f;
   --ink: #f1e7d0;

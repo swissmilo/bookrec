@@ -24,7 +24,6 @@
       firstShelf: true,
       hoverTurn: 0.24,
       modal: 'about',
-      label: 'About Milo',
     },
     {
       kind: 'record',
@@ -32,7 +31,6 @@
       minSlot: 2,
       hoverTurn: 0.3,
       modal: 'music',
-      label: 'Almost Classical',
     },
     {
       kind: 'toy',
@@ -40,7 +38,6 @@
       minSlot: 4,
       hoverTurn: -0.6,
       modal: 'arcade',
-      label: 'Play Sokobox',
     },
     {
       kind: 'globe',
@@ -1162,8 +1159,6 @@
         kind: 'book',
         book: b,
         home: mesh.position.clone(),
-        label: b.name,
-        sublabel: b.author,
         tint: [cover, cloth, spine].map((m) => ({
           material: m,
           base: m.color.clone(),
@@ -1232,7 +1227,6 @@
       obj.userData = {
         kind: 'object',
         modal: def.modal,
-        label: def.label,
         baseTurn: obj.rotation.y,
         hoverTurn: def.hoverTurn,
         focus: def.focus,
@@ -1321,7 +1315,6 @@
         clamp(scroll.y + dy, minY, maxY)
       );
 
-    const tip = document.getElementById('tip');
     const card = document.getElementById('card');
     const quotes = card.querySelector('.quotes');
     const modals = {
@@ -1406,7 +1399,6 @@
       card.style.setProperty('--cloth', b.color);
       card.style.setProperty('--ink', b.ink);
       card.classList.add('on');
-      tip.classList.remove('on');
       showHighlight(b);
     }
 
@@ -1419,7 +1411,6 @@
       modal = name;
       hovered = null;
       pointerInside = false;
-      tip.classList.remove('on');
       modals[name].classList.add('on');
       if (name === 'arcade') arcade.start();
       const embed = modals[name].querySelector('iframe[data-src]');
@@ -1529,21 +1520,6 @@
           ? 'grab'
           : 'pointer'
         : 'default';
-      if (hovered?.userData.label) {
-        const title = document.createElement('strong');
-        title.textContent = hovered.userData.label;
-        tip.replaceChildren(title);
-        if (hovered.userData.sublabel) {
-          const sub = document.createElement('span');
-          sub.textContent = hovered.userData.sublabel;
-          tip.append(sub);
-        }
-        tip.style.left = `${Math.min(ev.clientX + 16, window.innerWidth - 340)}px`;
-        tip.style.top = `${ev.clientY + 16}px`;
-        tip.classList.add('on');
-      } else {
-        tip.classList.remove('on');
-      }
     });
 
     canvas.addEventListener('pointerup', (ev) => {
@@ -1573,7 +1549,6 @@
     canvas.addEventListener('pointerleave', () => {
       hovered = null;
       pointerInside = false;
-      tip.classList.remove('on');
     });
 
     window.addEventListener(
