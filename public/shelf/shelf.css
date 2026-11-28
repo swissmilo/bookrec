@@ -3,15 +3,22 @@ body {
   margin: 0;
   height: 100%;
   overflow: hidden;
+  overscroll-behavior: none;
   background: #2a2420;
   font-family: Georgia, 'Times New Roman', serif;
   color: #2b2118;
 }
 canvas#scene {
+  position: fixed;
+  inset: 0;
   display: block;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
 }
 #card {
   --cloth: #7a1f1f;
@@ -137,6 +144,9 @@ canvas#scene {
     left: 0;
     width: 100vw;
     min-height: 0;
+    max-height: 62vh;
+    overflow-y: auto;
+    padding: 22px 24px 20px 30px;
     transform: translateY(30px);
   }
   #card.on {
@@ -157,8 +167,10 @@ canvas#scene {
   position: fixed;
   inset: 0;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  box-sizing: border-box;
+  padding: 22px 0;
+  overflow-y: auto;
+  touch-action: manipulation;
   background: rgba(6, 4, 2, 0.72);
   backdrop-filter: blur(3px);
   opacity: 0;
@@ -171,6 +183,7 @@ canvas#scene {
   pointer-events: auto;
 }
 .modal > * {
+  margin: auto;
   transform: translateY(18px) scale(0.97);
   transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
@@ -192,9 +205,19 @@ canvas#scene {
   cursor: pointer;
   z-index: 2;
 }
+@media (max-width: 700px) {
+  .modal-close {
+    top: 6px;
+    right: 6px;
+    width: 40px;
+    height: 40px;
+    font-size: 22px;
+  }
+}
 
 .diploma-frame {
   position: relative;
+  box-sizing: border-box;
   width: min(680px, 92vw);
   padding: 22px;
   background: linear-gradient(
@@ -414,6 +437,7 @@ canvas#scene {
 }
 .screen {
   position: relative;
+  touch-action: none;
   aspect-ratio: 4 / 3;
   background: #05040a;
   border-radius: 18px / 14px;
@@ -587,17 +611,58 @@ canvas#scene {
 }
 @media (max-width: 560px) {
   .cabinet {
+    width: min(94vw, calc((96vh - 430px) * 4 / 3 + 44px));
+    width: min(94vw, calc((96dvh - 430px) * 4 / 3 + 44px));
+    min-width: 280px;
     padding: 0 22px 14px;
+  }
+  .deck {
+    display: grid;
+    grid-template-columns: auto auto;
+    row-gap: 12px;
+    padding: 12px 14px;
+  }
+  .level-select {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    justify-content: center;
+  }
+  .level-select button {
+    width: 40px;
+    height: 36px;
+  }
+  .dpad {
+    grid-template: repeat(3, 42px) / repeat(3, 42px);
+  }
+  .round {
+    width: 52px;
+    height: 52px;
+  }
+  .coin {
+    display: none;
+  }
+  .jukebox {
+    padding-top: 52px;
+  }
+  .diploma-frame {
+    padding: 14px;
   }
   .marquee {
     margin: 0 -22px;
   }
   .dip-links {
     margin: 8px 0 0;
-    gap: 14px;
+    gap: 10px;
+  }
+  .dip-links a {
+    font-size: 22px;
+  }
+  .dip-links span {
+    font-size: 9px;
+    letter-spacing: 0.14em;
   }
   .diploma {
-    padding: 40px 28px 96px;
+    padding: 44px 30px 112px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -608,6 +673,7 @@ canvas#scene {
 
 .jukebox {
   position: relative;
+  box-sizing: border-box;
   width: min(520px, 92vw);
   padding: 16px;
   background: linear-gradient(160deg, #3a2414 0%, #1d1109 100%);
@@ -810,6 +876,13 @@ canvas#scene {
   .reader-page {
     font-size: 19px;
     padding-top: 36px;
+  }
+  .reader-page p {
+    text-align: left;
+  }
+  .reader-bar .reader-close {
+    padding: 4px 10px;
+    font-size: 28px;
   }
   .reader-page h1 {
     font-size: 36px;

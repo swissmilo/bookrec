@@ -971,7 +971,7 @@
     });
     const chain = new THREE.Group();
     const bead = new THREE.SphereGeometry(0.0028, 10, 8);
-    const beads = 11;
+    const beads = 7;
     const pitch = 0.0066;
     for (let i = 0; i < beads; i++) {
       const m = new THREE.Mesh(bead, brass);
@@ -1416,7 +1416,7 @@
     const lampPivot = new THREE.Group();
     lampPivot.add(lamp);
     scene.add(lampPivot);
-    const lampOffset = new THREE.Vector2(-0.3, 0.3);
+    const lampOffset = new THREE.Vector2();
     const lampOffsetTarget = lampOffset.clone();
 
     const readLight = new THREE.PointLight('#ffe6c4', 0, 0, 2);
@@ -1628,6 +1628,10 @@
     const { clamp } = THREE.MathUtils;
     const rowPitch = ROW_H + BOARD;
     let dist = 3;
+    let baseDist = 3;
+    let widthDist = 3;
+    let zoom = 1;
+    let minZoom = 1;
     let viewW = 1;
     let viewH = 1;
     let maxPanX = 0;
@@ -1637,28 +1641,40 @@
     const scroll = new THREE.Vector2();
     const pointerNorm = new THREE.Vector2();
 
-    function resize() {
-      const w = window.innerWidth;
-      const h = window.innerHeight;
-      renderer.setSize(w, h, false);
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-      const forWidth = (totalW + 0.14) / 2 / (tanHalf * camera.aspect);
-      const forRows = (n) => (n * rowPitch + 0.1) / 2 / tanHalf;
-      dist = Math.max(forRows(2), Math.min(forWidth, forRows(3.2))) + DEPTH / 2;
+    function applyZoom(value) {
+      zoom = clamp(value, minZoom, 2.2);
+      dist = baseDist / zoom + DEPTH / 2;
       viewH = 2 * (dist - DEPTH / 2) * tanHalf;
       viewW = viewH * camera.aspect;
       maxPanX = Math.max(0, (totalW + 0.14 - viewW) / 2);
       maxY = topY + 0.09 - viewH / 2;
-      minY = Math.min(maxY, viewH / 2 - 0.03);
+      minY = viewH / 2 - 0.03;
+      if (minY > maxY) minY = maxY = (topY + 0.06) / 2;
       scroll.set(
         clamp(scroll.x, -maxPanX, maxPanX),
         clamp(scroll.y, minY, maxY)
       );
     }
+
+    function resize() {
+      const w = canvas.clientWidth;
+      const h = canvas.clientHeight;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      const forRows = (n) => (n * rowPitch + 0.1) / 2 / tanHalf;
+      widthDist = (totalW + 0.14) / 2 / (tanHalf * camera.aspect);
+      baseDist = Math.max(forRows(2), Math.min(widthDist, forRows(3.2)));
+      minZoom = Math.min(1, baseDist / widthDist);
+      applyZoom(zoom);
+    }
     scroll.y = Infinity;
     resize();
     scroll.x = -maxPanX;
+    const restSpan = 2 * (dist - LAMP_Z) * tanHalf;
+    if (camera.aspect < 1) lampOffset.set(0, 0.37);
+    else lampOffset.set(-0.3 / (restSpan * camera.aspect), 0.3 / restSpan);
+    lampOffsetTarget.copy(lampOffset);
     window.addEventListener('resize', resize);
 
     const scrollBy = (dx, dy) =>
@@ -1695,21 +1711,36 @@
     const lampPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), -LAMP_Z);
     const lampHit = new THREE.Vector3();
 
-    function aim(ev) {
+    function aim(x, y) {
       pointer.set(
-        (ev.clientX / window.innerWidth) * 2 - 1,
-        -(ev.clientY / window.innerHeight) * 2 + 1
+        (x / canvas.clientWidth) * 2 - 1,
+        -(y / canvas.clientHeight) * 2 + 1
       );
       raycaster.setFromCamera(pointer, camera);
     }
 
-    function pick(ev) {
-      aim(ev);
+    function pickAt(x, y) {
+      aim(x, y);
       if (raycaster.intersectObject(chain, true).length) return chain;
       const hit = raycaster.intersectObjects(pickables, true)[0];
       let o = hit?.object;
       while (o && !o.userData.kind) o = o.parent;
       return o || null;
+    }
+
+    function pick(ev) {
+      const direct = pickAt(ev.clientX, ev.clientY);
+      if (direct || ev.pointerType === 'mouse') return direct;
+      for (const reach of [12, 22]) {
+        for (let i = 0; i < 8; i++) {
+          const near = pickAt(
+            ev.clientX + Math.cos((i * Math.PI) / 4) * reach,
+            ev.clientY + Math.sin((i * Math.PI) / 4) * reach
+          );
+          if (near && near.userData.kind !== 'book') return near;
+        }
+      }
+      return null;
     }
 
     function showQuote(text) {
@@ -1858,30 +1889,60 @@
       focus = null;
     }
 
+    const fingers = new Map();
+    const fling = new THREE.Vector2();
+    let pinch = null;
+    const spread = () => {
+      const [a, b] = [...fingers.values()];
+      return Math.hypot(a.x - b.x, a.y - b.y);
+    };
+
     canvas.addEventListener('pointerdown', (ev) => {
+      fling.set(0, 0);
+      canvas.setPointerCapture(ev.pointerId);
+      if (ev.pointerType === 'touch') {
+        fingers.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
+        if (fingers.size === 2 && !selected && !passage) {
+          clearFocus();
+          pinch = { spread: spread(), zoom };
+          down = null;
+          return;
+        }
+      }
       const grabbed = selected || passage ? null : pick(ev);
       down = {
         x: ev.clientX,
         y: ev.clientY,
         from: scroll.clone(),
         moved: false,
+        slop: ev.pointerType === 'mouse' ? 5 : 12,
+        speed: new THREE.Vector2(),
+        moveX: ev.clientX,
+        moveY: ev.clientY,
+        moveTime: performance.now(),
         lamp: grabbed?.userData.kind === 'lamp',
         globe: grabbed?.userData.globe ? grabbed : null,
         lastX: ev.clientX,
         lastTime: performance.now(),
       };
       if (down.lamp || down.globe) canvas.style.cursor = 'grabbing';
-      canvas.setPointerCapture(ev.pointerId);
     });
 
     canvas.addEventListener('pointermove', (ev) => {
+      if (fingers.has(ev.pointerId)) {
+        fingers.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
+      }
+      if (pinch) {
+        if (fingers.size > 1) applyZoom((pinch.zoom * spread()) / pinch.spread);
+        return;
+      }
       pointerNorm.set(
-        (ev.clientX / window.innerWidth) * 2 - 1,
-        (ev.clientY / window.innerHeight) * 2 - 1
+        (ev.clientX / canvas.clientWidth) * 2 - 1,
+        (ev.clientY / canvas.clientHeight) * 2 - 1
       );
-      pointerInside = true;
+      pointerInside = ev.pointerType === 'mouse';
       if (down?.globe) {
-        if (Math.abs(ev.clientX - down.x) > 5) down.moved = true;
+        if (Math.abs(ev.clientX - down.x) > down.slop) down.moved = true;
         if (down.moved) {
           const now = performance.now();
           const turn = (ev.clientX - down.lastX) * 0.012;
@@ -1898,15 +1959,16 @@
       }
       if (down?.lamp) {
         down.moved = true;
-        aim(ev);
+        aim(ev.clientX, ev.clientY);
         if (raycaster.ray.intersectPlane(lampPlane, lampHit)) {
+          const span = 2 * (camera.position.z - LAMP_Z) * tanHalf;
           lampOffsetTarget.set(
-            clamp(lampHit.x - camera.position.x, -viewW * 0.36, viewW * 0.36),
             clamp(
-              lampHit.y - 0.03 - camera.position.y,
-              -viewH * 0.3,
-              viewH * 0.3
-            )
+              (lampHit.x - camera.position.x) / (span * camera.aspect),
+              -0.4,
+              0.4
+            ),
+            clamp((lampHit.y - 0.03 - camera.position.y) / span, -0.4, 0.4)
           );
         }
         return;
@@ -1914,14 +1976,28 @@
       if (down) {
         const dx = ev.clientX - down.x;
         const dy = ev.clientY - down.y;
-        if (Math.abs(dx) > 5 || Math.abs(dy) > 5) down.moved = true;
+        if (Math.abs(dx) > down.slop || Math.abs(dy) > down.slop)
+          down.moved = true;
+        const worldPerPx = viewH / canvas.clientHeight;
+        const now = performance.now();
+        const elapsed = Math.max(now - down.moveTime, 8) / 1000;
+        down.speed.lerp(
+          target.set(
+            (-(ev.clientX - down.moveX) * worldPerPx) / elapsed,
+            ((ev.clientY - down.moveY) * worldPerPx) / elapsed,
+            0
+          ),
+          0.5
+        );
+        down.moveX = ev.clientX;
+        down.moveY = ev.clientY;
+        down.moveTime = now;
         if (down.moved && focus && !selected) {
           clearFocus();
           down.from.copy(scroll);
           down.x = ev.clientX;
           down.y = ev.clientY;
         } else if (down.moved && !selected) {
-          const worldPerPx = viewH / window.innerHeight;
           scroll.set(
             clamp(down.from.x - dx * worldPerPx, -maxPanX, maxPanX),
             clamp(down.from.y + dy * worldPerPx, minY, maxY)
@@ -1937,9 +2013,36 @@
         : 'default';
     });
 
+    canvas.addEventListener('pointercancel', (ev) => {
+      fingers.delete(ev.pointerId);
+      if (fingers.size < 2) pinch = null;
+      down = null;
+    });
+
     canvas.addEventListener('pointerup', (ev) => {
+      fingers.delete(ev.pointerId);
+      if (pinch) {
+        if (!fingers.size) pinch = null;
+        return;
+      }
       const wasClick = down && !down.moved;
+      const pressed = down && {
+        clientX: down.x,
+        clientY: down.y,
+        pointerType: ev.pointerType,
+      };
       const spun = down?.moved ? down.globe : null;
+      if (
+        down?.moved &&
+        ev.pointerType !== 'mouse' &&
+        !down.lamp &&
+        !down.globe &&
+        !selected &&
+        !passage &&
+        performance.now() - down.moveTime < 90
+      ) {
+        fling.set(down.speed.x, down.speed.y).clampLength(0, 6);
+      }
       down = null;
       if (spun && Math.abs(spun.userData.spin) > 3.2) launchPlane(spun);
       if (!wasClick) return;
@@ -1951,7 +2054,7 @@
         deselect();
         return;
       }
-      const target = pick(ev);
+      const target = pick(pressed);
       if (!target) {
         clearFocus();
         return;
@@ -1983,6 +2086,10 @@
         ev.preventDefault();
         if (selected || passage) return;
         clearFocus();
+        if (ev.ctrlKey) {
+          applyZoom(zoom * Math.exp(-ev.deltaY * 0.01));
+          return;
+        }
         scrollBy(ev.deltaX * 0.0016, -ev.deltaY * 0.0016);
       },
       { passive: false }
@@ -2061,8 +2168,22 @@
           (focusSize.y / 2 + 0.05) / tanHalf,
           (focusSize.x / 2 + 0.07) / (tanHalf * camera.aspect)
         );
-        wantD = clamp(fit + DEPTH / 2, 0.55, dist);
+        wantD = clamp(
+          fit + DEPTH / 2,
+          0.55,
+          Math.max(dist, widthDist + DEPTH / 2)
+        );
+        const halfH = (wantD - DEPTH / 2) * tanHalf;
+        const slackX = Math.max(0, (totalW + 0.14) / 2 - halfH * camera.aspect);
+        wantX = clamp(wantX, -slackX, slackX);
+        if (topY + 0.09 - halfH > halfH - 0.03)
+          wantY = clamp(wantY, halfH - 0.03, topY + 0.09 - halfH);
       }
+
+      if (fling.lengthSq() > 0.0004) {
+        scrollBy(fling.x * dt, fling.y * dt);
+        fling.multiplyScalar(Math.exp(-dt * 3.2));
+      } else fling.set(0, 0);
 
       const now = clock.elapsedTime;
       pull += ((passage ? 1 : 0) - pull) * kSlow;
@@ -2146,9 +2267,10 @@
       swaySpeed +=
         (-24 * sway - 1.7 * swaySpeed + clamp(drift, -2, 2) * 0.45) * dt;
       sway = clamp(sway + swaySpeed * dt, -0.045, 0.045);
+      const lampSpan = 2 * Math.max(0.2, cam.z - LAMP_Z) * tanHalf;
       lampPivot.position.set(
-        cam.x + lampOffset.x,
-        cam.y + lampOffset.y + LAMP_DROP,
+        cam.x + lampOffset.x * lampSpan * camera.aspect,
+        cam.y + lampOffset.y * lampSpan + LAMP_DROP,
         LAMP_Z
       );
       lampPivot.rotation.z = sway;
