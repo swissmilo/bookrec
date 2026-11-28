@@ -12,9 +12,9 @@ router.get('/', (req: Request, res: Response) => {
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <meta name="description" content="The books I've read and recommend, on a shelf you can browse">
       <meta name="author" content="Milo Spirig">
-      <title>Milo's Personal Library</title>
+      <title>Milo's Library</title>
       <meta property="og:type" content="website">
-      <meta property="og:title" content="Milo's Personal Library">
+      <meta property="og:title" content="Milo's Library">
       <meta property="og:description" content="The books I've read and recommend, on a shelf you can browse">
       <meta property="og:url" content="${baseUrl}/">
       <meta property="og:image" content="${baseUrl}/shelf/og.jpg">
