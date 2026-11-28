@@ -3,15 +3,26 @@ import { Router, Request, Response } from 'express';
 const router = Router();
 
 router.get('/', (req: Request, res: Response) => {
+  const baseUrl = process.env.BASE_URL || 'https://www.milo.run';
   res.type('html').send(`
     <!DOCTYPE html>
     <html lang="en">
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <meta name="description" content="Milo's personal website">
+      <meta name="description" content="The books I've read and recommend, on a shelf you can browse">
       <meta name="author" content="Milo Spirig">
       <title>Milo's Personal Library</title>
+      <meta property="og:type" content="website">
+      <meta property="og:title" content="Milo's Personal Library">
+      <meta property="og:description" content="The books I've read and recommend, on a shelf you can browse">
+      <meta property="og:url" content="${baseUrl}/">
+      <meta property="og:image" content="${baseUrl}/shelf/og.jpg">
+      <meta property="og:image:width" content="1200">
+      <meta property="og:image:height" content="630">
+      <meta property="og:image:alt" content="A wooden bookshelf filled with Milo's books">
+      <meta name="twitter:card" content="summary_large_image">
+      <meta name="twitter:image" content="${baseUrl}/shelf/og.jpg">
       <link rel="icon" type="image/x-icon" href="/favicon.ico">
       <link rel="preconnect" href="https://fonts.googleapis.com">
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
