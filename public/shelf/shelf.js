@@ -158,6 +158,7 @@
       link: raw.link,
       highlightsId: raw.highlightsId || (asin ? asin[1] : null),
       highlight: raw.highlight,
+      reader: raw.reader,
       t: clamp(thickness, 0.009, 0.07),
       h: clamp(
         raw.heightIn ? raw.heightIn * INCH : 0.19 + random.h * 0.06,
@@ -855,6 +856,37 @@
     }
   }
 
+  function drawGlobeGlow(canvas, countries, visited) {
+    const W = canvas.width;
+    const H = canvas.height;
+    const g = canvas.getContext('2d');
+    const px = (lon) => ((lon + 180) / 360) * W;
+    const py = (lat) => ((90 - lat) / 180) * H;
+    const been = new Set(Object.values(visited.countries));
+    g.fillStyle = '#000';
+    g.fillRect(0, 0, W, H);
+    g.fillStyle = '#ffb45c';
+    for (const country of countries) {
+      if (!been.has(country.id)) continue;
+      for (const polygon of country.polygons) {
+        g.beginPath();
+        for (const points of polygon) {
+          points.forEach(([lon, lat], i) => {
+            if (i === 0) g.moveTo(px(lon), py(lat));
+            else g.lineTo(px(lon), py(lat));
+          });
+          g.closePath();
+        }
+        g.fill('evenodd');
+      }
+    }
+    for (const [lat, lon] of Object.values(visited.pins)) {
+      g.beginPath();
+      g.arc(px(lon), py(lat), 3, 0, Math.PI * 2);
+      g.fill();
+    }
+  }
+
   function buildGlobe(renderer) {
     const R = 0.092;
     const ring = R + 0.007;
@@ -864,6 +896,8 @@
     g.fillStyle = '#7f9a9a';
     g.fillRect(0, 0, canvas.width, canvas.height);
     const map = toTexture(canvas, renderer);
+    const glowCanvas = makeCanvas(1024, 512);
+    const glowMap = toTexture(glowCanvas, renderer);
     const brass = new THREE.MeshStandardMaterial({
       color: '#b08a3c',
       metalness: 0.8,
@@ -872,7 +906,13 @@
 
     const sphere = new THREE.Mesh(
       new THREE.SphereGeometry(R, 64, 48),
-      new THREE.MeshStandardMaterial({ map, roughness: 0.6 })
+      new THREE.MeshStandardMaterial({
+        map,
+        roughness: 0.6,
+        emissive: '#ffffff',
+        emissiveMap: glowMap,
+        emissiveIntensity: 0,
+      })
     );
     sphere.name = 'globe';
     sphere.rotation.y = -1.75;
@@ -913,11 +953,266 @@
       fetch('/shelf/visited.json').then((r) => r.json()),
     ])
       .then(([topology, visited]) => {
-        drawGlobeMap(canvas, decodeAtlas(topology), visited);
+        const countries = decodeAtlas(topology);
+        drawGlobeMap(canvas, countries, visited);
+        drawGlobeGlow(glowCanvas, countries, visited);
         map.needsUpdate = true;
+        glowMap.needsUpdate = true;
       })
       .catch(() => {});
     return group;
+  }
+
+  function buildChain() {
+    const brass = new THREE.MeshStandardMaterial({
+      color: '#c9a557',
+      metalness: 0.9,
+      roughness: 0.3,
+    });
+    const chain = new THREE.Group();
+    const bead = new THREE.SphereGeometry(0.0028, 10, 8);
+    const beads = 11;
+    const pitch = 0.0066;
+    for (let i = 0; i < beads; i++) {
+      const m = new THREE.Mesh(bead, brass);
+      m.position.y = -i * pitch;
+      chain.add(m);
+    }
+    const knob = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.0028, 0.0068, 0.02, 16),
+      brass
+    );
+    knob.position.y = -beads * pitch - 0.007;
+    const hit = new THREE.Mesh(
+      new THREE.SphereGeometry(0.028, 8, 6),
+      new THREE.MeshBasicMaterial({ visible: false })
+    );
+    hit.position.y = knob.position.y + 0.012;
+    chain.add(knob, hit);
+    chain.userData = { kind: 'chain' };
+    return chain;
+  }
+
+  function buildPaperPlane() {
+    const geo = new THREE.BufferGeometry();
+    const nose = [0, 0, 0.042];
+    const tail = [0, 0, -0.036];
+    const keel = [0, -0.013, -0.036];
+    const left = [-0.03, 0.005, -0.036];
+    const right = [0.03, 0.005, -0.036];
+    geo.setAttribute(
+      'position',
+      new THREE.Float32BufferAttribute(
+        [nose, tail, left, nose, right, tail, nose, keel, tail].flat(),
+        3
+      )
+    );
+    geo.computeVertexNormals();
+    const plane = new THREE.Mesh(
+      geo,
+      new THREE.MeshStandardMaterial({
+        color: '#f4efe2',
+        roughness: 0.9,
+        side: THREE.DoubleSide,
+        flatShading: true,
+      })
+    );
+    plane.castShadow = true;
+    plane.visible = false;
+    return plane;
+  }
+
+  function haloTexture(renderer) {
+    const c = makeCanvas(128, 256);
+    const g = c.getContext('2d');
+    g.translate(64, 128);
+    g.scale(1, 2);
+    const glow = g.createRadialGradient(0, 0, 0, 0, 0, 64);
+    glow.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
+    glow.addColorStop(0.25, 'rgba(255, 255, 255, 0.35)');
+    glow.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    g.fillStyle = glow;
+    g.fillRect(-64, -64, 128, 128);
+    return toTexture(c, renderer);
+  }
+
+  function auroraTexture(renderer) {
+    const W = 1024;
+    const H = 512;
+    const c = makeCanvas(W, H);
+    const g = c.getContext('2d');
+    const r = rng(2025);
+    const sky = g.createLinearGradient(0, 0, 0, H);
+    sky.addColorStop(0, '#02030b');
+    sky.addColorStop(0.7, '#06142a');
+    sky.addColorStop(1, '#0b2436');
+    g.fillStyle = sky;
+    g.fillRect(0, 0, W, H);
+    for (let i = 0; i < 420; i++) {
+      g.fillStyle = `rgba(255, 255, 255, ${0.25 + r() * 0.75})`;
+      const s = r() < 0.08 ? 1.8 : 0.9;
+      g.fillRect(r() * W, r() * H * 0.9, s, s);
+    }
+    g.globalCompositeOperation = 'lighter';
+    const ribbons = [
+      ['90, 255, 170', 0.3, 0.5],
+      ['60, 220, 210', 0.42, 0.42],
+      ['150, 110, 255', 0.22, 0.3],
+    ];
+    for (const [rgb, base, alpha] of ribbons) {
+      const phase = r() * 6;
+      for (let x = 0; x < W; x += 3) {
+        const u = x / W;
+        const top =
+          H *
+          (base +
+            0.09 * Math.sin(u * 7 + phase) +
+            0.05 * Math.sin(u * 19 + phase * 2));
+        const length = H * (0.3 + 0.14 * Math.sin(u * 11 + phase * 3));
+        const strength =
+          alpha * (0.55 + 0.45 * Math.sin(u * 43 + phase) * Math.sin(u * 5));
+        const streak = g.createLinearGradient(0, top, 0, top + length);
+        streak.addColorStop(0, `rgba(${rgb}, 0)`);
+        streak.addColorStop(0.18, `rgba(${rgb}, ${Math.max(0.03, strength)})`);
+        streak.addColorStop(1, `rgba(${rgb}, 0)`);
+        g.fillStyle = streak;
+        g.fillRect(x, top, 3, length);
+      }
+    }
+    return toTexture(c, renderer);
+  }
+
+  function createReader(onClose) {
+    const root = document.getElementById('reader');
+    const page = root.querySelector('.reader-page');
+    const buy = root.querySelector('.reader-buy');
+    let book = null;
+    let loading = null;
+    let at = -1;
+
+    const el = (tag, className, text) => {
+      const node = document.createElement(tag);
+      if (className) node.className = className;
+      if (text) node.textContent = text;
+      return node;
+    };
+
+    function recall() {
+      try {
+        const saved = localStorage.getItem('reader-chapter');
+        return saved === null ? -1 : Number(saved) || 0;
+      } catch (error) {
+        return -1;
+      }
+    }
+
+    function remember(index) {
+      try {
+        localStorage.setItem('reader-chapter', String(index));
+      } catch (error) {
+        return;
+      }
+    }
+
+    function link(label, index, className) {
+      const b = el('button', className, label);
+      b.type = 'button';
+      b.addEventListener('click', () => show(index));
+      return b;
+    }
+
+    function paragraph(block) {
+      const p = el('p');
+      const runs = typeof block === 'string' ? [[block, '']] : block.runs;
+      for (const [text, flags] of runs) {
+        const tag = flags.includes('b')
+          ? 'strong'
+          : flags.includes('i')
+            ? 'em'
+            : null;
+        const holder = tag ? el(tag) : p;
+        text.split('\n').forEach((line, i) => {
+          if (i) holder.append(el('br'));
+          holder.append(line);
+        });
+        if (tag) p.append(holder);
+      }
+      return p;
+    }
+
+    function show(index) {
+      at = Math.max(-1, Math.min(book.chapters.length - 1, index));
+      remember(at);
+      page.replaceChildren();
+      if (at < 0) {
+        page.append(
+          el('div', 'reader-kicker', 'Short stories'),
+          el('h1', '', book.title),
+          el('div', 'reader-author', `by ${book.author}`),
+          el('div', 'reader-sep', '❦')
+        );
+        const list = el('ol', 'reader-toc');
+        book.chapters.forEach((chapter, i) => {
+          const item = el('li');
+          item.append(link(chapter.title, i));
+          list.append(item);
+        });
+        page.append(list);
+      } else {
+        const chapter = book.chapters[at];
+        page.append(
+          el('div', 'reader-kicker', book.title),
+          el('h2', '', chapter.title)
+        );
+        let opening = true;
+        for (const block of chapter.blocks) {
+          if (block.sep) {
+            page.append(el('div', 'reader-sep', '◆ ◆ ◆'));
+            opening = true;
+            continue;
+          }
+          const p = paragraph(block);
+          if (opening) p.className = 'opening';
+          opening = false;
+          page.append(p);
+        }
+        const nav = el('nav', 'reader-nav');
+        const prev = link('← Previous', at - 1);
+        const next = link('Next →', at + 1);
+        next.disabled = at === book.chapters.length - 1;
+        nav.append(prev, link('Contents', -1), next);
+        page.append(nav);
+      }
+      page.scrollTop = 0;
+    }
+
+    function load(url) {
+      loading ||= fetch(url)
+        .then((res) => res.json())
+        .then((data) => {
+          book = data;
+          buy.href = data.link;
+          show(recall());
+        })
+        .catch(() => {
+          loading = null;
+          page.replaceChildren(
+            el('p', 'opening', 'The book could not be loaded.')
+          );
+        });
+    }
+
+    root.querySelector('.reader-close').addEventListener('click', onClose);
+    root
+      .querySelector('.reader-contents')
+      .addEventListener('click', () => book && show(-1));
+
+    return {
+      load,
+      show: () => root.classList.add('on'),
+      hide: () => root.classList.remove('on'),
+      step: (by) => book && show(at + by),
+    };
   }
 
   async function main() {
@@ -1064,7 +1359,8 @@
     floor.receiveShadow = true;
     scene.add(floor);
 
-    scene.add(new THREE.HemisphereLight('#ffe2bd', '#1a0f08', 0.26));
+    const hemi = new THREE.HemisphereLight('#ffe2bd', '#1a0f08', 0.26);
+    scene.add(hemi);
     const fill = new THREE.DirectionalLight('#ffd9a8', 0.34);
     fill.position.set(0.5, 1, 3);
     scene.add(fill, fill.target);
@@ -1110,7 +1406,11 @@
     lampLight.shadow.bias = -0.003;
     lampLight.shadow.normalBias = 0.02;
     lampLight.shadow.radius = 3;
-    lamp.add(shade, cap, cord, bulb, grip, lampLight);
+    const chain = buildChain();
+    chain.position.set(0.046, 0.014, 0);
+    lamp.add(shade, cap, cord, bulb, grip, lampLight, chain);
+    const bulbOn = new THREE.Color('#fff0c8');
+    const bulbOff = new THREE.Color('#2e2820');
     lamp.userData = { kind: 'lamp' };
     lamp.position.y = -LAMP_DROP;
     const lampPivot = new THREE.Group();
@@ -1127,6 +1427,7 @@
       roughness: 0.95,
     });
     const pickables = [];
+    let readerBook = null;
     for (const b of books) {
       const cloth = new THREE.MeshStandardMaterial({
         color: b.color,
@@ -1165,6 +1466,25 @@
         })),
         fade: 1,
       };
+      if (b.reader) {
+        spine.emissive.set('#7fd6ff');
+        spine.emissiveMap = spine.map;
+        const halo = new THREE.Mesh(
+          new THREE.PlaneGeometry(b.t + 0.022, b.h + 0.03),
+          new THREE.MeshBasicMaterial({
+            map: haloTexture(renderer),
+            color: '#6fd8ff',
+            transparent: true,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false,
+          })
+        );
+        halo.position.z = b.d / 2 + 0.02;
+        halo.raycast = () => {};
+        mesh.add(halo);
+        mesh.userData.halo = halo.material;
+        readerBook = mesh;
+      }
       scene.add(mesh);
       pickables.push(mesh);
     }
@@ -1226,6 +1546,8 @@
       shadowed(obj);
       obj.userData = {
         kind: 'object',
+        slot: def.slot,
+        home: obj.position.clone(),
         modal: def.modal,
         baseTurn: obj.rotation.y,
         hoverTurn: def.hoverTurn,
@@ -1248,6 +1570,7 @@
       metalness: 0.7,
       roughness: 0.45,
     });
+    const doorExtras = [];
     for (const end of bookends) {
       const bookend = new THREE.Group();
       const plate = new THREE.Mesh(
@@ -1267,9 +1590,38 @@
         DEPTH / 2 - 0.09
       );
       shadowed(bookend);
+      bookend.userData = { slot: end.slot, home: bookend.position.clone() };
+      doorExtras.push(bookend);
       scene.add(bookend);
     }
     pickables.push(lamp);
+
+    const paperPlane = buildPaperPlane();
+    scene.add(paperPlane);
+    let flight = null;
+
+    const doorSlot = readerBook ? readerBook.userData.book.slot : -1;
+    const hinge = new THREE.Vector3();
+    const doorCenter = new THREE.Vector2();
+    const doorQ = new THREE.Quaternion();
+    const upAxis = new THREE.Vector3(0, 1, 0);
+    const pullQ = new THREE.Quaternion();
+    const pullAxis = new THREE.Vector3(1, 0, 0);
+    const portal = new THREE.Mesh(
+      new THREE.PlaneGeometry(BAY_W, ROW_H),
+      new THREE.MeshBasicMaterial({ map: auroraTexture(renderer) })
+    );
+    const portalLight = new THREE.PointLight('#5fe6c4', 0, 1.4, 2);
+    if (readerBook) {
+      const x0 = cellLeft(doorSlot) - EDGE;
+      const y0 = surfaceY(doorSlot);
+      hinge.set(x0, 0, -DEPTH / 2);
+      doorCenter.set(x0 + BAY_W / 2, y0 + ROW_H / 2);
+      portal.position.set(doorCenter.x, doorCenter.y, -DEPTH / 2 + 0.009);
+      portal.visible = false;
+      portalLight.position.set(doorCenter.x, doorCenter.y, 0);
+      scene.add(portal, portalLight);
+    }
 
     const camera = new THREE.PerspectiveCamera(32, 1, 0.05, 40);
     const tanHalf = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
@@ -1324,6 +1676,15 @@
     };
     const arcade = window.createArcade();
     let modal = null;
+    let lampOn = true;
+    let dark = 0;
+    let tug = 0;
+    let passage = false;
+    let passageAt = 0;
+    let swing = 0;
+    let pull = 0;
+    let reading = false;
+    const reader = createReader(() => closePassage());
     const raycaster = new THREE.Raycaster();
     const pointer = new THREE.Vector2();
     let hovered = null;
@@ -1344,6 +1705,7 @@
 
     function pick(ev) {
       aim(ev);
+      if (raycaster.intersectObject(chain, true).length) return chain;
       const hit = raycaster.intersectObjects(pickables, true)[0];
       let o = hit?.object;
       while (o && !o.userData.kind) o = o.parent;
@@ -1407,6 +1769,59 @@
       card.classList.remove('on');
     }
 
+    function openPassage() {
+      const b = readerBook.userData.book;
+      passage = true;
+      passageAt = clock.elapsedTime;
+      hovered = null;
+      focus = null;
+      scroll.set(
+        clamp(doorCenter.x, -maxPanX, maxPanX),
+        clamp(doorCenter.y, minY, maxY)
+      );
+      reader.load(b.reader);
+    }
+
+    function closePassage() {
+      passage = false;
+      reading = false;
+      reader.hide();
+    }
+
+    function launchPlane(globe) {
+      if (flight) return;
+      clearFocus();
+      const from = globe.position;
+      const cx = scroll.x;
+      const cy = scroll.y;
+      const hw = viewW / 2;
+      const hh = viewH / 2;
+      const side = from.x > cx ? -1 : 1;
+      const stops = [
+        [from.x, from.y + 0.24, 0.08],
+        [from.x + side * 0.06, from.y + 0.34, 0.36],
+        [cx + side * hw * 0.72, cy + hh * 0.5, 0.5],
+        [cx + side * hw * 0.15, cy + hh * 0.78, 0.36],
+        [cx - side * hw * 0.74, cy + hh * 0.42, 0.46],
+        [cx - side * hw * 0.78, cy - hh * 0.4, 0.4],
+        [cx - side * hw * 0.1, cy - hh * 0.74, 0.56],
+        [cx + side * hw * 0.7, cy - hh * 0.3, 0.42],
+        [cx + side * hw * 0.25, cy + hh * 0.12, 0.72],
+        [cx - side * hw * 0.45, cy + hh * 0.55, 0.9],
+        [cx - side * hw * 1.6, cy + hh * 1.4, 0.7],
+      ];
+      flight = {
+        curve: new THREE.CatmullRomCurve3(
+          stops.map((p) => new THREE.Vector3(...p)),
+          false,
+          'centripetal'
+        ),
+        t: 0,
+        bank: 0,
+      };
+      paperPlane.visible = true;
+    }
+
     function openModal(name) {
       modal = name;
       hovered = null;
@@ -1444,7 +1859,7 @@
     }
 
     canvas.addEventListener('pointerdown', (ev) => {
-      const grabbed = selected ? null : pick(ev);
+      const grabbed = selected || passage ? null : pick(ev);
       down = {
         x: ev.clientX,
         y: ev.clientY,
@@ -1514,7 +1929,7 @@
         }
         return;
       }
-      hovered = selected ? null : pick(ev);
+      hovered = selected || passage ? null : pick(ev);
       canvas.style.cursor = hovered
         ? hovered.userData.kind === 'lamp' || hovered.userData.globe
           ? 'grab'
@@ -1524,8 +1939,14 @@
 
     canvas.addEventListener('pointerup', (ev) => {
       const wasClick = down && !down.moved;
+      const spun = down?.moved ? down.globe : null;
       down = null;
+      if (spun && Math.abs(spun.userData.spin) > 3.2) launchPlane(spun);
       if (!wasClick) return;
+      if (passage) {
+        closePassage();
+        return;
+      }
       if (selected) {
         deselect();
         return;
@@ -1538,8 +1959,12 @@
       if (target.userData.kind === 'label') {
         if (focus === target.userData.category) clearFocus();
         else focus = target.userData.category;
-      } else if (target.userData.kind === 'book') select(target);
-      else if (target.userData.focus) {
+      } else if (target === readerBook) openPassage();
+      else if (target.userData.kind === 'book') select(target);
+      else if (target.userData.kind === 'chain') {
+        lampOn = !lampOn;
+        tug = 1;
+      } else if (target.userData.focus) {
         if (focus === target.userData.focus) clearFocus();
         else focus = target.userData.focus;
       } else if (target.userData.kind === 'object')
@@ -1554,9 +1979,9 @@
     window.addEventListener(
       'wheel',
       (ev) => {
-        if (modal) return;
+        if (modal || reading) return;
         ev.preventDefault();
-        if (selected) return;
+        if (selected || passage) return;
         clearFocus();
         scrollBy(ev.deltaX * 0.0016, -ev.deltaY * 0.0016);
       },
@@ -1566,10 +1991,13 @@
     window.addEventListener('keydown', (ev) => {
       if (ev.key === 'Escape') {
         if (modal) closeModal();
+        else if (passage) closePassage();
         else if (selected) deselect();
         else clearFocus();
       }
-      if (selected || modal) return;
+      if (reading && ev.key === 'ArrowRight') reader.step(1);
+      if (reading && ev.key === 'ArrowLeft') reader.step(-1);
+      if (selected || modal || passage) return;
       const steps = {
         ArrowDown: [0, -rowPitch],
         ArrowUp: [0, rowPitch],
@@ -1608,7 +2036,15 @@
       const kSlow = 1 - Math.exp(-dt * 5);
 
       const edge = Math.abs(pointerNorm.y) - 0.78;
-      if (pointerInside && !selected && !down && !focus && !modal && edge > 0) {
+      if (
+        pointerInside &&
+        !selected &&
+        !down &&
+        !focus &&
+        !modal &&
+        !passage &&
+        edge > 0
+      ) {
         const speed = Math.min(1, edge / 0.22) ** 2 * 0.9;
         scrollBy(0, -Math.sign(pointerNorm.y) * speed * dt);
       }
@@ -1626,6 +2062,76 @@
           (focusSize.x / 2 + 0.07) / (tanHalf * camera.aspect)
         );
         wantD = clamp(fit + DEPTH / 2, 0.55, dist);
+      }
+
+      const now = clock.elapsedTime;
+      pull += ((passage ? 1 : 0) - pull) * kSlow;
+      const swingTo = passage && now - passageAt > 0.45 ? 1 : 0;
+      swing += (swingTo - swing) * (1 - Math.exp(-dt * (passage ? 1.7 : 3)));
+      if (passage) {
+        const fit = Math.max(
+          (ROW_H / 2 + 0.06) / tanHalf,
+          (BAY_W / 2 + 0.08) / (tanHalf * camera.aspect)
+        );
+        const dive = THREE.MathUtils.smoothstep(swing, 0.45, 1);
+        wantX = doorCenter.x;
+        wantY = doorCenter.y;
+        wantD = THREE.MathUtils.lerp(
+          Math.min(fit + DEPTH / 2, dist),
+          0.34,
+          dive
+        );
+        if (!reading && swing > 0.86) {
+          reading = true;
+          reader.show();
+        }
+      }
+      const doorOpen = swing > 0.0005;
+      doorQ.setFromAxisAngle(upAxis, swing * 1.62);
+      pullQ.setFromAxisAngle(pullAxis, pull * 0.3);
+      if (readerBook) {
+        const shine = THREE.MathUtils.smoothstep(swing, 0.03, 0.6);
+        portal.visible = doorOpen;
+        portal.material.color.setScalar(
+          shine * (0.92 + 0.08 * Math.sin(now * 1.3))
+        );
+        portalLight.intensity = shine * 0.5;
+        const pulse = 0.5 + 0.5 * Math.sin(now * 1.6);
+        const glow = dark * (0.75 + 0.25 * pulse) * (1 - shine);
+        readerBook.material[4].emissiveIntensity = glow * 1.6;
+        readerBook.userData.halo.opacity = glow * 0.45;
+      }
+
+      dark += ((lampOn ? 0 : 1) - dark) * kSlow;
+      lampLight.intensity = 1.7 * (1 - dark);
+      bulb.material.color.lerpColors(bulbOn, bulbOff, dark);
+      hemi.intensity = 0.26 - 0.2 * dark;
+      fill.intensity = 0.34 - 0.28 * dark;
+      scene.environmentIntensity = 0.16 - 0.12 * dark;
+      tug += (0 - tug) * k;
+      chain.position.y = 0.014 - Math.sin(tug * Math.PI) * 0.022;
+      chain.rotation.z = -sway * 1.6;
+
+      if (flight) {
+        flight.t += dt / 7.5;
+        if (flight.t >= 1) {
+          flight = null;
+          paperPlane.visible = false;
+        } else {
+          const u = flight.t;
+          flight.curve.getPointAt(u, paperPlane.position);
+          flight.curve.getTangentAt(u, forward);
+          flight.curve.getTangentAt(Math.min(1, u + 0.02), rightV);
+          const turn = forward.x * rightV.z - forward.z * rightV.x;
+          flight.bank += (clamp(turn * 9, -0.9, 0.9) - flight.bank) * k;
+          paperPlane.position.y += Math.sin(now * 3.1) * 0.006;
+          target.copy(paperPlane.position).add(forward);
+          paperPlane.lookAt(target);
+          paperPlane.rotateZ(flight.bank);
+          paperPlane.scale.setScalar(
+            1.5 * Math.min(1, u * 14 + 0.15) * Math.min(1, (1 - u) * 12)
+          );
+        }
       }
       cam.x += (wantX - cam.x) * kSlow;
       cam.y += (wantY - cam.y) * kSlow * (focus ? 1 : 1.8);
@@ -1648,6 +2154,7 @@
       lampPivot.rotation.z = sway;
       readLight.position.set(cam.x + 0.1, cam.y + 0.25, cam.z);
       for (const o of globes) {
+        o.userData.globe.material.emissiveIntensity = dark * 1.2;
         if (down?.globe === o) continue;
         o.userData.globe.rotation.y += o.userData.spin * dt;
         o.userData.spin += (GLOBE_IDLE_SPIN - o.userData.spin) * kSlow * 0.25;
@@ -1676,6 +2183,14 @@
             target.copy(o.userData.home);
             if (o === hovered) target.z += 0.04;
             targetQ.copy(identityQ);
+            if (o === readerBook) {
+              target.z += 0.05 * pull;
+              targetQ.copy(pullQ);
+            }
+            if (doorOpen && o.userData.book.slot === doorSlot) {
+              target.sub(hinge).applyQuaternion(doorQ).add(hinge);
+              targetQ.premultiply(doorQ);
+            }
           }
           o.castShadow = o !== hovered;
           o.position.lerp(target, k);
@@ -1697,13 +2212,34 @@
         } else if (o.userData.kind === 'object') {
           const turn =
             o.userData.baseTurn + (o === hovered ? o.userData.hoverTurn : 0);
-          o.rotation.y += (turn - o.rotation.y) * kSlow;
+          o.userData.turn =
+            (o.userData.turn ?? turn) +
+            (turn - (o.userData.turn ?? turn)) * kSlow;
+          o.rotation.y = o.userData.turn;
+          if (o.userData.slot === doorSlot) {
+            o.position
+              .copy(o.userData.home)
+              .sub(hinge)
+              .applyQuaternion(doorQ)
+              .add(hinge);
+            o.rotation.y += swing * 1.62;
+          }
         } else if (o.userData.kind === 'label') {
           const glow =
-            o === hovered || o.userData.category === focus ? 0.22 : 0;
+            o === hovered || o.userData.category === focus ? 0.22 : dark * 0.05;
           o.material.emissiveIntensity +=
             (glow - o.material.emissiveIntensity) * k;
         }
+      }
+
+      for (const o of doorExtras) {
+        if (o.userData.slot !== doorSlot) continue;
+        o.position
+          .copy(o.userData.home)
+          .sub(hinge)
+          .applyQuaternion(doorQ)
+          .add(hinge);
+        o.rotation.y = swing * 1.62;
       }
 
       renderer.render(scene, camera);
