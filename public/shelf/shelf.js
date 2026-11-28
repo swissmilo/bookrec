@@ -42,7 +42,17 @@
       modal: 'arcade',
       label: 'Play Sokobox',
     },
+    {
+      kind: 'globe',
+      width: 0.23,
+      minSlot: 2,
+      hoverTurn: 0,
+      focus: 'globe',
+    },
   ];
+  const ATLAS_URL =
+    'https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json';
+  const GLOBE_IDLE_SPIN = 0.07;
 
   const PALETTE = [
     '#7a1f1f',
@@ -762,6 +772,157 @@
     return group;
   }
 
+  function decodeAtlas(topology) {
+    const { scale, translate } = topology.transform;
+    const arcs = topology.arcs.map((arc) => {
+      let x = 0;
+      let y = 0;
+      return arc.map(([dx, dy]) => {
+        x += dx;
+        y += dy;
+        return [x * scale[0] + translate[0], y * scale[1] + translate[1]];
+      });
+    });
+    const ring = (indexes) => {
+      const points = [];
+      for (const i of indexes) {
+        const arc = i < 0 ? arcs[~i].slice().reverse() : arcs[i];
+        points.push(...(points.length ? arc.slice(1) : arc));
+      }
+      return points;
+    };
+    return topology.objects.countries.geometries.map((g) => ({
+      id: Number(g.id),
+      polygons: (g.type === 'Polygon' ? [g.arcs] : g.arcs).map((polygon) =>
+        polygon.map(ring)
+      ),
+    }));
+  }
+
+  function drawGlobeMap(canvas, countries, visited) {
+    const W = canvas.width;
+    const H = canvas.height;
+    const g = canvas.getContext('2d');
+    const px = (lon) => ((lon + 180) / 360) * W;
+    const py = (lat) => ((90 - lat) / 180) * H;
+    const sea = g.createLinearGradient(0, 0, 0, H);
+    sea.addColorStop(0, '#93aaa6');
+    sea.addColorStop(0.5, '#7f9a9a');
+    sea.addColorStop(1, '#93aaa6');
+    g.fillStyle = sea;
+    g.fillRect(0, 0, W, H);
+
+    g.strokeStyle = 'rgba(55, 45, 25, 0.16)';
+    g.lineWidth = 1;
+    for (let lon = -180; lon <= 180; lon += 30) {
+      g.beginPath();
+      g.moveTo(px(lon), 0);
+      g.lineTo(px(lon), H);
+      g.stroke();
+    }
+    for (let lat = -60; lat <= 60; lat += 30) {
+      g.beginPath();
+      g.moveTo(0, py(lat));
+      g.lineTo(W, py(lat));
+      g.stroke();
+    }
+
+    const been = new Set(Object.values(visited.countries));
+    g.lineJoin = 'round';
+    g.lineWidth = 1.2;
+    g.strokeStyle = 'rgba(70, 48, 22, 0.5)';
+    for (const country of countries) {
+      g.fillStyle = been.has(country.id) ? '#cb8c55' : '#e2d5ae';
+      for (const polygon of country.polygons) {
+        g.beginPath();
+        for (const points of polygon) {
+          points.forEach(([lon, lat], i) => {
+            if (i === 0) g.moveTo(px(lon), py(lat));
+            else g.lineTo(px(lon), py(lat));
+          });
+          g.closePath();
+        }
+        g.fill('evenodd');
+        g.stroke();
+      }
+    }
+
+    g.fillStyle = '#cb8c55';
+    g.strokeStyle = 'rgba(50, 30, 12, 0.85)';
+    g.lineWidth = 1.5;
+    for (const [lat, lon] of Object.values(visited.pins)) {
+      g.beginPath();
+      g.arc(px(lon), py(lat), 4.5, 0, Math.PI * 2);
+      g.fill();
+      g.stroke();
+    }
+  }
+
+  function buildGlobe(renderer) {
+    const R = 0.092;
+    const ring = R + 0.007;
+    const center = 0.038 + ring;
+    const canvas = makeCanvas(2048, 1024);
+    const g = canvas.getContext('2d');
+    g.fillStyle = '#7f9a9a';
+    g.fillRect(0, 0, canvas.width, canvas.height);
+    const map = toTexture(canvas, renderer);
+    const brass = new THREE.MeshStandardMaterial({
+      color: '#b08a3c',
+      metalness: 0.8,
+      roughness: 0.35,
+    });
+
+    const sphere = new THREE.Mesh(
+      new THREE.SphereGeometry(R, 64, 48),
+      new THREE.MeshStandardMaterial({ map, roughness: 0.6 })
+    );
+    sphere.name = 'globe';
+    sphere.rotation.y = -1.75;
+    const meridian = new THREE.Mesh(
+      new THREE.TorusGeometry(ring, 0.0022, 10, 64, Math.PI),
+      brass
+    );
+    meridian.rotation.z = -Math.PI / 2;
+    const axis = new THREE.Group();
+    axis.add(sphere, meridian);
+    for (const side of [-1, 1]) {
+      const pin = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.0022, 0.0022, 0.012, 12),
+        brass
+      );
+      pin.position.y = side * (R + 0.004);
+      axis.add(pin);
+    }
+    axis.rotation.z = -0.41;
+    axis.position.y = center;
+
+    const base = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.05, 0.058, 0.008, 48),
+      brass
+    );
+    base.position.y = 0.004;
+    const stem = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.004, 0.007, 0.032, 16),
+      brass
+    );
+    stem.position.y = 0.008 + 0.016;
+
+    const group = new THREE.Group();
+    group.add(axis, base, stem);
+
+    Promise.all([
+      fetch(ATLAS_URL).then((r) => r.json()),
+      fetch('/shelf/visited.json').then((r) => r.json()),
+    ])
+      .then(([topology, visited]) => {
+        drawGlobeMap(canvas, decodeAtlas(topology), visited);
+        map.needsUpdate = true;
+      })
+      .catch(() => {});
+    return group;
+  }
+
   async function main() {
     THREE = await import('three');
     ({ RoomEnvironment } = await import(
@@ -1057,7 +1218,13 @@
           o.receiveShadow = true;
         }
       });
-    const builders = { frame: buildFrame, toy: buildToy, record: buildRecord };
+    const builders = {
+      frame: buildFrame,
+      toy: buildToy,
+      record: buildRecord,
+      globe: buildGlobe,
+    };
+    const globes = [];
     for (const def of objects) {
       const obj = builders[def.kind](renderer);
       obj.position.set(cellLeft(def.slot) + def.x, surfaceY(def.slot), 0.03);
@@ -1068,7 +1235,17 @@
         label: def.label,
         baseTurn: obj.rotation.y,
         hoverTurn: def.hoverTurn,
+        focus: def.focus,
+        globe: obj.getObjectByName('globe'),
+        spin: GLOBE_IDLE_SPIN,
       };
+      if (def.focus) {
+        categoryBounds[def.focus] = new THREE.Box2(
+          new THREE.Vector2(obj.position.x - 0.12, obj.position.y - 0.02),
+          new THREE.Vector2(obj.position.x + 0.12, obj.position.y + 0.26)
+        );
+      }
+      if (obj.userData.globe) globes.push(obj);
       scene.add(obj);
       pickables.push(obj);
     }
@@ -1283,8 +1460,11 @@
         from: scroll.clone(),
         moved: false,
         lamp: grabbed?.userData.kind === 'lamp',
+        globe: grabbed?.userData.globe ? grabbed : null,
+        lastX: ev.clientX,
+        lastTime: performance.now(),
       };
-      if (down.lamp) canvas.style.cursor = 'grabbing';
+      if (down.lamp || down.globe) canvas.style.cursor = 'grabbing';
       canvas.setPointerCapture(ev.pointerId);
     });
 
@@ -1294,6 +1474,22 @@
         (ev.clientY / window.innerHeight) * 2 - 1
       );
       pointerInside = true;
+      if (down?.globe) {
+        if (Math.abs(ev.clientX - down.x) > 5) down.moved = true;
+        if (down.moved) {
+          const now = performance.now();
+          const turn = (ev.clientX - down.lastX) * 0.012;
+          down.globe.userData.globe.rotation.y += turn;
+          down.globe.userData.spin = clamp(
+            (turn / Math.max(now - down.lastTime, 8)) * 1000,
+            -6,
+            6
+          );
+          down.lastX = ev.clientX;
+          down.lastTime = now;
+        }
+        return;
+      }
       if (down?.lamp) {
         down.moved = true;
         aim(ev);
@@ -1329,7 +1525,7 @@
       }
       hovered = selected ? null : pick(ev);
       canvas.style.cursor = hovered
-        ? hovered.userData.kind === 'lamp'
+        ? hovered.userData.kind === 'lamp' || hovered.userData.globe
           ? 'grab'
           : 'pointer'
         : 'default';
@@ -1367,7 +1563,10 @@
         if (focus === target.userData.category) clearFocus();
         else focus = target.userData.category;
       } else if (target.userData.kind === 'book') select(target);
-      else if (target.userData.kind === 'object')
+      else if (target.userData.focus) {
+        if (focus === target.userData.focus) clearFocus();
+        else focus = target.userData.focus;
+      } else if (target.userData.kind === 'object')
         openModal(target.userData.modal);
     });
 
@@ -1473,6 +1672,11 @@
       );
       lampPivot.rotation.z = sway;
       readLight.position.set(cam.x + 0.1, cam.y + 0.25, cam.z);
+      for (const o of globes) {
+        if (down?.globe === o) continue;
+        o.userData.globe.rotation.y += o.userData.spin * dt;
+        o.userData.spin += (GLOBE_IDLE_SPIN - o.userData.spin) * kSlow * 0.25;
+      }
       readLight.intensity +=
         ((selected ? 1.5 : 0) - readLight.intensity) * kSlow;
 
