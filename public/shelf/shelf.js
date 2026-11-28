@@ -1022,6 +1022,99 @@
     return plane;
   }
 
+  function crackTexture(renderer, seed) {
+    const c = makeCanvas(256, 256);
+    const g = c.getContext('2d');
+    const r = rng(seed);
+    g.lineCap = 'round';
+    g.lineJoin = 'round';
+    const branch = (x, y, angle, length, width) => {
+      const points = [[x, y]];
+      for (let step = 0; step < length; step += 14) {
+        angle += (r() - 0.5) * 1.1;
+        x += Math.cos(angle) * 14;
+        y += Math.sin(angle) * 14;
+        points.push([x, y]);
+        if (width > 1.2 && r() < 0.22)
+          branch(x, y, angle + (r() - 0.5) * 2, length * 0.45, width * 0.6);
+      }
+      for (const [color, shift, scale] of [
+        ['rgba(255, 226, 190, 0.22)', 1.5, 1],
+        ['rgba(14, 7, 3, 0.92)', 0, 1],
+      ]) {
+        g.strokeStyle = color;
+        g.lineWidth = width * scale;
+        g.beginPath();
+        points.forEach(([px, py], i) => {
+          if (i === 0) g.moveTo(px + shift, py + shift);
+          else g.lineTo(px + shift, py + shift);
+        });
+        g.stroke();
+      }
+    };
+    const rays = 5 + Math.floor(r() * 3);
+    for (let i = 0; i < rays; i++) {
+      branch(128, 128, (i / rays) * Math.PI * 2 + r(), 70 + r() * 45, 3.2);
+    }
+    return toTexture(c, renderer);
+  }
+
+  const SKY_VERTEX = `
+    varying vec2 vUv;
+    void main() {
+      vUv = uv;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+  `;
+  const SKY_FRAGMENT = `
+    uniform float time;
+    varying vec2 vUv;
+    float hash(vec2 p) {
+      return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+    }
+    float noise(vec2 p) {
+      vec2 i = floor(p);
+      vec2 f = fract(p);
+      f = f * f * (3.0 - 2.0 * f);
+      return mix(
+        mix(hash(i), hash(i + vec2(1.0, 0.0)), f.x),
+        mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), f.x),
+        f.y
+      );
+    }
+    vec3 curtain(vec2 uv, float seed, float base, vec3 low, vec3 high) {
+      float x = uv.x * 9.0 + seed * 17.0;
+      float edge = base
+        + 0.035 * sin(x * 0.9 + time * 0.21 + seed)
+        + 0.02 * sin(x * 2.3 - time * 0.33 + seed * 3.0)
+        + 0.012 * noise(vec2(x * 1.7, time * 0.25 + seed));
+      float rise = uv.y - edge;
+      float rays = 0.25 + 0.75 * noise(vec2(x * 14.0 + time * 0.5, seed + time * 0.12));
+      float reach = 0.035 + 0.05 * noise(vec2(x * 1.3 - time * 0.1, seed * 5.0));
+      float glow = smoothstep(-0.006, 0.004, rise) * exp(-max(rise, 0.0) / reach);
+      float drift = 0.55 + 0.45 * noise(vec2(x * 0.6 + time * 0.08, seed * 9.0));
+      vec3 tint = mix(low, high, clamp(rise / (reach * 1.6), 0.0, 1.0));
+      return tint * glow * rays * drift;
+    }
+    void main() {
+      vec3 color = mix(vec3(0.004, 0.012, 0.035), vec3(0.002, 0.004, 0.014), vUv.y);
+      vec2 grid = vUv * vec2(260.0, 188.0);
+      vec2 cell = floor(grid);
+      float star = hash(cell);
+      if (star > 0.985) {
+        vec2 offset = fract(grid) - 0.5 - 0.3 * (vec2(hash(cell + 3.1), hash(cell + 7.7)) - 0.5);
+        float twinkle = 0.6 + 0.4 * sin(time * (1.0 + 3.0 * hash(cell + 1.3)) + star * 90.0);
+        color += vec3(0.85, 0.9, 1.0) * smoothstep(0.22, 0.0, length(offset)) * twinkle;
+      }
+      color += curtain(vUv, 1.0, 0.37, vec3(0.1, 0.95, 0.5), vec3(0.05, 0.5, 0.75)) * 0.34;
+      color += curtain(vUv, 2.0, 0.42, vec3(0.1, 0.8, 0.75), vec3(0.35, 0.25, 0.85)) * 0.26;
+      color += curtain(vUv, 3.0, 0.47, vec3(0.2, 0.75, 0.6), vec3(0.5, 0.2, 0.7)) * 0.2;
+      gl_FragColor = vec4(color, 1.0);
+      #include <tonemapping_fragment>
+      #include <colorspace_fragment>
+    }
+  `;
+
   function haloTexture(renderer) {
     const c = makeCanvas(128, 256);
     const g = c.getContext('2d');
@@ -1266,6 +1359,7 @@
     const woodBack = new THREE.MeshStandardMaterial({
       map: backMap,
       roughness: 0.7,
+      side: THREE.DoubleSide,
     });
 
     const shelf = new THREE.Group();
@@ -1277,38 +1371,125 @@
       shelf.add(m);
       return m;
     };
-    for (let i = 0; i <= rows; i++) {
-      add(new THREE.BoxGeometry(totalW, BOARD, DEPTH), wood, 0, boardY(i), 0);
+    const backParts = [];
+    const sheet = (material, x0, x1, y0, y1, z, full) => {
+      const geo = new THREE.PlaneGeometry(x1 - x0, y1 - y0);
+      const uv = geo.attributes.uv;
+      for (let i = 0; i < uv.count; i++) {
+        const x = x0 + uv.getX(i) * (x1 - x0);
+        const y = y0 + uv.getY(i) * (y1 - y0);
+        uv.setXY(
+          i,
+          (x - full[0]) / (full[1] - full[0]),
+          (y - full[2]) / (full[3] - full[2])
+        );
+      }
+      const mesh = new THREE.Mesh(geo, material);
+      mesh.position.set((x0 + x1) / 2, (y0 + y1) / 2, z);
+      mesh.receiveShadow = true;
+      mesh.userData.full = full;
+      scene.add(mesh);
+      return mesh;
+    };
+    const capPart = { kind: 'cap', hits: 0, meshes: [] };
+    const uprights = [];
+    const wallPart = { kind: 'wall', hits: 0, meshes: [] };
+    const segParts = [];
+    const structural = [];
+    const join = (mesh, part) => {
+      mesh.userData = { kind: 'wood', part };
+      part.meshes.push(mesh);
+      structural.push(mesh);
+      return mesh;
+    };
+    const segMap = woodMap.clone();
+    segMap.repeat.set(BAY_W / 1.2, 1);
+    const woodSeg = new THREE.MeshStandardMaterial({
+      map: segMap,
+      roughness: 0.55,
+    });
+    join(
+      add(new THREE.BoxGeometry(totalW, BOARD, DEPTH), wood, 0, boardY(0), 0),
+      capPart
+    );
+    for (let i = 1; i <= rows; i++) {
+      for (let b = 0; b < BAYS; b++) {
+        const part = {
+          kind: 'segment',
+          slot: (i - 1) * BAYS + b,
+          hits: 0,
+          jolt: 0,
+          sag: 0,
+          meshes: [],
+        };
+        const seg = add(
+          new THREE.BoxGeometry(BAY_W, BOARD, DEPTH),
+          woodSeg,
+          left + BOARD + b * (BAY_W + BOARD) + BAY_W / 2,
+          boardY(i),
+          0
+        );
+        join(seg, part).userData.baseY = seg.position.y;
+        segParts.push(part);
+      }
     }
     for (let b = 0; b <= BAYS; b++) {
-      add(
-        new THREE.BoxGeometry(BOARD, totalH, DEPTH + 0.004),
-        woodV,
-        left + BOARD / 2 + b * (BAY_W + BOARD),
-        centerY,
-        0
+      const part = { kind: 'upright', index: b, hits: 0, meshes: [] };
+      join(
+        add(
+          new THREE.BoxGeometry(BOARD, totalH, DEPTH + 0.004),
+          woodV,
+          left + BOARD / 2 + b * (BAY_W + BOARD),
+          centerY,
+          0
+        ),
+        part
+      );
+      uprights.push(part);
+    }
+    const tileEdges = (row, bay) => [
+      left + (bay * totalW) / BAYS,
+      left + ((bay + 1) * totalW) / BAYS,
+      topY - ((row + 1) * totalH) / rows,
+      topY - (row * totalH) / rows,
+    ];
+    for (let row = 0; row < rows; row++) {
+      for (let bay = 0; bay < BAYS; bay++) {
+        const part = { kind: 'back', hits: 0, meshes: [] };
+        join(
+          sheet(woodBack, ...tileEdges(row, bay), -DEPTH / 2, [
+            left,
+            left + totalW,
+            PLINTH,
+            topY,
+          ]),
+          part
+        );
+        backParts.push(part);
+      }
+    }
+    for (let b = 0; b < BAYS; b++) {
+      const kick = (totalW - 0.04) / BAYS;
+      join(
+        add(
+          new THREE.BoxGeometry(kick, PLINTH, DEPTH - 0.03),
+          woodBack,
+          (b + 0.5 - BAYS / 2) * kick,
+          PLINTH / 2,
+          -0.01
+        ),
+        segParts[(rows - 1) * BAYS + b]
       );
     }
-    add(
-      new THREE.BoxGeometry(totalW, totalH, 0.012),
-      woodBack,
-      0,
-      centerY,
-      -DEPTH / 2 - 0.006
-    );
-    add(
-      new THREE.BoxGeometry(totalW - 0.04, PLINTH, DEPTH - 0.03),
-      woodBack,
-      0,
-      PLINTH / 2,
-      -0.01
-    );
-    add(
-      new THREE.BoxGeometry(totalW + 0.05, 0.035, DEPTH + 0.03),
-      wood,
-      0,
-      topY + 0.0175,
-      0.008
+    join(
+      add(
+        new THREE.BoxGeometry(totalW + 0.05, 0.035, DEPTH + 0.03),
+        wood,
+        0,
+        topY + 0.0175,
+        0.008
+      ),
+      capPart
     );
     scene.add(shelf);
 
@@ -1319,26 +1500,38 @@
     const wallMat = new THREE.MeshStandardMaterial({
       map: wallMap,
       roughness: 0.6,
+      side: THREE.DoubleSide,
     });
-    const wall = new THREE.Mesh(
-      new THREE.PlaneGeometry(totalW + 12, wallH),
-      wallMat
-    );
-    wall.position.set(0, wallH / 2 - 1, -DEPTH / 2 - 0.013);
-    wall.receiveShadow = true;
-    scene.add(wall);
+    const wallZ = -DEPTH / 2 - 0.013;
+    const wallEdges = [-totalW / 2 - 6, totalW / 2 + 6, -1, wallH - 1];
+    const around = [
+      [wallEdges[0], left, wallEdges[2], wallEdges[3]],
+      [left + totalW, wallEdges[1], wallEdges[2], wallEdges[3]],
+      [left, left + totalW, topY, wallEdges[3]],
+      [left, left + totalW, wallEdges[2], PLINTH],
+    ];
+    for (const edges of around) {
+      join(sheet(wallMat, ...edges, wallZ, wallEdges), wallPart);
+    }
+    backParts.forEach((part, i) => {
+      const edges = tileEdges(Math.floor(i / BAYS), i % BAYS);
+      join(sheet(wallMat, ...edges, wallZ, wallEdges), part);
+    });
     const trimMat = new THREE.MeshStandardMaterial({
       map: woodMap,
       roughness: 0.5,
     });
     for (let px = -totalW / 2 - 5.7; px <= totalW / 2 + 5.7; px += 0.6) {
+      const behind = Math.abs(px) < totalW / 2 + 0.035;
+      const from = behind ? topY + 0.035 : -1;
       const stile = new THREE.Mesh(
-        new THREE.BoxGeometry(0.07, wallH, 0.02),
+        new THREE.BoxGeometry(0.07, wallH - 1 - from, 0.02),
         trimMat
       );
-      stile.position.set(px, wallH / 2 - 1, -DEPTH / 2 - 0.003);
+      stile.position.set(px, (from + wallH - 1) / 2, -DEPTH / 2 - 0.003);
       stile.receiveShadow = true;
       scene.add(stile);
+      join(stile, wallPart);
     }
     const rail = new THREE.Mesh(
       new THREE.BoxGeometry(totalW + 12, 0.09, 0.03),
@@ -1347,6 +1540,7 @@
     rail.position.set(0, topY + 0.2, -DEPTH / 2);
     rail.receiveShadow = true;
     scene.add(rail);
+    join(rail, wallPart);
 
     const floorMap = woodTexture(renderer, '#24160d', 41);
     floorMap.repeat.set(6, 6);
@@ -1505,7 +1699,12 @@
         surfaceY(l.slot) - BOARD / 2,
         DEPTH / 2 + 0.0008
       );
-      plate.userData = { kind: 'label', category: l.text };
+      plate.userData = {
+        kind: 'label',
+        category: l.text,
+        slot: l.slot,
+        baseY: plate.position.y,
+      };
       scene.add(plate);
       pickables.push(plate);
     }
@@ -1555,6 +1754,12 @@
         globe: obj.getObjectByName('globe'),
         spin: GLOBE_IDLE_SPIN,
       };
+      const size = new THREE.Box3()
+        .setFromObject(obj)
+        .getSize(new THREE.Vector3());
+      if (def.kind === 'globe') obj.userData.dome = { r: 0.1, c: 0.137 };
+      obj.userData.wide = size.x;
+      obj.userData.tall = size.y;
       if (def.focus) {
         categoryBounds[def.focus] = new THREE.Box2(
           new THREE.Vector2(obj.position.x - 0.12, obj.position.y - 0.02),
@@ -1594,11 +1799,23 @@
       doorExtras.push(bookend);
       scene.add(bookend);
     }
-    pickables.push(lamp);
+    pickables.push(lamp, ...structural);
 
     const paperPlane = buildPaperPlane();
     scene.add(paperPlane);
     let flight = null;
+
+    const sky = new THREE.Mesh(
+      new THREE.PlaneGeometry(36, 26),
+      new THREE.ShaderMaterial({
+        uniforms: { time: { value: 0 } },
+        vertexShader: SKY_VERTEX,
+        fragmentShader: SKY_FRAGMENT,
+      })
+    );
+    sky.position.set(0, 4, -6);
+    sky.visible = false;
+    scene.add(sky);
 
     const doorSlot = readerBook ? readerBook.userData.book.slot : -1;
     const hinge = new THREE.Vector3();
@@ -1700,6 +1917,8 @@
     let swing = 0;
     let pull = 0;
     let reading = false;
+    let direct = false;
+    let shake = 0;
     const reader = createReader(() => closePassage());
     const raycaster = new THREE.Raycaster();
     const pointer = new THREE.Vector2();
@@ -1730,17 +1949,21 @@
 
     function pick(ev) {
       const direct = pickAt(ev.clientX, ev.clientY);
-      if (direct || ev.pointerType === 'mouse') return direct;
-      for (const reach of [12, 22]) {
+      const solid = direct && direct.userData.kind !== 'wood';
+      if (solid || ev.pointerType === 'mouse') return direct;
+      for (const reach of direct ? [10] : [12, 22]) {
         for (let i = 0; i < 8; i++) {
           const near = pickAt(
             ev.clientX + Math.cos((i * Math.PI) / 4) * reach,
             ev.clientY + Math.sin((i * Math.PI) / 4) * reach
           );
-          if (near && near.userData.kind !== 'book') return near;
+          const kind = near?.userData.kind;
+          if (kind === 'label' || kind === 'chain') return near;
+          if (!direct && kind && kind !== 'book' && kind !== 'wood')
+            return near;
         }
       }
-      return null;
+      return direct;
     }
 
     function showQuote(text) {
@@ -1802,6 +2025,15 @@
 
     function openPassage() {
       const b = readerBook.userData.book;
+      if (b.slot !== doorSlot) {
+        passage = true;
+        reading = true;
+        direct = true;
+        hovered = null;
+        reader.load(b.reader);
+        reader.show();
+        return;
+      }
       passage = true;
       passageAt = clock.elapsedTime;
       hovered = null;
@@ -1816,7 +2048,405 @@
     function closePassage() {
       passage = false;
       reading = false;
+      direct = false;
       reader.hide();
+    }
+
+    const crackMaps = [11, 23, 37, 51].map((seed) =>
+      crackTexture(renderer, seed)
+    );
+    const chipGeo = new THREE.BoxGeometry(0.012, 0.004, 0.007);
+    const chipMat = new THREE.MeshStandardMaterial({
+      color: '#6b3d1e',
+      roughness: 0.8,
+    });
+    const falling = [];
+    const debris = [];
+    const unitX = new THREE.Vector3(1, 0, 0);
+    const unitZ = new THREE.Vector3(0, 0, 1);
+    const tumble = () =>
+      new THREE.Vector3(
+        Math.random() - 0.5,
+        Math.random() - 0.5,
+        Math.random() - 0.5
+      ).normalize();
+    const unpick = (o) => {
+      const i = pickables.indexOf(o);
+      if (i >= 0) pickables.splice(i, 1);
+    };
+
+    const SPAN = 0.002;
+    const spans = Math.ceil(BAY_W / SPAN);
+    const groundSlots = rows * BAYS;
+    const heaps = {};
+    const restOn = (slot) => (slot < groundSlots ? surfaceY(slot) : 0);
+    function heapScan(slot, from, to, raise, dome) {
+      const x0 = cellLeft(slot) - EDGE;
+      const heap = heapOf(slot);
+      const a = Math.max(0, Math.floor((from + 0.0015 - x0) / SPAN));
+      const b = Math.min(spans - 1, Math.floor((to - 0.0015 - x0) / SPAN));
+      let top = dome === -1 ? -Infinity : 0;
+      for (let i = a; i <= b; i++) {
+        if (raise === undefined)
+          top = Math.max(top, dome === -1 ? -heap[i] : heap[i]);
+        else if (dome) {
+          const dx = x0 + (i + 0.5) * SPAN - (from + to) / 2;
+          heap[i] =
+            raise +
+            (Math.abs(dx) < dome.r
+              ? dome.c + Math.sqrt(dome.r * dome.r - dx * dx)
+              : 0.01);
+        } else heap[i] = raise;
+      }
+      return top;
+    }
+    const seat = (slot, o, x, base) =>
+      heapScan(
+        slot,
+        x - o.userData.wide / 2,
+        x + o.userData.wide / 2,
+        base + (o.userData.dome ? 0 : o.userData.tall),
+        o.userData.dome
+      );
+    function heapOf(slot) {
+      if (heaps[slot]) return heaps[slot];
+      heaps[slot] = new Float32Array(spans);
+      for (const o of pickables) {
+        const { kind, home } = o.userData;
+        if (kind === 'book' && o.userData.book.slot === slot) {
+          const b = o.userData.book;
+          const half = (o.userData.lying ? b.h : b.t) / 2;
+          heapScan(
+            slot,
+            home.x - half,
+            home.x + half,
+            o.userData.lying ? b.t : b.h
+          );
+        } else if (kind === 'object' && o.userData.slot === slot) {
+          seat(slot, o, home.x, 0);
+        }
+      }
+      return heaps[slot];
+    }
+    function shatter(mesh, count, stagger) {
+      const { width, height, depth } = mesh.geometry.parameters;
+      const dims = [width, height, depth];
+      const along = dims.indexOf(Math.max(...dims));
+      const piece = dims.slice();
+      piece[along] /= count;
+      for (let i = 0; i < count; i++) {
+        const chunk = new THREE.Mesh(
+          new THREE.BoxGeometry(...piece),
+          mesh.material
+        );
+        chunk.castShadow = true;
+        chunk.receiveShadow = true;
+        chunk.position.copy(mesh.position);
+        chunk.position.setComponent(
+          along,
+          mesh.position.getComponent(along) +
+            (i + 0.5 - count / 2) * piece[along]
+        );
+        scene.add(chunk);
+        debris.push({
+          o: chunk,
+          delay: Math.random() * stagger,
+          vel: new THREE.Vector3(
+            (Math.random() - 0.5) * 0.6,
+            Math.random() * 0.6,
+            0.3 + Math.random() * 0.5
+          ),
+          axis: tumble(),
+          rate: 1 + Math.random() * 3,
+        });
+      }
+      mesh.visible = false;
+      unpick(mesh);
+    }
+
+    function drop(o, slot) {
+      const isBook = o.userData.kind === 'book';
+      const x0 = cellLeft(slot) - EDGE;
+      const floor = restOn(slot);
+      const fall = o.userData.fall || { o, isBook, speed: 0 };
+      fall.delay = Math.random() * 0.06;
+      if (isBook) {
+        const b = o.userData.book;
+        let tip = 0;
+        let x = o.userData.home.x;
+        if (!o.userData.lying && hash(b.name) % 10 < 4) {
+          const reach = b.h / 2;
+          let flattest = 0.05;
+          for (const side of [-1, 1]) {
+            for (let shift = 0; shift < 4; shift++) {
+              const at = x + side * ((b.h - b.t) / 2 + shift * 0.03);
+              if (at - reach < x0 || at + reach > x0 + BAY_W) continue;
+              const high = heapScan(slot, at - reach, at + reach);
+              const low = -heapScan(
+                slot,
+                at - reach,
+                at + reach,
+                undefined,
+                -1
+              );
+              if (high - low >= flattest) continue;
+              flattest = high - low;
+              tip = side;
+              fall.tipX = at;
+            }
+          }
+          if (tip) {
+            o.userData.lying = true;
+            x = fall.tipX;
+          }
+        }
+        const half = (o.userData.lying ? b.h : b.t) / 2;
+        const tall = o.userData.lying ? b.t : b.h;
+        const top = heapScan(slot, x - half, x + half);
+        b.slot = slot;
+        heapScan(slot, x - half, x + half, top + tall);
+        fall.restX = x;
+        fall.restY = floor + top + tall / 2;
+        fall.restZ = o.userData.home.z;
+        if (tip) {
+          fall.quat = new THREE.Quaternion().setFromAxisAngle(
+            unitZ,
+            -tip * (Math.PI / 2 + (Math.random() - 0.5) * 0.06)
+          );
+        } else {
+          fall.quat =
+            o.userData.homeQ ||
+            new THREE.Quaternion().setFromAxisAngle(
+              unitZ,
+              top > 0 ? (Math.random() - 0.5) * 0.16 : 0
+            );
+        }
+      } else {
+        const half = o.userData.wide / 2;
+        fall.restX = clamp(o.position.x, x0 + half, x0 + BAY_W - half);
+        const top = heapScan(slot, fall.restX - half, fall.restX + half);
+        o.userData.slot = slot;
+        seat(slot, o, fall.restX, top);
+        fall.restY = floor + top;
+        fall.restZ = o.position.z;
+      }
+      if (!o.userData.fall) falling.push(fall);
+      o.userData.fall = fall;
+    }
+
+    function collapse(part) {
+      part.gone = true;
+      part.sag = 0;
+      shake = 1.6;
+      if (part.kind === 'segment') {
+        let below = part.slot + BAYS;
+        while (below < groundSlots && segParts[below].gone) below += BAYS;
+        for (const mesh of part.meshes) {
+          const { width, height, depth } = mesh.geometry.parameters;
+          const half = width / 4;
+          for (const side of [-1, 1]) {
+            const plank = new THREE.Mesh(
+              new THREE.BoxGeometry(half * 2, height, depth - 0.04),
+              mesh.material
+            );
+            plank.castShadow = true;
+            plank.receiveShadow = true;
+            plank.position.copy(mesh.position);
+            plank.position.x += side * half;
+            scene.add(plank);
+            debris.push({
+              o: plank,
+              delay: 0,
+              vel: new THREE.Vector3(side * 0.15, 0.2, 0.7),
+              axis: unitZ,
+              rate: side * 2.4,
+            });
+          }
+          mesh.visible = false;
+          unpick(mesh);
+        }
+        const movers = pickables
+          .filter(
+            (o) =>
+              (o.userData.kind === 'book' &&
+                o.userData.book.slot === part.slot) ||
+              (o.userData.kind === 'object' && o.userData.slot === part.slot)
+          )
+          .sort((a, b) => a.position.y - b.position.y);
+        for (const o of movers) drop(o, below);
+        for (const o of pickables.slice()) {
+          if (o.userData.kind !== 'label' || o.userData.slot !== part.slot)
+            continue;
+          unpick(o);
+          debris.push({
+            o,
+            delay: 0,
+            vel: new THREE.Vector3(0, 0.3, 0.5),
+            axis: tumble(),
+            rate: 6,
+          });
+        }
+        for (const end of doorExtras) {
+          if (end.userData.slot !== part.slot) continue;
+          end.userData.slot = -1;
+          debris.push({
+            o: end,
+            delay: 0,
+            vel: new THREE.Vector3(0, 0.2, 0.5),
+            axis: tumble(),
+            rate: 4,
+          });
+        }
+        delete heaps[part.slot];
+      } else if (part.kind === 'upright') {
+        for (const mesh of part.meshes) shatter(mesh, 6, 0.4);
+        for (const bay of [part.index - 1, part.index]) {
+          if (bay < 0 || bay >= BAYS) continue;
+          for (let row = 0; row < rows; row++) {
+            const seg = segParts[row * BAYS + bay];
+            if (!seg.gone) collapse(seg);
+          }
+        }
+        if (uprights.every((u) => u.gone)) collapse(capPart);
+      } else if (part.kind === 'cap') {
+        for (const mesh of part.meshes) shatter(mesh, 6, 0.6);
+      } else if (part.kind === 'back') {
+        for (const mesh of part.meshes) {
+          const { width, height } = mesh.geometry.parameters;
+          for (const [sx, sy] of [
+            [-1, -1],
+            [1, -1],
+            [-1, 1],
+            [1, 1],
+          ]) {
+            const shard = new THREE.Mesh(
+              new THREE.PlaneGeometry(width / 2, height / 2),
+              mesh.material
+            );
+            shard.position.copy(mesh.position);
+            shard.position.x += (sx * width) / 4;
+            shard.position.y += (sy * height) / 4;
+            scene.add(shard);
+            debris.push({
+              o: shard,
+              delay: Math.random() * 0.15,
+              vel: new THREE.Vector3(sx * 0.3, 0.4, -0.5),
+              axis: tumble(),
+              rate: 2 + Math.random() * 3,
+              floor: -1.5,
+            });
+          }
+          mesh.visible = false;
+          unpick(mesh);
+        }
+        sky.visible = true;
+      } else {
+        const from = part.struck ?? 0;
+        const slide = (o) =>
+          debris.push({
+            o,
+            delay: Math.abs(o.position.x - from) * 0.14,
+            vel: new THREE.Vector3(),
+            axis: unitZ,
+            rate: (Math.random() - 0.5) * 0.3,
+            floor: -wallH - 2,
+          });
+        for (const piece of part.meshes) {
+          unpick(piece);
+          const full = piece.userData.full;
+          if (!full) {
+            slide(piece);
+            continue;
+          }
+          const { width, height } = piece.geometry.parameters;
+          const x0 = piece.position.x - width / 2;
+          const y0 = piece.position.y - height / 2;
+          const strips = Math.max(1, Math.round(width / 0.6));
+          for (let i = 0; i < strips; i++) {
+            slide(
+              sheet(
+                piece.material,
+                x0 + (i * width) / strips,
+                x0 + ((i + 1) * width) / strips,
+                y0,
+                y0 + height,
+                piece.position.z,
+                full
+              )
+            );
+          }
+          piece.visible = false;
+        }
+        sky.visible = true;
+      }
+    }
+
+    function strike(target, press) {
+      const part = target.userData.part;
+      if (part.gone) return;
+      aim(press.clientX, press.clientY);
+      const hit = raycaster.intersectObject(target)[0];
+      if (!hit) return;
+      part.hits++;
+      part.jolt = 1;
+      part.struck = hit.point.x;
+      shake = Math.max(shake, 0.5);
+
+      const params = target.geometry.parameters;
+      const half = [
+        params.width / 2,
+        params.height / 2,
+        (params.depth || 0) / 2,
+      ];
+      const local = target.worldToLocal(hit.point.clone()).toArray();
+      const normal = hit.face.normal.toArray();
+      const n = normal.indexOf(
+        normal.reduce((a, b) => (Math.abs(b) > Math.abs(a) ? b : a))
+      );
+      const u = (n + 1) % 3;
+      const v = (n + 2) % 3;
+      const reach = 0.045 + part.hits * 0.006;
+      const sizeU = Math.min(reach, half[u]);
+      const sizeV = Math.min(reach, half[v]);
+      const at = [0, 0, 0];
+      at[u] = clamp(local[u], -half[u] + sizeU, half[u] - sizeU);
+      at[v] = clamp(local[v], -half[v] + sizeV, half[v] - sizeV);
+      at[n] = Math.sign(normal[n]) * (half[n] + 0.0007 + part.hits * 0.00005);
+      const eu = new THREE.Vector3().setComponent(u, Math.sign(normal[n]));
+      const ev = new THREE.Vector3().setComponent(v, 1);
+      const en = new THREE.Vector3().setComponent(n, Math.sign(normal[n]));
+      const decal = new THREE.Mesh(
+        new THREE.PlaneGeometry(sizeU * 2, sizeV * 2),
+        new THREE.MeshBasicMaterial({
+          map: crackMaps[part.hits % crackMaps.length],
+          transparent: true,
+          depthWrite: false,
+        })
+      );
+      decal.raycast = () => {};
+      decal.position.fromArray(at);
+      decal.quaternion.setFromRotationMatrix(
+        new THREE.Matrix4().makeBasis(eu, ev, en)
+      );
+      target.add(decal);
+
+      for (let i = 0; i < 5; i++) {
+        const chip = new THREE.Mesh(chipGeo, chipMat);
+        chip.position.copy(hit.point);
+        scene.add(chip);
+        debris.push({
+          o: chip,
+          delay: 0,
+          vel: new THREE.Vector3(
+            (Math.random() - 0.5) * 0.8,
+            0.4 + Math.random() * 0.9,
+            0.3 + Math.random() * 0.7
+          ),
+          axis: tumble(),
+          rate: 8 + Math.random() * 10,
+        });
+      }
+      if (part.hits >= 10) collapse(part);
     }
 
     function launchPlane(globe) {
@@ -2006,6 +2636,7 @@
         return;
       }
       hovered = selected || passage ? null : pick(ev);
+      if (hovered?.userData.kind === 'wood') hovered = null;
       canvas.style.cursor = hovered
         ? hovered.userData.kind === 'lamp' || hovered.userData.globe
           ? 'grab'
@@ -2057,6 +2688,11 @@
       const target = pick(pressed);
       if (!target) {
         clearFocus();
+        return;
+      }
+      if (target.userData.kind === 'wood') {
+        if (focus) clearFocus();
+        else strike(target, pressed);
         return;
       }
       if (target.userData.kind === 'label') {
@@ -2186,10 +2822,10 @@
       } else fling.set(0, 0);
 
       const now = clock.elapsedTime;
-      pull += ((passage ? 1 : 0) - pull) * kSlow;
-      const swingTo = passage && now - passageAt > 0.45 ? 1 : 0;
+      pull += ((passage && !direct ? 1 : 0) - pull) * kSlow;
+      const swingTo = passage && !direct && now - passageAt > 0.45 ? 1 : 0;
       swing += (swingTo - swing) * (1 - Math.exp(-dt * (passage ? 1.7 : 3)));
-      if (passage) {
+      if (passage && !direct) {
         const fit = Math.max(
           (ROW_H / 2 + 0.06) / tanHalf,
           (BAY_W / 2 + 0.08) / (tanHalf * camera.aspect)
@@ -2259,7 +2895,73 @@
       cam.z += (wantD - cam.z) * kSlow;
       camera.position.copy(cam);
       camera.lookAt(cam.x, cam.y, 0);
+      if (sky.visible) sky.material.uniforms.time.value = now;
+      shake *= Math.exp(-dt * 7);
+      camera.position.x += Math.sin(now * 83) * 0.004 * shake;
+      camera.position.y += Math.sin(now * 97) * 0.004 * shake;
       camera.updateMatrixWorld();
+
+      for (const part of segParts) {
+        if (part.gone) continue;
+        part.jolt *= Math.exp(-dt * 6);
+        part.sag = part.hits * 0.0007 + Math.sin(part.jolt * Math.PI) * 0.005;
+        part.meshes[0].position.y = part.meshes[0].userData.baseY - part.sag;
+      }
+      for (let i = falling.length - 1; i >= 0; i--) {
+        const f = falling[i];
+        if ((f.delay -= dt) > 0) continue;
+        const o = f.o;
+        const ease = 1 - Math.exp(-dt * 6);
+        f.speed -= 9.8 * dt;
+        o.position.y += f.speed * dt;
+        o.position.x += (f.restX - o.position.x) * ease;
+        o.position.z += (f.restZ - o.position.z) * ease;
+        if (f.isBook) o.quaternion.slerp(f.quat, ease);
+        else o.rotation.z = Math.sin(now * 14 + i) * 0.08;
+        if (o.position.y > f.restY) continue;
+        if (f.speed < -1.4) {
+          o.position.y = f.restY;
+          f.speed *= -0.22;
+          continue;
+        }
+        o.userData.home.set(f.restX, f.restY, f.restZ);
+        if (f.isBook) o.userData.homeQ = f.quat;
+        else {
+          o.position.copy(o.userData.home);
+          o.rotation.z = 0;
+          if (o.userData.focus) {
+            categoryBounds[o.userData.focus].set(
+              new THREE.Vector2(f.restX - 0.12, f.restY - 0.02),
+              new THREE.Vector2(f.restX + 0.12, f.restY + 0.26)
+            );
+          }
+        }
+        o.userData.fall = null;
+        falling.splice(i, 1);
+      }
+      for (let i = debris.length - 1; i >= 0; i--) {
+        const d = debris[i];
+        if ((d.delay -= dt) > 0) continue;
+        const o = d.o;
+        if (d.fade !== undefined) {
+          d.fade -= dt;
+          o.scale.setScalar(Math.max(0.001, d.fade / 0.25));
+          if (d.fade <= 0) {
+            o.removeFromParent();
+            debris.splice(i, 1);
+          }
+          continue;
+        }
+        d.vel.y -= 9.8 * dt;
+        o.position.addScaledVector(d.vel, dt);
+        o.rotateOnWorldAxis(d.axis, d.rate * dt);
+        if (d.floor === undefined) {
+          if (o.position.y < 0.03) d.fade = 0.25;
+        } else if (o.position.y < d.floor) {
+          o.removeFromParent();
+          debris.splice(i, 1);
+        }
+      }
 
       lampOffset.lerp(lampOffsetTarget, kSlow);
       const drift = (cam.y - lastCamY) / Math.max(dt, 0.001);
@@ -2289,6 +2991,7 @@
       const wide = camera.aspect > 1;
 
       for (const o of pickables) {
+        if (o.userData.fall) continue;
         if (o.userData.kind === 'book') {
           let size = 1;
           if (o === selected) {
@@ -2302,9 +3005,11 @@
             if (!wide) target.y += 0.07 * size;
             targetQ.copy(camera.quaternion).multiply(showcaseTurn);
           } else {
+            const seg = segParts[o.userData.book.slot];
             target.copy(o.userData.home);
+            targetQ.copy(o.userData.homeQ || identityQ);
+            if (seg) target.y -= seg.sag;
             if (o === hovered) target.z += 0.04;
-            targetQ.copy(identityQ);
             if (o === readerBook) {
               target.z += 0.05 * pull;
               targetQ.copy(pullQ);
@@ -2338,6 +3043,8 @@
             (o.userData.turn ?? turn) +
             (turn - (o.userData.turn ?? turn)) * kSlow;
           o.rotation.y = o.userData.turn;
+          const seg = segParts[o.userData.slot];
+          if (seg) o.position.y = o.userData.home.y - seg.sag;
           if (o.userData.slot === doorSlot) {
             o.position
               .copy(o.userData.home)
@@ -2347,6 +3054,7 @@
             o.rotation.y += swing * 1.62;
           }
         } else if (o.userData.kind === 'label') {
+          o.position.y = o.userData.baseY - segParts[o.userData.slot].sag;
           const glow =
             o === hovered || o.userData.category === focus ? 0.22 : dark * 0.05;
           o.material.emissiveIntensity +=
