@@ -11,7 +11,7 @@ router.get('/', (req: Request, res: Response) => {
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <meta name="description" content="Milo's personal website">
       <meta name="author" content="Milo Spirig">
-      <title>Milo's Personal Website</title>
+      <title>Milo's Personal Library</title>
       <link rel="icon" type="image/x-icon" href="/favicon.ico">
       <link rel="preconnect" href="https://fonts.googleapis.com">
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -120,7 +120,8 @@ router.get('/', (req: Request, res: Response) => {
         ></iframe>
       </div>
     </div>
-    <script type="module" src="/shelf/shelf.js"></script>
+    <script defer src="/shelf/arcade.js"></script>
+    <script defer src="/shelf/shelf.js"></script>
     </body>
     </html>
   `);
