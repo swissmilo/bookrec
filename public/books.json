@@ -810,7 +810,7 @@
   },
   {
     "category": "2022 Shortlist",
-    "name": "A History of Photography. From 1839 to the Present",
+    "name": "History of Photography: From 1839 to the Present",
     "author": "Therese Mulligan",
     "link": "https://www.amazon.com/dp/3836540991",
     "pages": 766,
@@ -892,6 +892,16 @@
     "heightIn": 7.9,
     "thicknessIn": 0.6,
     "color": "#fde38c"
+  },
+  {
+    "category": "Arts & Music",
+    "name": "Detroit Disassembled",
+    "author": "Andrew Moore",
+    "link": "https://www.amazon.com/dp/8862081189",
+    "widthIn": 8.3,
+    "heightIn": 11.2,
+    "thicknessIn": 0.9,
+    "color": "#2f3a3a"
   },
   {
     "category": "Business Education",
