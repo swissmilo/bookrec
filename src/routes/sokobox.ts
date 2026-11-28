@@ -71,6 +71,22 @@ router.get(
   }
 );
 
+router.get('/levels', (req: Request, res: Response<string[]>) => {
+  const levels: string[] = [];
+  for (let level = 0; ; level++) {
+    const levelPath = path.join(
+      __dirname,
+      '..',
+      '..',
+      'data/levels/',
+      `${level}.lvl`
+    );
+    if (!fs.existsSync(levelPath)) break;
+    levels.push(fs.readFileSync(levelPath, 'utf8').replace(/\r/g, '').trimEnd());
+  }
+  res.json(levels);
+});
+
 router.get('/', (req: Request, res: Response, next: NextFunction) => {
   const level = Number(
     req.query.level?.toString() || req.session.lastLevel || '0'
